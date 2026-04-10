@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  agent:
+    build: .
+    container_name: hidden_opportunities_agent
+    env_file:
+      - .env
+    ports:
+      - "8501:8501"      # Streamlit UI
+    volumes:
+      # Persist database and generated data outside the container
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - DEMO_MODE=true
+    restart: unless-stopped
+
+  # Optional: lightweight log viewer via adminer-style approach
+  # Uncomment in Sprint 2+ when you want a DB browser
+  # db-browser:
+  #   image: coleifer/sqlite-web
+  #   ports:
+  #     - "8080:8080"
+  #   volumes:
+  #     - ./data/db:/data
+  #   command: sqlite_web /data/opportunities.db --host 0.0.0.0

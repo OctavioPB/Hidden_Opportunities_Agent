@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment variables
+.env
+*.env.local
+
+# Database
+data/db/*.db
+data/db/*.sqlite
+
+# Synthetic / generated data (can be regenerated via seed script)
+data/synthetic/*.json
+data/synthetic/*.csv
+data/exports/
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Model artifacts (generated during Sprint 5)
+*.pkl
+*.joblib
+
+# Docker
+.docker/
