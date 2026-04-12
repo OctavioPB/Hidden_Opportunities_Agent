@@ -7,9 +7,15 @@ Set DEMO_MODE=false in .env only when connecting to real production services.
 
 import os
 from pathlib import Path
-from dotenv import load_dotenv
 
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # python-dotenv not available — fall back to OS environment variables only.
+    # This happens when the app is launched with the system Python instead of
+    # the project venv. All settings still work via os.getenv() defaults.
+    pass
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 ROOT_DIR = Path(__file__).parent
