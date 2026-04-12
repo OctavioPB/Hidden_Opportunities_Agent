@@ -1,5 +1,5 @@
 """
-Sprint 4 — Streamlit Dashboard.
+Sprint 5 — Streamlit Dashboard.
 
 Main entry point for the Hidden Opportunities Agent UI.
 Run with:  streamlit run src/ui/app.py
@@ -19,10 +19,11 @@ st.set_page_config(
 )
 
 from src.ui.components import demo_banner
-from src.ui.pages import opportunities, alert_feed, accuracy, proposals, pilot
+from src.ui.pages import opportunities, alert_feed, accuracy, proposals, pilot, ml_model
 
 # ── Sidebar navigation ────────────────────────────────────────────────────────
 PAGES = {
+    "ML Model":      ml_model,
     "Pilot":         pilot,
     "Opportunities": opportunities,
     "Proposals":     proposals,
@@ -37,9 +38,9 @@ with st.sidebar:
     page_name = st.radio("Navigation", list(PAGES.keys()), label_visibility="collapsed")
     st.divider()
     st.caption(
-        "**Sprint 4** — Autonomous Action & Pilot\n\n"
-        "The agent can send proposals autonomously (Tier C) "
-        "and learns from each client reply via the feedback loop."
+        "**Sprint 5** — Predictive Analyst\n\n"
+        "Random Forest model blends rule scores with ML-predicted "
+        "acceptance probability. SHAP explains every prediction."
     )
 
 # ── Page render ───────────────────────────────────────────────────────────────

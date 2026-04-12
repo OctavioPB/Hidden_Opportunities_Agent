@@ -1,12 +1,13 @@
 """
-Sprint 1 — Opportunity Scorer.
+Sprint 5 — Opportunity Scorer (updated).
 
 Fetches the latest metrics for every client (or a specific client) from
 the data sources layer and applies the rules engine to produce a ranked
 list of detected opportunities.
 
-In Sprint 2 this becomes the daily detection job.
-In Sprint 5 the rules are augmented (and eventually replaced) by the ML model.
+Sprint 5 update: if the ML model is trained, each opportunity dict is
+augmented with `ml_probability` (0–1) and `blended_score` (rule + ML blend).
+The Opportunities dashboard uses `blended_score` when available.
 """
 
 from __future__ import annotations
@@ -65,29 +66,66 @@ def score_all_clients() -> list[dict]:
     """
     Run the rules engine against every client in the database.
 
+    Sprint 5: if the ML model is trained, augments each row with
+    `ml_probability` and `blended_score`.  Otherwise both are None and
+    the UI falls back to the rule score.
+
     Returns a list of dicts, one per detected opportunity, sorted by score.
     """
+    # Lazy-load ML model once per call (not per client)
+    try:
+        from src.ml.model import load_model, model_is_trained
+        from src.ml.dataset import _metrics_to_row
+        from src.ml.model import predict_proba
+        _ml_active = model_is_trained()
+        _ml_model  = load_model() if _ml_active else None
+    except Exception:
+        _ml_active = False
+        _ml_model  = None
+
     clients = crm.get_all_clients()
     results = []
 
     for client in clients:
         cid = client["id"]
         opportunities = score_client(cid)
+        metrics       = _get_merged_metrics(cid)
+
         for opp in opportunities:
+            ml_prob    = None
+            blended    = opp.score
+
+            if _ml_active and _ml_model is not None:
+                try:
+                    from src.ml.dataset import _metrics_to_row, INDUSTRY_CODES, OPP_TYPE_CODES
+                    feat = _metrics_to_row(
+                        metrics,
+                        client.get("industry", ""),
+                        opp.opportunity_type,
+                        int(client.get("account_age_days") or 365),
+                    )
+                    ml_prob = round(predict_proba(feat, _ml_model), 4)
+                    blended = round(0.55 * ml_prob * 100 + 0.45 * opp.score, 1)
+                except Exception:
+                    pass
+
             results.append({
                 "client_id":        cid,
                 "client_name":      client["name"],
                 "industry":         client["industry"],
                 "opportunity_type": opp.opportunity_type,
                 "label":            opp.label,
-                "score":            opp.score,
+                "score":            opp.score,          # rule-engine score (0–100)
+                "ml_probability":   ml_prob,            # ML acceptance prob (0–1) or None
+                "blended_score":    blended,             # final ranking score
                 "suggested_price":  opp.suggested_price,
                 "rationale":        opp.rationale,
                 "triggered_signals": opp.triggered_signals,
                 "is_demo_scenario": client.get("is_demo_scenario", 0),
             })
 
-    return sorted(results, key=lambda r: r["score"], reverse=True)
+    sort_key = "blended_score" if any(r["ml_probability"] is not None for r in results) else "score"
+    return sorted(results, key=lambda r: r[sort_key], reverse=True)
 
 
 # ── Persistence ───────────────────────────────────────────────────────────────
