@@ -1,19 +1,21 @@
 """
-Sprint 3 — Daily Job Runner (updated).
+Sprint 4 — Daily Job Runner (updated).
 
-Orchestrates the full daily detection + proposal pipeline:
+Orchestrates the full daily pipeline:
   1. Pull latest metrics from all data sources (demo: SQLite)
   2. Apply rules engine to every client
   3. Persist new opportunities to the DB
   4. Format and dispatch alerts (demo: log file; production: Slack/Telegram)
   5. Generate proposals for high-confidence opportunities (Sprint 3)
-  6. Print a run summary
+  6. Process Tier C auto-send queue (Sprint 4)
+  7. Print a run summary
 
 In production this script would be triggered by a cron job or a scheduler
 (e.g., crontab, GitHub Actions schedule, n8n, or Make).
 
-  Production cron (every morning at 8am):
+  Production crons:
       0 8 * * * cd /app && python scripts/daily_job.py >> logs/cron.log 2>&1
+      30 8 * * * cd /app && python scripts/daily_job.py --auto-send-only >> logs/cron.log 2>&1
 
 Usage:
     python scripts/daily_job.py                         # run for all clients
@@ -21,6 +23,7 @@ Usage:
     python scripts/daily_job.py --channel telegram      # dispatch to telegram instead
     python scripts/daily_job.py --dry-run               # detect + format but do not persist/dispatch
     python scripts/daily_job.py --no-proposals          # skip proposal generation
+    python scripts/daily_job.py --no-auto-send          # skip Tier C auto-send step
     python scripts/daily_job.py --proposal-min-score 80 # generate proposals only for score >= 80
 """
 
@@ -35,6 +38,7 @@ import config
 from src.agents.scorer import score_all_clients, persist_opportunities
 from src.agents.alerts import dispatch
 from src.agents.proposal_generator import generate_proposals_for_all
+from src.agents.auto_sender import process_auto_send_queue
 from src.data_sources.crm import get_demo_clients
 
 
@@ -50,6 +54,7 @@ def run(
     dry_run: bool = False,
     generate_proposals: bool = True,
     proposal_min_score: float = 70.0,
+    auto_send: bool = True,
 ) -> dict:
     start = datetime.now()
     print(f"\n{'='*60}")
@@ -120,6 +125,21 @@ def run(
     else:
         print("\n[3b/4] Proposal generation disabled (--no-proposals).")
 
+    # ── Step 3c: Auto-send Tier C queue ──────────────────────────────────────
+    n_auto_sent = 0
+    if auto_send and not dry_run:
+        print("\n[3c/4] Processing Tier C auto-send queue…")
+        auto_results = process_auto_send_queue(dry_run=False)
+        n_auto_sent  = len(auto_results)
+        if config.DEMO_MODE:
+            print(f"      [DEMO] {n_auto_sent} proposal(s) auto-sent (logged to logs/sent_emails.jsonl)")
+        else:
+            print(f"      {n_auto_sent} proposal(s) autonomously sent via SendGrid.")
+    elif dry_run:
+        print("\n[3c/4] [dry-run] Auto-send skipped.")
+    else:
+        print("\n[3c/4] Auto-send disabled (--no-auto-send).")
+
     # ── Step 4: Summary ───────────────────────────────────────────────────────
     elapsed = (datetime.now() - start).total_seconds()
     summary = {
@@ -130,6 +150,7 @@ def run(
         "new_in_db":           n_new,
         "alerts_dispatched":   len(dispatched),
         "proposals_generated": n_proposals,
+        "auto_sent":           n_auto_sent,
         "by_type":             dict(by_type),
         "demo_mode":           config.DEMO_MODE,
         "dry_run":             dry_run,
@@ -141,6 +162,7 @@ def run(
     print(f"      New in DB              : {summary['new_in_db']}")
     print(f"      Alerts dispatched      : {summary['alerts_dispatched']}")
     print(f"      Proposals generated    : {summary['proposals_generated']}")
+    print(f"      Auto-sent (Tier C)     : {summary['auto_sent']}")
     print(f"      Elapsed                : {summary['elapsed_seconds']}s")
     print(f"\n{'='*60}\n")
 
@@ -153,6 +175,7 @@ if __name__ == "__main__":
     parser.add_argument("--channel",             default="slack",      choices=["slack", "telegram", "both"])
     parser.add_argument("--dry-run",             action="store_true",  help="Detect but do not persist or dispatch.")
     parser.add_argument("--no-proposals",        action="store_true",  help="Skip proposal generation step.")
+    parser.add_argument("--no-auto-send",        action="store_true",  help="Skip Tier C auto-send step.")
     parser.add_argument("--proposal-min-score",  type=float, default=70.0,
                         help="Minimum opportunity score to generate a proposal (default: 70).")
     args = parser.parse_args()
@@ -162,4 +185,5 @@ if __name__ == "__main__":
         dry_run            = args.dry_run,
         generate_proposals = not args.no_proposals,
         proposal_min_score = args.proposal_min_score,
+        auto_send          = not args.no_auto_send,
     )

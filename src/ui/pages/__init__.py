@@ -1,1 +1,1 @@
-from src.ui.pages import opportunities, alert_feed, accuracy, proposals
+from src.ui.pages import opportunities, alert_feed, accuracy, proposals, pilot
