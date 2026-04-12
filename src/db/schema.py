@@ -141,6 +141,7 @@ def init_db() -> None:
             asks_for_results INTEGER DEFAULT 0,
             churn_risk      INTEGER DEFAULT 0,
             urgency_signal  INTEGER DEFAULT 0,
+            interest_signal INTEGER DEFAULT 0,
             processed_at    TEXT DEFAULT (datetime('now'))
         )
     """)
@@ -148,3 +149,27 @@ def init_db() -> None:
     conn.commit()
     conn.close()
     print(f"[db] Schema initialized at {config.DB_PATH}")
+
+
+def migrate_db() -> None:
+    """
+    Apply additive schema migrations to an existing database.
+
+    Safe to call repeatedly — uses ALTER TABLE IF NOT EXISTS semantics.
+    Run this after init_db() when upgrading an existing database to a newer
+    sprint without dropping tables.
+    """
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # Sprint 6: add interest_signal column to text_signals if missing
+    existing_cols = {
+        row[1] for row in cur.execute("PRAGMA table_info(text_signals)").fetchall()
+    }
+    if "interest_signal" not in existing_cols:
+        cur.execute(
+            "ALTER TABLE text_signals ADD COLUMN interest_signal INTEGER DEFAULT 0"
+        )
+
+    conn.commit()
+    conn.close()

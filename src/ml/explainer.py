@@ -43,6 +43,13 @@ FEATURE_LABELS = {
     "email_open_rate":   "Email Open Rate",
     "keyword_rankings":  "Keyword Rankings",
     "days_inactive":     "Days Inactive",
+    # Sprint 6 — NLP signals
+    "sentiment_score":   "Email Sentiment",
+    "mentions_price":    "Mentions Price/Budget",
+    "asks_for_results":  "Asks for Results/ROI",
+    "churn_risk":        "Churn Risk Signal",
+    "urgency_signal":    "Urgency Signal",
+    # Categorical
     "account_age_days":  "Account Age (days)",
     "industry_code":     "Industry",
     "opportunity_type_code": "Opportunity Type",
@@ -60,6 +67,13 @@ FEATURE_DIRECTIONS = {
     "email_open_rate":   "lower → automation opportunity",
     "keyword_rankings":  "lower count → SEO gap",
     "days_inactive":     "higher → reactivation opportunity",
+    # Sprint 6 — NLP signals
+    "sentiment_score":   "positive → more likely to accept",
+    "mentions_price":    "flag=1 → price sensitivity, use discount angle",
+    "asks_for_results":  "flag=1 → client evaluating, good upsell window",
+    "churn_risk":        "flag=1 → urgency to act, reactivation priority",
+    "urgency_signal":    "flag=1 → time-sensitive, prioritize outreach",
+    # Categorical
     "account_age_days":  "longer → established relationship",
     "industry_code":     "categorical",
     "opportunity_type_code": "categorical",

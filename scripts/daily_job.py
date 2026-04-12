@@ -1,5 +1,5 @@
 """
-Sprint 4 — Daily Job Runner (updated).
+Sprint 6 — Daily Job Runner (updated).
 
 Orchestrates the full daily pipeline:
   1. Pull latest metrics from all data sources (demo: SQLite)
@@ -8,7 +8,8 @@ Orchestrates the full daily pipeline:
   4. Format and dispatch alerts (demo: log file; production: Slack/Telegram)
   5. Generate proposals for high-confidence opportunities (Sprint 3)
   6. Process Tier C auto-send queue (Sprint 4)
-  7. Print a run summary
+  7. Run NLP text processing pipeline (Sprint 6) — new
+  8. Print a run summary
 
 In production this script would be triggered by a cron job or a scheduler
 (e.g., crontab, GitHub Actions schedule, n8n, or Make).
@@ -24,6 +25,7 @@ Usage:
     python scripts/daily_job.py --dry-run               # detect + format but do not persist/dispatch
     python scripts/daily_job.py --no-proposals          # skip proposal generation
     python scripts/daily_job.py --no-auto-send          # skip Tier C auto-send step
+    python scripts/daily_job.py --no-nlp               # skip NLP text processing step
     python scripts/daily_job.py --proposal-min-score 80 # generate proposals only for score >= 80
 """
 
@@ -55,6 +57,7 @@ def run(
     generate_proposals: bool = True,
     proposal_min_score: float = 70.0,
     auto_send: bool = True,
+    process_nlp: bool = True,
 ) -> dict:
     start = datetime.now()
     print(f"\n{'='*60}")
@@ -140,6 +143,25 @@ def run(
     else:
         print("\n[3c/4] Auto-send disabled (--no-auto-send).")
 
+    # ── Step 3d: NLP text processing (Sprint 6) ──────────────────────────────
+    nlp_summary = {}
+    if process_nlp and not dry_run:
+        print("\n[3d/4] Running NLP text processing pipeline…")
+        from src.nlp.pipeline import run_pipeline
+        nlp_summary = run_pipeline(reprocess_all=False, use_llm=False, verbose=True)
+        churn = nlp_summary.get("churn_alerts", 0)
+        urgency = nlp_summary.get("urgency_alerts", 0)
+        if config.DEMO_MODE:
+            print(f"      [DEMO] {nlp_summary.get('total_processed', 0)} texts processed "
+                  f"| Churn alerts: {churn} | Urgency alerts: {urgency}")
+        else:
+            print(f"      {nlp_summary.get('total_processed', 0)} texts processed. "
+                  f"Slack DMs sent for {churn + urgency} urgent client(s).")
+    elif dry_run:
+        print("\n[3d/4] [dry-run] NLP processing skipped.")
+    else:
+        print("\n[3d/4] NLP processing disabled (--no-nlp).")
+
     # ── Step 4: Summary ───────────────────────────────────────────────────────
     elapsed = (datetime.now() - start).total_seconds()
     summary = {
@@ -151,6 +173,8 @@ def run(
         "alerts_dispatched":   len(dispatched),
         "proposals_generated": n_proposals,
         "auto_sent":           n_auto_sent,
+        "nlp_processed":       nlp_summary.get("total_processed", 0),
+        "nlp_churn_alerts":    nlp_summary.get("churn_alerts", 0),
         "by_type":             dict(by_type),
         "demo_mode":           config.DEMO_MODE,
         "dry_run":             dry_run,
@@ -163,6 +187,8 @@ def run(
     print(f"      Alerts dispatched      : {summary['alerts_dispatched']}")
     print(f"      Proposals generated    : {summary['proposals_generated']}")
     print(f"      Auto-sent (Tier C)     : {summary['auto_sent']}")
+    print(f"      NLP texts processed    : {summary['nlp_processed']}")
+    print(f"      NLP churn alerts       : {summary['nlp_churn_alerts']}")
     print(f"      Elapsed                : {summary['elapsed_seconds']}s")
     print(f"\n{'='*60}\n")
 
@@ -176,6 +202,7 @@ if __name__ == "__main__":
     parser.add_argument("--dry-run",             action="store_true",  help="Detect but do not persist or dispatch.")
     parser.add_argument("--no-proposals",        action="store_true",  help="Skip proposal generation step.")
     parser.add_argument("--no-auto-send",        action="store_true",  help="Skip Tier C auto-send step.")
+    parser.add_argument("--no-nlp",             action="store_true",  help="Skip NLP text processing step.")
     parser.add_argument("--proposal-min-score",  type=float, default=70.0,
                         help="Minimum opportunity score to generate a proposal (default: 70).")
     args = parser.parse_args()
@@ -186,4 +213,5 @@ if __name__ == "__main__":
         generate_proposals = not args.no_proposals,
         proposal_min_score = args.proposal_min_score,
         auto_send          = not args.no_auto_send,
+        process_nlp        = not args.no_nlp,
     )

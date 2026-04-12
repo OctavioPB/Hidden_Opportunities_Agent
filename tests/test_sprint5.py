@@ -109,7 +109,7 @@ class TestMetricsToRow:
     def test_vector_length(self):
         from src.ml.dataset import _metrics_to_row, FEATURE_NAMES
         row = _metrics_to_row(_sample_metrics(), "Restaurant", "seo_content", 365)
-        assert len(row) == len(FEATURE_NAMES) == 13
+        assert len(row) == len(FEATURE_NAMES) == 18
 
     def test_all_float(self):
         from src.ml.dataset import _metrics_to_row
@@ -125,9 +125,9 @@ class TestMetricsToRow:
         assert row[idx] == pytest.approx(300.0)
 
     def test_missing_fields_default_to_zero(self):
-        from src.ml.dataset import _metrics_to_row
+        from src.ml.dataset import _metrics_to_row, FEATURE_NAMES
         row = _metrics_to_row({}, "Restaurant", "seo_content", 365)
-        assert len(row) == 13
+        assert len(row) == len(FEATURE_NAMES)
         assert all(v >= 0 for v in row)
 
     def test_industry_and_opp_type_encoding(self):
@@ -216,7 +216,7 @@ class TestBuildDataset:
         from src.ml.dataset import build_dataset, FEATURE_NAMES
         X, _, names = build_dataset(augment=False, verbose=False)
         assert names == FEATURE_NAMES
-        assert all(len(row) == 13 for row in X)
+        assert all(len(row) == len(names) for row in X)
 
     def test_x_y_same_length(self):
         from src.ml.dataset import build_dataset
@@ -315,7 +315,7 @@ class TestModelTraining:
 
     def test_n_features_correct(self, trained_model):
         _, metadata = trained_model
-        assert metadata["n_features"] == 13
+        assert metadata["n_features"] == 18
 
     def test_feature_importance_covers_all_features(self, trained_model):
         from src.ml.dataset import FEATURE_NAMES

@@ -62,6 +62,13 @@ FEATURE_NAMES = [
     "email_open_rate",
     "keyword_rankings",
     "days_inactive",
+    # Sprint 6 — NLP text-signal features
+    "sentiment_score",      # mean sentiment of recent emails (-1 to 1)
+    "mentions_price",       # 1 if any email/call mentions budget concern
+    "asks_for_results",     # 1 if client asked for ROI/benchmarks
+    "churn_risk",           # 1 if leaving/cancel signals detected
+    "urgency_signal",       # 1 if urgent language in messages
+    # Categorical encodings (always last)
     "account_age_days",
     "industry_code",
     "opportunity_type_code",
@@ -79,12 +86,34 @@ def _metrics_to_row(
     industry: str,
     opportunity_type: str,
     account_age_days: int = 365,
+    signals: dict | None = None,
 ) -> list[float]:
-    """Convert a metrics dict into a fixed-length feature vector."""
+    """
+    Convert a metrics dict into a fixed-length feature vector (18 columns).
+
+    Parameters
+    ----------
+    metrics          : structured client metrics (GA, Ads, email, SEO)
+    industry         : client industry string
+    opportunity_type : opportunity type string
+    account_age_days : days since account was created
+    signals          : optional NLP signal summary from text_signals table
+                       (Sprint 6). If None, all NLP features default to 0.
+
+    Feature layout (18 columns)
+    ---------------------------
+    0–9   : structured metrics
+    10–14 : NLP text signals (Sprint 6)
+    15    : account_age_days
+    16    : industry_code (categorical)
+    17    : opportunity_type_code (categorical)
+    """
     ad_spend_daily   = metrics.get("ad_spend", 0) or 0
     ad_spend_monthly = ad_spend_daily * 30
+    sig = signals or {}
 
     return [
+        # ── Structured metrics ───────────────────────────────────────────────
         float(metrics.get("ctr",               0) or 0),
         float(metrics.get("bounce_rate",        0) or 0),
         float(metrics.get("pages_per_session",  1) or 1),
@@ -95,6 +124,13 @@ def _metrics_to_row(
         float(metrics.get("email_open_rate",    0) or 0),
         float(metrics.get("keyword_rankings",   0) or 0),
         float(metrics.get("days_inactive",      0) or 0),
+        # ── NLP text-signal features (Sprint 6) ──────────────────────────────
+        float(sig.get("sentiment_score",  0) or 0),
+        float(sig.get("mentions_price",   0) or 0),
+        float(sig.get("asks_for_results", 0) or 0),
+        float(sig.get("churn_risk",       0) or 0),
+        float(sig.get("urgency_signal",   0) or 0),
+        # ── Categorical encodings ─────────────────────────────────────────────
         float(account_age_days),
         float(INDUSTRY_CODES.get(industry, 0)),
         float(OPP_TYPE_CODES.get(opportunity_type, 0)),
@@ -102,10 +138,18 @@ def _metrics_to_row(
 
 
 def _add_noise(row: list[float], rng: np.random.Generator) -> list[float]:
-    """Add ±10% Gaussian noise to numeric features (not encodings)."""
+    """
+    Add ±8% Gaussian noise to numeric features only.
+
+    Feature layout (18 cols):
+      0–9   : structured numeric metrics  → add noise
+      10–14 : NLP binary/float signals    → keep as-is (discrete)
+      15    : account_age_days            → add noise
+      16–17 : categorical encodings       → keep as-is
+    """
     result = []
     for i, v in enumerate(row):
-        if i < 11:   # numeric features only (not industry_code, opp_type_code)
+        if i < 10 or i == 15:   # numeric features: structured metrics + account age
             noise = float(rng.normal(1.0, 0.08))
             result.append(max(0.0, v * noise))
         else:
@@ -155,23 +199,31 @@ def _load_real_data() -> tuple[list[list[float]], list[int]]:
     for row in rows:
         r = dict(row)
         metrics = {
-            "ctr":              r.get("ctr"),
-            "bounce_rate":      r.get("bounce_rate"),
+            "ctr":               r.get("ctr"),
+            "bounce_rate":       r.get("bounce_rate"),
             "pages_per_session": r.get("pages_per_session"),
-            "conversion_rate":  r.get("conversion_rate"),
-            "organic_traffic":  r.get("organic_traffic"),
-            "roas":             r.get("roas"),
-            "ad_spend":         r.get("ad_spend"),
-            "email_open_rate":  r.get("email_open_rate"),
-            "keyword_rankings": r.get("keyword_rankings"),
-            "days_inactive":    r.get("days_inactive"),
+            "conversion_rate":   r.get("conversion_rate"),
+            "organic_traffic":   r.get("organic_traffic"),
+            "roas":              r.get("roas"),
+            "ad_spend":          r.get("ad_spend"),
+            "email_open_rate":   r.get("email_open_rate"),
+            "keyword_rankings":  r.get("keyword_rankings"),
+            "days_inactive":     r.get("days_inactive"),
         }
+        # Sprint 6: pull NLP signals from DB for this client (if available)
+        try:
+            from src.data_sources.text_signals import get_signal_summary
+            signals = get_signal_summary(r.get("client_id", ""))
+        except Exception:
+            signals = None
+
         label = 1 if r["outcome"] == "accepted" else 0
         feature_row = _metrics_to_row(
             metrics,
             r.get("industry", ""),
             r.get("opportunity_type", ""),
             int(r.get("account_age_days") or 365),
+            signals=signals,
         )
         X.append(feature_row)
         y.append(label)
@@ -239,6 +291,15 @@ def _generate_synthetic_rows(
         m = history[0]
         detected_types = {r.opportunity_type for r in evaluate(m)}
 
+        # Synthetic NLP signals: random binary flags + sentiment
+        syn_signals = {
+            "sentiment_score":  float(rng.uniform(-0.5, 0.8)),
+            "mentions_price":   int(rng.random() < 0.25),
+            "asks_for_results": int(rng.random() < 0.20),
+            "churn_risk":       int(rng.random() < 0.10),
+            "urgency_signal":   int(rng.random() < 0.08),
+        }
+
         for opp_type in ALL_OPPORTUNITY_TYPES:
             fired = opp_type in detected_types
             # Noisy oracle: rule=True → label 1 with p=0.80
@@ -250,6 +311,7 @@ def _generate_synthetic_rows(
             X.append(_metrics_to_row(
                 m, industry, opp_type,
                 int(client.get("account_age_days", 365)),
+                signals=syn_signals,
             ))
             y.append(label)
 

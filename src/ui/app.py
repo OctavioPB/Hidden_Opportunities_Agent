@@ -19,10 +19,11 @@ st.set_page_config(
 )
 
 from src.ui.components import demo_banner
-from src.ui.pages import opportunities, alert_feed, accuracy, proposals, pilot, ml_model
+from src.ui.pages import opportunities, alert_feed, accuracy, proposals, pilot, ml_model, text_signals
 
 # ── Sidebar navigation ────────────────────────────────────────────────────────
 PAGES = {
+    "Text Signals":  text_signals,
     "ML Model":      ml_model,
     "Pilot":         pilot,
     "Opportunities": opportunities,
@@ -38,9 +39,9 @@ with st.sidebar:
     page_name = st.radio("Navigation", list(PAGES.keys()), label_visibility="collapsed")
     st.divider()
     st.caption(
-        "**Sprint 5** — Predictive Analyst\n\n"
-        "Random Forest model blends rule scores with ML-predicted "
-        "acceptance probability. SHAP explains every prediction."
+        "**Sprint 6** — Active Listener\n\n"
+        "NLP pipeline extracts sentiment, churn risk, and buying signals "
+        "from emails and calls. 5 new ML features improve prediction accuracy."
     )
 
 # ── Page render ───────────────────────────────────────────────────────────────
