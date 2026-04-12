@@ -19,11 +19,12 @@ st.set_page_config(
 )
 
 from src.ui.components import demo_banner
-from src.ui.pages import opportunities, alert_feed, accuracy
+from src.ui.pages import opportunities, alert_feed, accuracy, proposals
 
 # ── Sidebar navigation ────────────────────────────────────────────────────────
 PAGES = {
     "Opportunities": opportunities,
+    "Proposals":     proposals,
     "Alert Feed":    alert_feed,
     "Accuracy":      accuracy,
 }
@@ -35,10 +36,10 @@ with st.sidebar:
     page_name = st.radio("Navigation", list(PAGES.keys()), label_visibility="collapsed")
     st.divider()
     st.caption(
-        "**Sprint 2** — Detection Engine & Alerts\n\n"
-        "The agent observes client metrics daily, "
-        "detects upsell opportunities using business rules, "
-        "and sends internal alerts to the team."
+        "**Sprint 3** — Proposal Generator\n\n"
+        "The agent writes personalized commercial proposals "
+        "and queues them for human review and approval "
+        "before sending to clients."
     )
 
 # ── Page render ───────────────────────────────────────────────────────────────

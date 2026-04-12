@@ -1,12 +1,13 @@
 """
-Sprint 2 — Daily Job Runner.
+Sprint 3 — Daily Job Runner (updated).
 
-Orchestrates the full daily detection pipeline:
+Orchestrates the full daily detection + proposal pipeline:
   1. Pull latest metrics from all data sources (demo: SQLite)
   2. Apply rules engine to every client
   3. Persist new opportunities to the DB
   4. Format and dispatch alerts (demo: log file; production: Slack/Telegram)
-  5. Print a run summary
+  5. Generate proposals for high-confidence opportunities (Sprint 3)
+  6. Print a run summary
 
 In production this script would be triggered by a cron job or a scheduler
 (e.g., crontab, GitHub Actions schedule, n8n, or Make).
@@ -15,10 +16,12 @@ In production this script would be triggered by a cron job or a scheduler
       0 8 * * * cd /app && python scripts/daily_job.py >> logs/cron.log 2>&1
 
 Usage:
-    python scripts/daily_job.py                    # run for all clients
-    python scripts/daily_job.py --demo-only        # run only for demo scenario clients
-    python scripts/daily_job.py --channel telegram # dispatch to telegram instead
-    python scripts/daily_job.py --dry-run          # detect + format but do not persist/dispatch
+    python scripts/daily_job.py                         # run for all clients
+    python scripts/daily_job.py --demo-only             # run only for demo scenario clients
+    python scripts/daily_job.py --channel telegram      # dispatch to telegram instead
+    python scripts/daily_job.py --dry-run               # detect + format but do not persist/dispatch
+    python scripts/daily_job.py --no-proposals          # skip proposal generation
+    python scripts/daily_job.py --proposal-min-score 80 # generate proposals only for score >= 80
 """
 
 import argparse
@@ -31,6 +34,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import config
 from src.agents.scorer import score_all_clients, persist_opportunities
 from src.agents.alerts import dispatch
+from src.agents.proposal_generator import generate_proposals_for_all
 from src.data_sources.crm import get_demo_clients
 
 
@@ -40,7 +44,13 @@ _PRODUCTION_NOTE = (
 )
 
 
-def run(demo_only: bool = False, channel: str = "slack", dry_run: bool = False) -> dict:
+def run(
+    demo_only: bool = False,
+    channel: str = "slack",
+    dry_run: bool = False,
+    generate_proposals: bool = True,
+    proposal_min_score: float = 70.0,
+) -> dict:
     start = datetime.now()
     print(f"\n{'='*60}")
     print(f"  Hidden Opportunities Agent -- Daily Job")
@@ -94,18 +104,35 @@ def run(demo_only: bool = False, channel: str = "slack", dry_run: bool = False) 
         else:
             print(f"      {len(dispatched)} alerts sent to {channel}.")
 
+    # ── Step 3b: Generate proposals ──────────────────────────────────────────
+    n_proposals = 0
+    if generate_proposals and not dry_run:
+        print(f"\n[3b/4] Generating proposals for opportunities with score >= {proposal_min_score}...")
+        proposal_results = generate_proposals_for_all(min_score=proposal_min_score)
+        new_proposals    = [r for r in proposal_results if not r.get("already_existed")]
+        n_proposals      = len(new_proposals)
+        if config.DEMO_MODE:
+            print(f"      [DEMO] {n_proposals} new proposal(s) saved to data/exports/proposals/")
+        else:
+            print(f"      {n_proposals} new proposal(s) generated. Account managers notified.")
+    elif dry_run:
+        print("\n[3b/4] [dry-run] Proposal generation skipped.")
+    else:
+        print("\n[3b/4] Proposal generation disabled (--no-proposals).")
+
     # ── Step 4: Summary ───────────────────────────────────────────────────────
     elapsed = (datetime.now() - start).total_seconds()
     summary = {
-        "run_at":             start.isoformat(),
-        "elapsed_seconds":    round(elapsed, 2),
-        "clients_scanned":    len({r["client_id"] for r in all_results}),
+        "run_at":              start.isoformat(),
+        "elapsed_seconds":     round(elapsed, 2),
+        "clients_scanned":     len({r["client_id"] for r in all_results}),
         "opportunities_found": len(results),
-        "new_in_db":          n_new,
-        "alerts_dispatched":  len(dispatched),
-        "by_type":            dict(by_type),
-        "demo_mode":          config.DEMO_MODE,
-        "dry_run":            dry_run,
+        "new_in_db":           n_new,
+        "alerts_dispatched":   len(dispatched),
+        "proposals_generated": n_proposals,
+        "by_type":             dict(by_type),
+        "demo_mode":           config.DEMO_MODE,
+        "dry_run":             dry_run,
     }
 
     print(f"\n[4/4] Summary")
@@ -113,6 +140,7 @@ def run(demo_only: bool = False, channel: str = "slack", dry_run: bool = False) 
     print(f"      Opportunities found    : {summary['opportunities_found']}")
     print(f"      New in DB              : {summary['new_in_db']}")
     print(f"      Alerts dispatched      : {summary['alerts_dispatched']}")
+    print(f"      Proposals generated    : {summary['proposals_generated']}")
     print(f"      Elapsed                : {summary['elapsed_seconds']}s")
     print(f"\n{'='*60}\n")
 
@@ -121,8 +149,17 @@ def run(demo_only: bool = False, channel: str = "slack", dry_run: bool = False) 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the daily detection and alert pipeline.")
-    parser.add_argument("--demo-only",  action="store_true", help="Only process demo scenario clients.")
-    parser.add_argument("--channel",    default="slack", choices=["slack", "telegram", "both"])
-    parser.add_argument("--dry-run",    action="store_true", help="Detect but do not persist or dispatch.")
+    parser.add_argument("--demo-only",           action="store_true",  help="Only process demo scenario clients.")
+    parser.add_argument("--channel",             default="slack",      choices=["slack", "telegram", "both"])
+    parser.add_argument("--dry-run",             action="store_true",  help="Detect but do not persist or dispatch.")
+    parser.add_argument("--no-proposals",        action="store_true",  help="Skip proposal generation step.")
+    parser.add_argument("--proposal-min-score",  type=float, default=70.0,
+                        help="Minimum opportunity score to generate a proposal (default: 70).")
     args = parser.parse_args()
-    run(demo_only=args.demo_only, channel=args.channel, dry_run=args.dry_run)
+    run(
+        demo_only          = args.demo_only,
+        channel            = args.channel,
+        dry_run            = args.dry_run,
+        generate_proposals = not args.no_proposals,
+        proposal_min_score = args.proposal_min_score,
+    )
