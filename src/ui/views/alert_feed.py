@@ -15,7 +15,7 @@ import streamlit as st
 from src.agents.alerts import load_alert_log, dispatch, format_slack_message
 from src.agents.scorer import score_all_clients
 from src.data_sources.crm import get_demo_clients
-from src.ui.components import slack_message_card, production_badge
+from src.ui.components import slack_message_card, production_badge, page_header
 
 
 _PRODUCTION_NOTE_CHANNEL = (
@@ -34,13 +34,12 @@ _PRODUCTION_NOTE_TRIGGER = (
 
 
 def render():
-    st.title("Alert Feed")
-    st.caption(
-        "Simulated Slack channel — the agent posts here every morning with newly detected opportunities. "
-        "The account team reviews alerts and decides which ones to act on."
+    page_header(
+        "Alert Feed",
+        "Simulated Slack channel — the agent posts here every morning with newly detected "
+        "opportunities. The account team reviews alerts and decides which ones to act on.",
+        sprint="Sprint 2",
     )
-    production_badge(_PRODUCTION_NOTE_CHANNEL)
-    st.divider()
 
     # ── Run controls ──────────────────────────────────────────────────────────
     with st.container(border=True):

@@ -15,7 +15,7 @@ import pandas as pd
 from src.agents.scorer import score_all_clients
 from src.agents.rules import OPPORTUNITY_LABELS, SUGGESTED_PRICES
 from src.data_sources.crm import get_all_clients
-from src.ui.components import score_bar, production_badge
+from src.ui.components import score_bar, production_badge, page_header
 
 
 _PRODUCTION_NOTE = (
@@ -31,14 +31,12 @@ def _load_opportunities():
 
 
 def render():
-    st.title("Detected Opportunities")
-    st.caption(
+    page_header(
+        "Detected Opportunities",
         "All clients scanned daily. Opportunities are ranked by confidence score (0–100). "
-        "Each opportunity was detected by a specific combination of business rules."
+        "Each was detected by a specific combination of business rules.",
+        sprint="Sprint 2",
     )
-
-    production_badge(_PRODUCTION_NOTE)
-    st.divider()
 
     results = _load_opportunities()
 

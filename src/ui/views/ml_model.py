@@ -33,7 +33,7 @@ from src.ml.explainer import get_feature_importance, explain_single, FEATURE_LAB
 from src.ml.inference import predict_for_all, get_inference_summary
 from src.ml.dataset import FEATURE_NAMES, _metrics_to_row
 from src.agents.rules import OPPORTUNITY_LABELS
-from src.ui.components import production_badge, score_bar
+from src.ui.components import production_badge, score_bar, page_header
 
 
 # ── Retrain helper ─────────────────────────────────────────────────────────────
@@ -345,21 +345,13 @@ def _render_why_panel(predictions: list[dict]) -> None:
 # ── Main render ────────────────────────────────────────────────────────────────
 
 def render() -> None:
-    st.title("ML Model — Predictive Analyst")
-    st.caption(
-        "Sprint 5: the agent learns from historical proposal outcomes and predicts "
-        "which clients are most likely to accept an upsell offer. "
-        "Rule-based scores are blended with ML probabilities for a more accurate ranking."
+    page_header(
+        "ML Model — Predictive Analyst",
+        "The agent learns from historical proposal outcomes and predicts which clients "
+        "are most likely to accept an upsell offer. Rule-based scores are blended with "
+        "ML probabilities for a more accurate ranking.",
+        sprint="Sprint 5",
     )
-
-    production_badge(
-        "Sprint 5 — RandomForestClassifier trained on real feedback + synthetic data. "
-        "SHAP explanations provide interpretability. "
-        "The model replaces (and keeps as fallback) the heuristic rules from Sprint 2. "
-        "In production: retrained nightly, versioned in S3, monitored for drift."
-    )
-
-    st.divider()
 
     # ── Retrain panel ──────────────────────────────────────────────────────────
     with st.container(border=True):

@@ -40,7 +40,7 @@ from src.agents.proposal_generator import (
 )
 from src.agents.scorer import score_all_clients
 from src.agents.rules import OPPORTUNITY_LABELS, SUGGESTED_PRICES
-from src.ui.components import score_bar, production_badge, demo_banner
+from src.ui.components import score_bar, production_badge, page_header
 
 
 # ── Status colours (OPB semantic badge system) ─────────────────────────────────
@@ -359,21 +359,12 @@ def _render_proposal_log(proposals: list[dict]) -> None:
 # ── Main render ────────────────────────────────────────────────────────────────
 
 def render() -> None:
-    st.title("Proposal Review & Approval")
-    st.caption(
-        "Generated proposals are listed below for review. "
+    page_header(
+        "Proposal Review & Approval",
         "The agent writes personalized proposals based on detected opportunities. "
-        "A human must approve each proposal before it is sent to the client."
+        "A human must approve each proposal before it is sent to the client.",
+        sprint="Sprint 3",
     )
-
-    production_badge(
-        "Sprint 3 — Proposal Generator. "
-        "In production: proposals are generated daily by the LLM (GPT-3.5/4 or Claude Haiku). "
-        "The account manager receives a Slack notification with Approve / Reject buttons. "
-        "No proposal is ever sent without explicit human approval."
-    )
-
-    st.divider()
 
     # ── On-demand generation panel ─────────────────────────────────────────────
     _render_generate_panel()

@@ -32,7 +32,7 @@ from src.data_sources.text_signals import (
     get_all_signal_summaries, get_urgency_alerts, count_signals_by_type,
 )
 from src.data_sources.crm import get_all_clients
-from src.ui.components import production_badge
+from src.ui.components import production_badge, page_header
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -474,22 +474,13 @@ def _render_process_panel() -> None:
 # ── Main render ────────────────────────────────────────────────────────────────
 
 def render() -> None:
-    st.title("Text Signals — Active Listener")
-    st.caption(
-        "Sprint 6: the agent reads client emails, call transcripts, and CRM notes "
-        "to detect subtle signals that structured metrics miss. "
-        "These signals become new ML features, improving acceptance probability estimates."
+    page_header(
+        "Text Signals — Active Listener",
+        "The agent reads emails, call transcripts, and CRM notes to detect subtle signals "
+        "that structured metrics miss. These signals become new ML features, improving "
+        "acceptance probability estimates.",
+        sprint="Sprint 6",
     )
-
-    production_badge(
-        "Sprint 6 — NLP pipeline powered by keyword extraction (demo) + optional LLM "
-        "(claude-haiku-4-5 or GPT-3.5-turbo in production). Signals are stored in the "
-        "text_signals table and joined into the ML feature matrix at training time. "
-        "The 5 new features (sentiment, price concern, results interest, churn risk, urgency) "
-        "expand the Random Forest from 13 to 18 features."
-    )
-
-    st.divider()
 
     _render_pipeline_diagram()
 

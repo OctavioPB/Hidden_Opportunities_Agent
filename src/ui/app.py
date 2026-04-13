@@ -18,7 +18,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-from src.ui.components import demo_banner, inject_brand_css, opb_sidebar_header
+from src.ui.components import demo_banner, inject_brand_css
 from src.ui.views import opportunities, alert_feed, accuracy, proposals, pilot, ml_model, text_signals
 
 # ── Inject OPB brand design system ────────────────────────────────────────────
@@ -41,35 +41,18 @@ if "page" not in st.session_state:
 
 # ── Sidebar navigation ────────────────────────────────────────────────────────
 with st.sidebar:
-    opb_sidebar_header()
+    st.html('<div style="height:12px;"></div>')
 
-    st.html("""
-    <div style="
-      padding: 14px 20px 6px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 9px;
-      font-weight: 600;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.28);
-    ">Navigation</div>
-    """)
-
-    # Nav items — st.button gives full CSS control; primary = active page
     for name, (icon, _) in PAGES.items():
         is_active = st.session_state.page == name
-        btn_type  = "primary" if is_active else "secondary"
-        label     = f"{icon}  {name}"
-        if st.button(label, key=f"nav_{name}", use_container_width=True, type=btn_type):
+        if st.button(
+            f"{icon}  {name}",
+            key=f"nav_{name}",
+            use_container_width=True,
+            type="primary" if is_active else "secondary",
+        ):
             st.session_state.page = name
             st.rerun()
-
-    st.divider()
-    st.caption(
-        "**Sprint 6** — Active Listener\n\n"
-        "NLP pipeline extracts sentiment, churn risk, and buying signals "
-        "from emails and calls. 5 new ML features improve prediction accuracy."
-    )
 
 # ── Page render ───────────────────────────────────────────────────────────────
 demo_banner()

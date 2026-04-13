@@ -17,7 +17,7 @@ import streamlit as st
 import pandas as pd
 
 from src.agents.rules import evaluate, OPPORTUNITY_LABELS
-from src.ui.components import production_badge, score_bar
+from src.ui.components import production_badge, score_bar, page_header
 
 
 _LABELED_PATH = Path(__file__).parent.parent.parent.parent / "data" / "synthetic" / "labeled_test_dataset.json"
@@ -65,13 +65,12 @@ def _run_validation():
 
 
 def render():
-    st.title("Detection Accuracy")
-    st.caption(
+    page_header(
+        "Detection Accuracy",
         "Validation against the 10 manually labeled test clients from Sprint 1. "
-        "Measures how accurately the rule engine detects the right opportunities."
+        "Measures how accurately the rule engine detects the right opportunities.",
+        sprint="Sprint 2",
     )
-    production_badge(_PRODUCTION_NOTE)
-    st.divider()
 
     rows, metrics = _run_validation()
 

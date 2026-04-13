@@ -45,7 +45,7 @@ from src.agents.auto_sender import (
 )
 from src.agents.rules import OPPORTUNITY_LABELS, SUGGESTED_PRICES
 from src.data_sources.crm import get_demo_clients, get_all_clients
-from src.ui.components import score_bar, production_badge
+from src.ui.components import score_bar, production_badge, page_header
 
 
 # ── Demo scenario scripts ─────────────────────────────────────────────────────
@@ -550,22 +550,12 @@ def _render_sent_log() -> None:
 # ── Main render ────────────────────────────────────────────────────────────────
 
 def render() -> None:
-    st.title("Pilot — Full Cycle Demo")
-    st.caption(
-        "This page demonstrates the complete agent loop: "
-        "detect → generate → send → client reply → feedback. "
-        "The feedback loop updates the agent's confidence for each client, "
-        "making future proposals smarter."
+    page_header(
+        "Pilot — Full Cycle Demo",
+        "Complete agent loop: detect → generate → send → client reply → feedback. "
+        "The feedback loop updates confidence per client, making future proposals smarter.",
+        sprint="Sprint 4",
     )
-
-    production_badge(
-        "Sprint 4 — Limited Autonomous Action. "
-        "Tier C opportunities (score ≥ 90, value ≤ $200) are sent autonomously. "
-        "All other proposals require explicit human approval. "
-        "Every action is logged for audit. No real emails are sent in demo mode."
-    )
-
-    st.divider()
 
     # ── Controls ───────────────────────────────────────────────────────────────
     ctrl1, ctrl2, ctrl3 = st.columns([2, 2, 1])
