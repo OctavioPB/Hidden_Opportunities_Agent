@@ -94,9 +94,10 @@ def init_db() -> None:
             suggested_price REAL,
             status          TEXT DEFAULT 'draft',
                                              -- draft | pending_approval | approved
-                                             -- | sent | accepted | rejected
+                                             -- | sent | accepted | rejected | paid
             approved_by     TEXT,
             sent_at         TEXT,
+            payment_link    TEXT,            -- Stripe Payment Link URL (Sprint 7)
             created_at      TEXT DEFAULT (datetime('now')),
             updated_at      TEXT DEFAULT (datetime('now'))
         )
@@ -163,13 +164,22 @@ def migrate_db() -> None:
     cur = conn.cursor()
 
     # Sprint 6: add interest_signal column to text_signals if missing
-    existing_cols = {
-        row[1] for row in cur.execute("PRAGMA table_info(text_signals)").fetchall()
-    }
-    if "interest_signal" not in existing_cols:
+    ts_cols = {row[1] for row in cur.execute("PRAGMA table_info(text_signals)").fetchall()}
+    if "interest_signal" not in ts_cols:
         cur.execute(
             "ALTER TABLE text_signals ADD COLUMN interest_signal INTEGER DEFAULT 0"
         )
+
+    # Sprint 7: add payment_link column to proposals if the table exists
+    proposals_exists = cur.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='proposals'"
+    ).fetchone()
+    if proposals_exists:
+        p_cols = {row[1] for row in cur.execute("PRAGMA table_info(proposals)").fetchall()}
+        if "payment_link" not in p_cols:
+            cur.execute(
+                "ALTER TABLE proposals ADD COLUMN payment_link TEXT"
+            )
 
     conn.commit()
     conn.close()

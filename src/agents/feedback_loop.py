@@ -200,6 +200,22 @@ def record_client_reply(
     if intent == INTENT_ACCEPTED:
         meeting = _schedule_meeting(p, simulated=simulated)
         actions_taken.append(f"Meeting scheduled: {meeting['event_id']}")
+        # Sprint 7: auto-generate payment link on acceptance
+        try:
+            from src.agents.payment_link import create_payment_link
+            link_result = create_payment_link(proposal_id)
+            actions_taken.append(f"Payment link: {link_result['url']}")
+        except Exception as _e:
+            print(f"[feedback_loop] Payment link generation failed: {_e}")
+
+    elif intent == INTENT_TOO_EXPENSIVE:
+        # Sprint 7: trigger autonomous negotiation instead of silently logging
+        try:
+            from src.agents.negotiator import start_negotiation
+            neg = start_negotiation(proposal_id)
+            actions_taken.append(f"Negotiation started, turn 1 offer: ${neg.get('offer_price', 0):,.0f}")
+        except Exception as _e:
+            print(f"[feedback_loop] Negotiation start failed: {_e}")
 
     elif intent == INTENT_ESCALATED:
         escalation = _escalate_to_human(p, notes, simulated=simulated)

@@ -19,13 +19,14 @@ st.set_page_config(
 )
 
 from src.ui.components import demo_banner, inject_brand_css
-from src.ui.views import opportunities, alert_feed, accuracy, proposals, pilot, ml_model, text_signals
+from src.ui.views import opportunities, alert_feed, accuracy, proposals, pilot, ml_model, text_signals, negotiation
 
 # ── Inject OPB brand design system ────────────────────────────────────────────
 inject_brand_css()
 
 # ── Pages registry: (icon, module) ───────────────────────────────────────────
 PAGES = {
+    "Negotiation":   ("🤝", negotiation),
     "Text Signals":  ("📡", text_signals),
     "ML Model":      ("🤖", ml_model),
     "Pilot":         ("🧪", pilot),
@@ -37,7 +38,7 @@ PAGES = {
 
 # Persist active page across reruns
 if "page" not in st.session_state:
-    st.session_state.page = "Text Signals"
+    st.session_state.page = "Negotiation"
 
 # ── Sidebar navigation ────────────────────────────────────────────────────────
 with st.sidebar:
