@@ -103,7 +103,7 @@ def _render_cards(results: list[dict]) -> None:
         with st.container(border=True):
             h_col, p_col = st.columns([4, 1])
             with h_col:
-                demo_tag = " 🎯" if is_demo else ""
+                demo_tag = " [Demo]" if is_demo else ""
                 st.markdown(f"**{name}**{demo_tag} &nbsp;·&nbsp; *{indust}*")
                 st.markdown(f"**{label}**")
             with p_col:

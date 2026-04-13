@@ -38,9 +38,9 @@ from src.ui.components import production_badge, page_header, section_header
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 _SOURCE_ICONS = {
-    "email":           "📧",
-    "call_transcript": "📞",
-    "crm_note":        "📋",
+    "email":           "Email",
+    "call_transcript": "Call",
+    "crm_note":        "CRM",
 }
 
 _SIGNAL_COLORS = {
@@ -52,11 +52,11 @@ _SIGNAL_COLORS = {
 }
 
 _SIGNAL_LABELS = {
-    "mentions_price":   "💰 Price Concern",
-    "asks_for_results": "📊 Asks for Results",
-    "churn_risk":       "🚨 Churn Risk",
-    "urgency_signal":   "⚡ Urgency",
-    "interest_signal":  "✅ Interest Signal",
+    "mentions_price":   "Price Concern",
+    "asks_for_results": "Asks for Results",
+    "churn_risk":       "Churn Risk",
+    "urgency_signal":   "Urgency",
+    "interest_signal":  "Interest Signal",
 }
 
 
@@ -99,52 +99,52 @@ def _render_pipeline_diagram() -> None:
       <!-- Step 1 -->
       <div style="text-align:center;padding:12px 16px;background:#F4F6F9;
                   border-radius:8px;min-width:130px;border:1px solid #E0EAF4;">
-        <div style="font-size:1.6em;">📧 📞 📋</div>
+        <div style="font-size:1.3em;font-weight:600;color:#003366;letter-spacing:1px;">&#9993; &#9742; &#9741;</div>
         <div style="color:#1C1C2E;font-size:0.85em;font-weight:600;margin-top:4px;">
           Client Comms</div>
         <div style="color:#6B7280;font-size:0.72em;">Email · Call · CRM</div>
       </div>
 
-      <div style="color:#C8982A;font-size:1.5em;padding:0 8px;">→</div>
+      <div style="color:#C8982A;font-size:1.5em;padding:0 8px;">&#8594;</div>
 
       <!-- Step 2 -->
       <div style="text-align:center;padding:12px 16px;background:#F4F6F9;
                   border-radius:8px;min-width:130px;border:1px solid #E0EAF4;">
-        <div style="font-size:1.6em;">🔍</div>
+        <div style="font-size:1.3em;font-weight:700;color:#003366;">&#128269;</div>
         <div style="color:#1C1C2E;font-size:0.85em;font-weight:600;margin-top:4px;">
           Text Extraction</div>
         <div style="color:#6B7280;font-size:0.72em;">Keyword + LLM</div>
       </div>
 
-      <div style="color:#C8982A;font-size:1.5em;padding:0 8px;">→</div>
+      <div style="color:#C8982A;font-size:1.5em;padding:0 8px;">&#8594;</div>
 
       <!-- Step 3 -->
       <div style="text-align:center;padding:12px 16px;background:#F4F6F9;
                   border-radius:8px;min-width:130px;border:1px solid #E0EAF4;">
-        <div style="font-size:1.6em;">📊</div>
+        <div style="font-size:1.3em;font-weight:700;color:#003366;">&#9873;</div>
         <div style="color:#1C1C2E;font-size:0.85em;font-weight:600;margin-top:4px;">
           Signal Flags</div>
         <div style="color:#6B7280;font-size:0.72em;">
           sentiment · price · churn<br>urgency · interest</div>
       </div>
 
-      <div style="color:#C8982A;font-size:1.5em;padding:0 8px;">→</div>
+      <div style="color:#C8982A;font-size:1.5em;padding:0 8px;">&#8594;</div>
 
       <!-- Step 4 -->
       <div style="text-align:center;padding:12px 16px;background:#F4F6F9;
                   border-radius:8px;min-width:130px;border:1px solid #E0EAF4;">
-        <div style="font-size:1.6em;">🤖</div>
+        <div style="font-size:1.3em;font-weight:700;color:#003366;">&#9881;</div>
         <div style="color:#1C1C2E;font-size:0.85em;font-weight:600;margin-top:4px;">
           ML Feature Update</div>
-        <div style="color:#6B7280;font-size:0.72em;">5 new features → model</div>
+        <div style="color:#6B7280;font-size:0.72em;">5 new features &#8594; model</div>
       </div>
 
-      <div style="color:#C8982A;font-size:1.5em;padding:0 8px;">→</div>
+      <div style="color:#C8982A;font-size:1.5em;padding:0 8px;">&#8594;</div>
 
       <!-- Step 5 -->
       <div style="text-align:center;padding:12px 16px;background:#E0EAF4;
                   border-radius:8px;min-width:130px;border:1px solid #99BBDD;">
-        <div style="font-size:1.6em;">🎯</div>
+        <div style="font-size:1.3em;font-weight:700;color:#003366;">&#8679;</div>
         <div style="color:#003366;font-size:0.85em;font-weight:600;margin-top:4px;">
           Better Scores</div>
         <div style="color:#336699;font-size:0.72em;">+accuracy · +context</div>

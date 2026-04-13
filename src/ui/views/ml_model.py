@@ -188,7 +188,7 @@ def _render_feature_importance() -> None:
     )
     st.plotly_chart(fig, use_container_width=True)
 
-    with st.expander("ℹ️ What does each feature mean?"):
+    with st.expander("What does each feature mean?"):
         from src.ml.explainer import FEATURE_DIRECTIONS
         rows = []
         for f in importance:

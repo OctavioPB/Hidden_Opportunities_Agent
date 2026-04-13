@@ -101,7 +101,7 @@ def _render_kpis(proposals: list[dict]) -> None:
 
 def _render_generate_panel() -> None:
     """Allow on-demand proposal generation for high-score opportunities."""
-    with st.expander("⚡ Generate Proposals On-Demand"):
+    with st.expander("Generate Proposals On-Demand"):
         st.caption(
             "Generate proposals for all detected opportunities with score ≥ threshold "
             "that do not yet have a draft. In production this runs automatically "
@@ -153,7 +153,7 @@ def _render_proposal_card(p: dict, idx: int) -> None:
         # ── Card header ───────────────────────────────────────────────────────
         hcol1, hcol2, hcol3 = st.columns([3, 2, 1])
         with hcol1:
-            demo_tag = " 🎯" if is_demo else ""
+            demo_tag = " [Demo]" if is_demo else ""
             st.markdown(
                 f"**{client_name}**{demo_tag} &nbsp;·&nbsp; *{p['industry']}*  \n"
                 f"**{label}**"
@@ -430,7 +430,7 @@ def render() -> None:
     st.divider()
 
     # ── Reasoning chain explainer ──────────────────────────────────────────────
-    with st.expander("🧠 How proposals are generated — reasoning chain"):
+    with st.expander("How proposals are generated — reasoning chain"):
         st.markdown("""
         Each proposal follows this pipeline:
 
