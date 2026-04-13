@@ -35,7 +35,6 @@ def render():
         "Detected Opportunities",
         "All clients scanned daily. Opportunities are ranked by confidence score (0–100). "
         "Each was detected by a specific combination of business rules.",
-        sprint="Sprint 2",
     )
 
     results = _load_opportunities()

@@ -557,35 +557,11 @@ def opb_sidebar_header() -> None:
 
 # ── Page header ────────────────────────────────────────────────────────────────
 
-def page_header(title: str, subtitle: str = "", sprint: str = "") -> None:
+def page_header(title: str, subtitle: str = "") -> None:
     """
-    Consistent page header: optional sprint badge → serif title → subtitle.
+    Consistent page header: serif title → optional subtitle.
     Replaces the st.title() + st.caption() + st.divider() pattern.
     """
-    badge = ""
-    if sprint:
-        badge = f"""
-        <div style="
-          display: inline-flex;
-          align-items: center;
-          gap: 5px;
-          background: rgba(200,152,42,.10);
-          border: 1px solid rgba(200,152,42,.28);
-          border-radius: 20px;
-          padding: 3px 12px 3px 9px;
-          margin-bottom: 10px;
-        ">
-          <span style="
-            width: 5px; height: 5px; border-radius: 50%;
-            background: #C8982A; display: inline-block; flex-shrink:0;
-          "></span>
-          <span style="
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 9px; font-weight: 700;
-            letter-spacing: 2px; text-transform: uppercase; color: #C8982A;
-          ">{sprint}</span>
-        </div>
-        """
     sub = ""
     if subtitle:
         sub = f"""
@@ -602,7 +578,6 @@ def page_header(title: str, subtitle: str = "", sprint: str = "") -> None:
       border-bottom: 1px solid #E2E8F0;
       margin-bottom: 28px;
     ">
-      {badge}
       <h1 style="
         font-family: 'Fraunces', Georgia, serif;
         font-weight: 400; font-size: 26px;
@@ -653,15 +628,29 @@ def eyebrow_label(text: str) -> None:
 # ── Production badge ───────────────────────────────────────────────────────────
 
 def production_badge(note: str) -> None:
-    """Subtle collapsible production integration note."""
-    with st.expander("⚡ Production integration"):
-        st.html(f"""
-        <div style="
-          font-family:'Plus Jakarta Sans',sans-serif;
-          font-size:12px;color:#4B5563;
-          line-height:1.7;padding:2px 0 4px;
-        ">{note}</div>
-        """)
+    """Inline production integration note — safe to use inside expanders."""
+    st.html(f"""
+    <div style="
+      display:flex;align-items:flex-start;gap:10px;
+      background:#F0F4F8;
+      border-left:3px solid #6B7280;
+      border-radius:0 6px 6px 0;
+      padding:8px 14px;
+      margin:8px 0 16px;
+    ">
+      <span style="
+        font-family:'Plus Jakarta Sans',sans-serif;
+        font-size:9px;font-weight:700;letter-spacing:2px;
+        text-transform:uppercase;color:#6B7280;
+        white-space:nowrap;padding-top:2px;
+      ">Production</span>
+      <span style="width:1px;min-height:14px;background:#CBD5E1;flex-shrink:0;margin-top:2px;"></span>
+      <span style="
+        font-family:'Plus Jakarta Sans',sans-serif;
+        font-size:12px;color:#4B5563;line-height:1.65;
+      ">{note}</span>
+    </div>
+    """)
 
 
 # ── Demo banner ────────────────────────────────────────────────────────────────

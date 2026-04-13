@@ -70,7 +70,6 @@ def render() -> None:
     page_header(
         "Negociación Autónoma",
         "El agente negocia precio con clientes en múltiples turnos usando LLM.",
-        sprint="Sprint 7",
     )
 
     production_badge(

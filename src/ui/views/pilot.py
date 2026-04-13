@@ -554,7 +554,6 @@ def render() -> None:
         "Pilot — Full Cycle Demo",
         "Complete agent loop: detect → generate → send → client reply → feedback. "
         "The feedback loop updates confidence per client, making future proposals smarter.",
-        sprint="Sprint 4",
     )
 
     # ── Controls ───────────────────────────────────────────────────────────────

@@ -69,7 +69,6 @@ def render():
         "Detection Accuracy",
         "Validation against the 10 manually labeled test clients from Sprint 1. "
         "Measures how accurately the rule engine detects the right opportunities.",
-        sprint="Sprint 2",
     )
 
     rows, metrics = _run_validation()

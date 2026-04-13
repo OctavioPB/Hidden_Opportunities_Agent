@@ -350,7 +350,6 @@ def render() -> None:
         "The agent learns from historical proposal outcomes and predicts which clients "
         "are most likely to accept an upsell offer. Rule-based scores are blended with "
         "ML probabilities for a more accurate ranking.",
-        sprint="Sprint 5",
     )
 
     # ── Retrain panel ──────────────────────────────────────────────────────────

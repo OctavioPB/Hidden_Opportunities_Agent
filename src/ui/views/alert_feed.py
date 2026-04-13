@@ -38,7 +38,6 @@ def render():
         "Alert Feed",
         "Simulated Slack channel — the agent posts here every morning with newly detected "
         "opportunities. The account team reviews alerts and decides which ones to act on.",
-        sprint="Sprint 2",
     )
 
     # ── Run controls ──────────────────────────────────────────────────────────

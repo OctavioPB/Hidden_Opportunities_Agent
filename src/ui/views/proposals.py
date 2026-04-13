@@ -363,7 +363,6 @@ def render() -> None:
         "Proposal Review & Approval",
         "The agent writes personalized proposals based on detected opportunities. "
         "A human must approve each proposal before it is sent to the client.",
-        sprint="Sprint 3",
     )
 
     # ── On-demand generation panel ─────────────────────────────────────────────

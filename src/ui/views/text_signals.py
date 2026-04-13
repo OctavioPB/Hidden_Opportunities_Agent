@@ -479,7 +479,6 @@ def render() -> None:
         "The agent reads emails, call transcripts, and CRM notes to detect subtle signals "
         "that structured metrics miss. These signals become new ML features, improving "
         "acceptance probability estimates.",
-        sprint="Sprint 6",
     )
 
     _render_pipeline_diagram()

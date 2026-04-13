@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 from src.db.schema import init_db, migrate_db
-from src.ui.components import demo_banner, inject_brand_css, opb_sidebar_header, nav_group_label
+from src.ui.components import inject_brand_css, opb_sidebar_header, nav_group_label
 from src.ui.views import opportunities, alert_feed, accuracy, proposals, pilot, ml_model, text_signals, negotiation
 
 # ── Ensure DB schema is up-to-date (safe to call on every reload) ─────────────
@@ -90,6 +90,5 @@ with st.sidebar:
     """)
 
 # ── Page render ───────────────────────────────────────────────────────────────
-demo_banner()
 _, page_module, _ = PAGES[st.session_state.page]
 page_module.render()
