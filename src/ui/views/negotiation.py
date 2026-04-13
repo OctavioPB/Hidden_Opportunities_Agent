@@ -42,7 +42,7 @@ from src.agents.payment_link import create_payment_link, list_payment_links, get
 from src.agents.feedback_loop import record_client_reply, INTENT_TOO_EXPENSIVE, INTENT_ACCEPTED
 from src.agents.proposal_generator import get_all_proposals
 from src.data_sources.crm import get_all_clients
-from src.ui.components import page_header, production_badge, score_bar
+from src.ui.components import page_header, section_header, production_badge, score_bar
 
 
 # ── Simulated client replies for the demo ─────────────────────────────────────
@@ -68,14 +68,14 @@ _INTENT_BADGE = {
 
 def render() -> None:
     page_header(
-        "🤝 Negociación Autónoma",
-        "Sprint 7 — El agente negocia precio con clientes en múltiples turnos usando LLM.",
+        "Negociación Autónoma",
+        "El agente negocia precio con clientes en múltiples turnos usando LLM.",
+        sprint="Sprint 7",
     )
 
     production_badge(
-        "Producción",
         "Las respuestas del cliente llegan vía SendGrid Inbound Parse. "
-        "El agente responde en < 2 min. Stripe genera el link de pago al cierre.",
+        "El agente responde en &lt; 2 min. Stripe genera el link de pago al cierre.",
     )
 
     summary = get_negotiation_summary()
@@ -120,7 +120,7 @@ def _render_kpis(summary: dict) -> None:
 # ── Active negotiations panel ─────────────────────────────────────────────────
 
 def _render_active_negotiations() -> None:
-    st.subheader("Negociaciones en Curso")
+    section_header("Negociaciones en Curso")
 
     active = get_active_negotiations()
 
@@ -216,27 +216,43 @@ def _render_thread(thread: list[dict]) -> None:
         intent_tag = f" · {icon_char} `{intent}`" if intent else ""
 
         if role == "agent":
-            st.markdown(
-                f"<div style='background:#e3f2fd;border-radius:8px;"
-                f"padding:10px 14px;margin:6px 0;border-left:3px solid #1976d2'>"
-                f"<small><b>🤖 Agente</b> · {ts}{price_tag}{intent_tag}</small>"
-                f"<br><small>{msg[:400]}{'…' if len(msg)>400 else ''}</small></div>",
-                unsafe_allow_html=True,
+            st.html(
+                f"<div style='"
+                f"background:#E8EFF8;border-radius:8px;"
+                f"padding:10px 14px;margin:6px 0;"
+                f"border-left:3px solid #003366;"
+                f"font-family:Plus Jakarta Sans,sans-serif;'>"
+                f"<div style='font-size:10px;font-weight:700;letter-spacing:.8px;"
+                f"text-transform:uppercase;color:#003366;margin-bottom:4px;'>"
+                f"Agente&nbsp;&nbsp;<span style='font-weight:400;color:#6B7280;"
+                f"text-transform:none;letter-spacing:0;'>{ts}{price_tag}</span>"
+                f"</div>"
+                f"<div style='font-size:13px;color:#0D1B2E;line-height:1.6;'>"
+                f"{msg[:400]}{'…' if len(msg)>400 else ''}</div>"
+                f"</div>"
             )
         else:
-            st.markdown(
-                f"<div style='background:#fce4ec;border-radius:8px;"
-                f"padding:10px 14px;margin:6px 0;border-left:3px solid #c62828'>"
-                f"<small><b>👤 Cliente</b> · {ts}{intent_tag}</small>"
-                f"<br><small>{msg[:300]}{'…' if len(msg)>300 else ''}</small></div>",
-                unsafe_allow_html=True,
+            st.html(
+                f"<div style='"
+                f"background:#FBF5E6;border-radius:8px;"
+                f"padding:10px 14px;margin:6px 0;"
+                f"border-left:3px solid #C8982A;"
+                f"font-family:Plus Jakarta Sans,sans-serif;'>"
+                f"<div style='font-size:10px;font-weight:700;letter-spacing:.8px;"
+                f"text-transform:uppercase;color:#92400E;margin-bottom:4px;'>"
+                f"Cliente&nbsp;&nbsp;<span style='font-weight:400;color:#6B7280;"
+                f"text-transform:none;letter-spacing:0;'>{ts}{intent_tag}</span>"
+                f"</div>"
+                f"<div style='font-size:13px;color:#0D1B2E;line-height:1.6;'>"
+                f"{msg[:300]}{'…' if len(msg)>300 else ''}</div>"
+                f"</div>"
             )
 
 
 # ── Demo simulation panel ─────────────────────────────────────────────────────
 
 def _render_demo_panel() -> None:
-    st.subheader("Demo: Simulación de Negociación Completa")
+    section_header("Demo: Simulación de Negociación Completa")
     st.caption(
         "Elige una propuesta existente (o crea una nueva vía la página Proposals), "
         "simula una respuesta 'precio muy alto' y observa cómo el agente negocia."
@@ -333,7 +349,6 @@ def _render_demo_panel() -> None:
         st.caption("Primero ejecuta el Paso 1 para iniciar la negociación.")
 
     production_badge(
-        "Producción",
         "En producción, las respuestas del cliente llegan vía SendGrid Inbound Parse "
         "webhook. El agente identifica el thread por el header Message-ID, extrae el "
         "intent con el LLM y envía la respuesta en menos de 2 minutos.",
@@ -343,10 +358,9 @@ def _render_demo_panel() -> None:
 # ── Payment links panel ───────────────────────────────────────────────────────
 
 def _render_payment_links() -> None:
-    st.subheader("Links de Pago Stripe")
+    section_header("Links de Pago Stripe")
 
     production_badge(
-        "Stripe",
         "POST /v1/payment_links con price_data. El cliente recibe el link "
         "por email. Webhook checkout.session.completed → estado 'paid' en DB.",
     )
@@ -422,7 +436,7 @@ def _render_manual_link_generator() -> None:
 # ── History panel ─────────────────────────────────────────────────────────────
 
 def _render_history() -> None:
-    st.subheader("Historial de Negociaciones")
+    section_header("Historial de Negociaciones")
 
     from src.db.schema import get_connection
     conn = get_connection()

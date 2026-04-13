@@ -45,7 +45,7 @@ from src.agents.auto_sender import (
 )
 from src.agents.rules import OPPORTUNITY_LABELS, SUGGESTED_PRICES
 from src.data_sources.crm import get_demo_clients, get_all_clients
-from src.ui.components import score_bar, production_badge, page_header
+from src.ui.components import score_bar, production_badge, page_header, section_header
 
 
 # ── Demo scenario scripts ─────────────────────────────────────────────────────
@@ -461,7 +461,7 @@ def _run_full_cycle(client_id: str, scenario_name: str, slow: bool) -> None:
 # ── Pilot metrics panel ───────────────────────────────────────────────────────
 
 def _render_pilot_metrics() -> None:
-    st.subheader("Pilot Report")
+    section_header("Pilot Report")
     st.caption(
         "Aggregated metrics for the pilot period. "
         "In a production pilot this covers 2 weeks with 3 real clients."
@@ -511,7 +511,7 @@ def _render_pilot_metrics() -> None:
 # ── Sent email log ─────────────────────────────────────────────────────────────
 
 def _render_sent_log() -> None:
-    st.subheader("Sent Email Log")
+    section_header("Sent Email Log")
     sent = load_sent_log()
     if not sent:
         st.info("No emails sent yet. Run the simulation above.")
@@ -651,7 +651,7 @@ def render() -> None:
         _render_sent_log()
 
     with tab3:
-        st.subheader("Feedback & Outcome Log")
+        section_header("Feedback & Outcome Log")
         feedback = load_feedback_log()
         calendars = load_calendar_log()
         escalations = load_escalation_log()

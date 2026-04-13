@@ -23,7 +23,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import config
-from src.db.schema import get_connection, init_db
+from src.db.schema import get_connection, init_db, migrate_db
 from src.synthetic.generator import generate_all, save_to_json
 
 
@@ -103,6 +103,7 @@ def seed(reset: bool = False) -> None:
         _drop_all(conn)
 
     init_db()
+    migrate_db()
 
     print("[seed] Generating synthetic dataset...")
     dataset = generate_all()

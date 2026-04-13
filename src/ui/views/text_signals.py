@@ -32,7 +32,7 @@ from src.data_sources.text_signals import (
     get_all_signal_summaries, get_urgency_alerts, count_signals_by_type,
 )
 from src.data_sources.crm import get_all_clients
-from src.ui.components import production_badge, page_header
+from src.ui.components import production_badge, page_header, section_header
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -84,7 +84,7 @@ def _signal_badge(label: str, color: str) -> str:
 # ── Section 1: Pipeline diagram ───────────────────────────────────────────────
 
 def _render_pipeline_diagram() -> None:
-    st.subheader("NLP Processing Pipeline")
+    section_header("NLP Processing Pipeline")
     st.caption(
         "How unstructured client communications become ML features "
         "that improve opportunity detection accuracy."
@@ -169,7 +169,7 @@ def _render_signal_overview() -> None:
     db_stats = get_pipeline_summary()
     counts   = count_signals_by_type()
 
-    st.subheader("Signal Overview")
+    section_header("Signal Overview")
 
     k1, k2, k3, k4, k5, k6 = st.columns(6)
     k1.metric("Total Texts", db_stats["total_signals"])
@@ -229,7 +229,7 @@ def _render_signal_overview() -> None:
 # ── Section 3: Email browser ──────────────────────────────────────────────────
 
 def _render_email_browser() -> None:
-    st.subheader("Email Browser")
+    section_header("Email Browser")
     st.caption("Select a client to view their communications and extracted signals.")
 
     clients = get_all_clients()
@@ -311,7 +311,7 @@ def _render_email_browser() -> None:
 # ── Section 4: Signal matrix ──────────────────────────────────────────────────
 
 def _render_signal_matrix() -> None:
-    st.subheader("Signal Matrix — All Clients")
+    section_header("Signal Matrix — All Clients")
     st.caption(
         "Each row is a client. Each column is a signal type. "
         "Color = signal active (darker = higher risk). "
@@ -365,7 +365,7 @@ def _render_signal_matrix() -> None:
 # ── Section 5: Urgency alerts ─────────────────────────────────────────────────
 
 def _render_urgency_alerts() -> None:
-    st.subheader("Urgency Alerts")
+    section_header("Urgency Alerts")
     st.caption(
         "Clients where churn or urgency signals were detected. "
         "These require immediate outreach by an account manager."

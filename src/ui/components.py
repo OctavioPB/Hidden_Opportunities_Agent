@@ -147,7 +147,7 @@ section[data-testid="stSidebar"] .stButton > button:hover {
 /* Active nav item */
 section[data-testid="stSidebar"] .stButton > button[kind="primary"],
 section[data-testid="stSidebar"] .stButton > button[data-testid="baseButton-primary"] {
-  background: rgba(200,152,42,.12) !important;
+  background: #C8982A !important;
   border-left: 3px solid #C8982A !important;
   color: #FFFFFF !important;
   font-weight: 600 !important;
@@ -155,7 +155,7 @@ section[data-testid="stSidebar"] .stButton > button[data-testid="baseButton-prim
 }
 section[data-testid="stSidebar"] .stButton > button[kind="primary"]:hover,
 section[data-testid="stSidebar"] .stButton > button[data-testid="baseButton-primary"]:hover {
-  background: rgba(200,152,42,.18) !important;
+  background: #B8881A !important;
   color: #FFFFFF !important;
 }
 
@@ -200,7 +200,6 @@ section[data-testid="stSidebar"] .stButton > button[data-testid="baseButton-prim
   font-family: 'Plus Jakarta Sans', sans-serif !important;
   font-size: 14px !important;
   line-height: 1.7 !important;
-  color: #374151 !important;
 }
 
 /* ── Captions ── */
@@ -230,6 +229,12 @@ section[data-testid="stSidebar"] .stButton > button[data-testid="baseButton-prim
   box-shadow: 0 1px 4px rgba(0,20,60,.06) !important;
   padding: 20px 24px 18px !important;
 }
+[data-testid="metric-container"] > div {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+}
 [data-testid="stMetricValue"] {
   font-family: 'Fraunces', Georgia, serif !important;
   font-weight: 300 !important;
@@ -246,6 +251,11 @@ section[data-testid="stSidebar"] .stButton > button[data-testid="baseButton-prim
   letter-spacing: 1.5px !important;
   color: #6B7280 !important;
   margin-bottom: 6px !important;
+  text-align: center !important;
+}
+[data-testid="stMetricDelta"] {
+  display: flex !important;
+  justify-content: center !important;
 }
 [data-testid="stMetricDelta"] > div {
   font-family: 'Plus Jakarta Sans', sans-serif !important;
@@ -353,13 +363,6 @@ section[data-testid="stSidebar"] .stButton > button[data-testid="baseButton-prim
 /* ══════════════════════════════════
    BORDERED CONTAINERS
 ══════════════════════════════════ */
-[data-testid="stVerticalBlockBorderWrapper"] {
-  background: #FFFFFF !important;
-  border-radius: 12px !important;
-  border: 1px solid #E2E8F0 !important;
-  box-shadow: 0 1px 4px rgba(0,20,60,.05) !important;
-  padding: 8px !important;
-}
 
 /* ══════════════════════════════════
    ALERTS & INFO BOXES
@@ -490,6 +493,21 @@ def inject_brand_css() -> None:
 
 # ── Sidebar header ─────────────────────────────────────────────────────────────
 
+def nav_group_label(text: str) -> None:
+    """Uppercase section divider label inside the sidebar nav."""
+    st.html(f"""
+    <div style="
+      padding: 18px 20px 5px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 9px;
+      letter-spacing: 2.8px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.28);
+      font-weight: 600;
+    ">{text}</div>
+    """)
+
+
 def opb_sidebar_header() -> None:
     """OPB monogram + app title in the sidebar."""
     st.html("""
@@ -514,10 +532,10 @@ def opb_sidebar_header() -> None:
         </div>
         <div style="
           font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 9px;
+          font-size: 11px;
           letter-spacing: 2.5px;
           text-transform: uppercase;
-          color: rgba(255,255,255,.30);
+          color: rgba(255,255,255,.90);
           line-height: 1;
         ">Hidden Opportunities</div>
       </div>

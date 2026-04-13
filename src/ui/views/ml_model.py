@@ -33,7 +33,7 @@ from src.ml.explainer import get_feature_importance, explain_single, FEATURE_LAB
 from src.ml.inference import predict_for_all, get_inference_summary
 from src.ml.dataset import FEATURE_NAMES, _metrics_to_row
 from src.agents.rules import OPPORTUNITY_LABELS
-from src.ui.components import production_badge, score_bar, page_header
+from src.ui.components import production_badge, score_bar, page_header, section_header
 
 
 # ── Retrain helper ─────────────────────────────────────────────────────────────
@@ -63,7 +63,7 @@ def _run_training() -> dict | None:
 # ── Model card ────────────────────────────────────────────────────────────────
 
 def _render_model_card(meta: dict) -> None:
-    st.subheader("Model Card")
+    section_header("Model Card")
 
     m = meta["metrics"]
     trained_at = meta.get("trained_at", "")[:16].replace("T", " ")
@@ -101,7 +101,7 @@ def _render_training_history() -> None:
     if len(history) < 2:
         return
 
-    st.subheader("Training History")
+    section_header("Training History")
     df = pd.DataFrame(history)
     df["trained_at"] = pd.to_datetime(df["trained_at"])
     df = df.sort_values("trained_at")
@@ -149,7 +149,7 @@ def _render_training_history() -> None:
 # ── Feature importance ────────────────────────────────────────────────────────
 
 def _render_feature_importance() -> None:
-    st.subheader("Feature Importance")
+    section_header("Feature Importance")
     st.caption(
         "Global feature importance from the RandomForest model. "
         "Higher importance = more influence on the acceptance probability prediction."
@@ -210,7 +210,7 @@ def _render_feature_importance() -> None:
 # ── Predictions table ─────────────────────────────────────────────────────────
 
 def _render_predictions_table(predictions: list[dict]) -> None:
-    st.subheader("ML Predictions — All Clients")
+    section_header("ML Predictions — All Clients")
     st.caption(
         "Rule score (heuristic) vs. ML probability (model) vs. blended score "
         "(0.55 × ML + 0.45 × rule). Click a row to see the SHAP explanation."
@@ -267,7 +267,7 @@ def _render_predictions_table(predictions: list[dict]) -> None:
 # ── SHAP explanation panel ────────────────────────────────────────────────────
 
 def _render_why_panel(predictions: list[dict]) -> None:
-    st.subheader("Why This Opportunity?")
+    section_header("Why This Opportunity?")
     st.caption(
         "Select a client-opportunity pair to see which features most influenced "
         "the ML model's acceptance probability estimate."
