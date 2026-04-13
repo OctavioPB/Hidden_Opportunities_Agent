@@ -110,8 +110,11 @@ def _render_cards(results: list[dict]) -> None:
                 st.markdown(f"**{name}**{demo_tag} &nbsp;·&nbsp; *{indust}*")
                 st.markdown(f"**{label}**")
             with p_col:
-                st.markdown(f"<div style='text-align:right;font-size:1.4em;font-weight:700;'>${price:,.0f}</div>",
-                            unsafe_allow_html=True)
+                st.markdown(
+                    f"<div style='text-align:right;font-family:Fraunces,Georgia,serif;"
+                    f"font-size:1.5em;font-weight:300;color:#C8982A;'>${price:,.0f}</div>",
+                    unsafe_allow_html=True,
+                )
 
             score_bar(score)
 

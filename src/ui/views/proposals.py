@@ -43,13 +43,13 @@ from src.agents.rules import OPPORTUNITY_LABELS, SUGGESTED_PRICES
 from src.ui.components import score_bar, production_badge, demo_banner
 
 
-# ── Status colours ─────────────────────────────────────────────────────────────
+# ── Status colours (OPB semantic badge system) ─────────────────────────────────
 _STATUS_COLORS = {
-    "draft":    "#ECB22E",
-    "approved": "#2EB67D",
-    "sent":     "#36C5F0",
-    "rejected": "#E01E5A",
-    "accepted": "#2EB67D",
+    "draft":    {"dot": "#F07020", "bg": "#FEF0E6", "text": "#7A3800"},
+    "approved": {"dot": "#27B97C", "bg": "#E0F7EF", "text": "#0D5C3A"},
+    "sent":     {"dot": "#003366", "bg": "#E0EAF4", "text": "#001F4D"},
+    "rejected": {"dot": "#E03448", "bg": "#FDEAEA", "text": "#7A1020"},
+    "accepted": {"dot": "#27B97C", "bg": "#E0F7EF", "text": "#0D5C3A"},
 }
 
 _STATUS_LABELS = {
@@ -62,11 +62,17 @@ _STATUS_LABELS = {
 
 
 def _status_badge(status: str) -> str:
-    color = _STATUS_COLORS.get(status, "#888")
+    c     = _STATUS_COLORS.get(status, {"dot": "#6B7280", "bg": "#F4F6F9", "text": "#1C1C2E"})
     label = _STATUS_LABELS.get(status, status.title())
     return (
-        f'<span style="background:{color};color:#fff;padding:2px 10px;'
-        f'border-radius:4px;font-size:0.78em;font-weight:700;">{label}</span>'
+        f'<span style="display:inline-flex;align-items:center;gap:6px;'
+        f'background:{c["bg"]};color:{c["text"]};'
+        f'padding:4px 12px;border-radius:20px;'
+        f'font-size:10px;font-weight:600;'
+        f'font-family:Plus Jakarta Sans,sans-serif;letter-spacing:.5px;">'
+        f'<span style="width:6px;height:6px;border-radius:50%;'
+        f'background:{c["dot"]};display:inline-block;flex-shrink:0;"></span>'
+        f'{label}</span>'
     )
 
 
@@ -95,7 +101,7 @@ def _render_kpis(proposals: list[dict]) -> None:
 
 def _render_generate_panel() -> None:
     """Allow on-demand proposal generation for high-score opportunities."""
-    with st.expander("Generate Proposals On-Demand", icon="⚡"):
+    with st.expander("⚡ Generate Proposals On-Demand"):
         st.caption(
             "Generate proposals for all detected opportunities with score ≥ threshold "
             "that do not yet have a draft. In production this runs automatically "
@@ -157,8 +163,8 @@ def _render_proposal_card(p: dict, idx: int) -> None:
             st.caption(f"Created: {created}")
         with hcol3:
             st.markdown(
-                f"<div style='text-align:right;font-size:1.4em;font-weight:700;'>"
-                f"${price:,.0f}</div>",
+                f"<div style='text-align:right;font-family:Fraunces,Georgia,serif;"
+                f"font-size:1.5em;font-weight:300;color:#C8982A;'>${price:,.0f}</div>",
                 unsafe_allow_html=True,
             )
 
@@ -434,7 +440,7 @@ def render() -> None:
     st.divider()
 
     # ── Reasoning chain explainer ──────────────────────────────────────────────
-    with st.expander("How proposals are generated — reasoning chain", icon="🧠"):
+    with st.expander("🧠 How proposals are generated — reasoning chain"):
         st.markdown("""
         Each proposal follows this pipeline:
 

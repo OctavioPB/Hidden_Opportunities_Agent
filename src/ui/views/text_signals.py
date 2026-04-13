@@ -44,11 +44,11 @@ _SOURCE_ICONS = {
 }
 
 _SIGNAL_COLORS = {
-    "mentions_price":   "#ECB22E",
-    "asks_for_results": "#36C5F0",
-    "churn_risk":       "#E01E5A",
-    "urgency_signal":   "#FF6B35",
-    "interest_signal":  "#2EB67D",
+    "mentions_price":   "#C8982A",
+    "asks_for_results": "#336699",
+    "churn_risk":       "#E03448",
+    "urgency_signal":   "#F07020",
+    "interest_signal":  "#27B97C",
 }
 
 _SIGNAL_LABELS = {
@@ -62,18 +62,21 @@ _SIGNAL_LABELS = {
 
 def _sentiment_color(s: float | None) -> str:
     if s is None:
-        return "#666"
+        return "#6B7280"
     if s > 0.2:
-        return "#2EB67D"
+        return "#27B97C"
     if s < -0.2:
-        return "#E01E5A"
-    return "#ECB22E"
+        return "#E03448"
+    return "#C8982A"
 
 
 def _signal_badge(label: str, color: str) -> str:
     return (
-        f'<span style="background:{color};color:#fff;font-size:0.72em;'
-        f'padding:2px 8px;border-radius:10px;margin:2px;font-weight:600;">'
+        f'<span style="background:{color}1A;color:{color};'
+        f'font-family:Plus Jakarta Sans,sans-serif;'
+        f'font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;'
+        f'padding:3px 9px;border-radius:20px;margin:2px;'
+        f'border:1px solid {color}40;display:inline-block;">'
         f'{label}</span>'
     )
 
@@ -89,61 +92,62 @@ def _render_pipeline_diagram() -> None:
 
     st.html("""
     <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;
-                background:#1a1d21;border-radius:8px;padding:20px 16px;
-                margin-bottom:8px;font-family:-apple-system,sans-serif;">
+                background:#FFFFFF;border-radius:12px;padding:20px 16px;
+                margin-bottom:8px;font-family:'Plus Jakarta Sans',sans-serif;
+                border:1px solid #E0EAF4;box-shadow:0 1px 3px rgba(0,51,102,.06);">
 
       <!-- Step 1 -->
-      <div style="text-align:center;padding:12px 16px;background:#2d3139;
-                  border-radius:6px;min-width:130px;">
+      <div style="text-align:center;padding:12px 16px;background:#F4F6F9;
+                  border-radius:8px;min-width:130px;border:1px solid #E0EAF4;">
         <div style="font-size:1.6em;">📧 📞 📋</div>
-        <div style="color:#d1d2d3;font-size:0.85em;font-weight:600;margin-top:4px;">
+        <div style="color:#1C1C2E;font-size:0.85em;font-weight:600;margin-top:4px;">
           Client Comms</div>
-        <div style="color:#888;font-size:0.72em;">Email · Call · CRM</div>
+        <div style="color:#6B7280;font-size:0.72em;">Email · Call · CRM</div>
       </div>
 
-      <div style="color:#36C5F0;font-size:1.5em;padding:0 8px;">→</div>
+      <div style="color:#C8982A;font-size:1.5em;padding:0 8px;">→</div>
 
       <!-- Step 2 -->
-      <div style="text-align:center;padding:12px 16px;background:#2d3139;
-                  border-radius:6px;min-width:130px;">
+      <div style="text-align:center;padding:12px 16px;background:#F4F6F9;
+                  border-radius:8px;min-width:130px;border:1px solid #E0EAF4;">
         <div style="font-size:1.6em;">🔍</div>
-        <div style="color:#d1d2d3;font-size:0.85em;font-weight:600;margin-top:4px;">
+        <div style="color:#1C1C2E;font-size:0.85em;font-weight:600;margin-top:4px;">
           Text Extraction</div>
-        <div style="color:#888;font-size:0.72em;">Keyword + LLM</div>
+        <div style="color:#6B7280;font-size:0.72em;">Keyword + LLM</div>
       </div>
 
-      <div style="color:#36C5F0;font-size:1.5em;padding:0 8px;">→</div>
+      <div style="color:#C8982A;font-size:1.5em;padding:0 8px;">→</div>
 
       <!-- Step 3 -->
-      <div style="text-align:center;padding:12px 16px;background:#2d3139;
-                  border-radius:6px;min-width:130px;">
+      <div style="text-align:center;padding:12px 16px;background:#F4F6F9;
+                  border-radius:8px;min-width:130px;border:1px solid #E0EAF4;">
         <div style="font-size:1.6em;">📊</div>
-        <div style="color:#d1d2d3;font-size:0.85em;font-weight:600;margin-top:4px;">
+        <div style="color:#1C1C2E;font-size:0.85em;font-weight:600;margin-top:4px;">
           Signal Flags</div>
-        <div style="color:#888;font-size:0.72em;">
+        <div style="color:#6B7280;font-size:0.72em;">
           sentiment · price · churn<br>urgency · interest</div>
       </div>
 
-      <div style="color:#36C5F0;font-size:1.5em;padding:0 8px;">→</div>
+      <div style="color:#C8982A;font-size:1.5em;padding:0 8px;">→</div>
 
       <!-- Step 4 -->
-      <div style="text-align:center;padding:12px 16px;background:#2d3139;
-                  border-radius:6px;min-width:130px;">
+      <div style="text-align:center;padding:12px 16px;background:#F4F6F9;
+                  border-radius:8px;min-width:130px;border:1px solid #E0EAF4;">
         <div style="font-size:1.6em;">🤖</div>
-        <div style="color:#d1d2d3;font-size:0.85em;font-weight:600;margin-top:4px;">
+        <div style="color:#1C1C2E;font-size:0.85em;font-weight:600;margin-top:4px;">
           ML Feature Update</div>
-        <div style="color:#888;font-size:0.72em;">5 new features → model</div>
+        <div style="color:#6B7280;font-size:0.72em;">5 new features → model</div>
       </div>
 
-      <div style="color:#36C5F0;font-size:1.5em;padding:0 8px;">→</div>
+      <div style="color:#C8982A;font-size:1.5em;padding:0 8px;">→</div>
 
       <!-- Step 5 -->
-      <div style="text-align:center;padding:12px 16px;background:#2d3139;
-                  border-radius:6px;min-width:130px;">
+      <div style="text-align:center;padding:12px 16px;background:#E0EAF4;
+                  border-radius:8px;min-width:130px;border:1px solid #99BBDD;">
         <div style="font-size:1.6em;">🎯</div>
-        <div style="color:#d1d2d3;font-size:0.85em;font-weight:600;margin-top:4px;">
+        <div style="color:#003366;font-size:0.85em;font-weight:600;margin-top:4px;">
           Better Scores</div>
-        <div style="color:#888;font-size:0.72em;">+accuracy · +context</div>
+        <div style="color:#336699;font-size:0.72em;">+accuracy · +context</div>
       </div>
 
     </div>
@@ -195,7 +199,7 @@ def _render_signal_overview() -> None:
 
     labels = list(signal_counts.keys())
     values = list(signal_counts.values())
-    colors = ["#ECB22E", "#36C5F0", "#E01E5A", "#FF6B35", "#2EB67D"]
+    colors = ["#C8982A", "#336699", "#E03448", "#F07020", "#27B97C"]
 
     fig = go.Figure(go.Bar(
         x=labels, y=values,
@@ -206,7 +210,10 @@ def _render_signal_overview() -> None:
     fig.update_layout(
         title="Signal Type Distribution",
         yaxis_title="# Texts with Signal",
-        template="plotly_dark",
+        template="plotly_white",
+        paper_bgcolor="#F4F6F9",
+        plot_bgcolor="#FFFFFF",
+        font=dict(family="Plus Jakarta Sans, sans-serif", color="#1C1C2E"),
         height=250,
         margin=dict(t=40, b=20),
     )
@@ -249,10 +256,11 @@ def _render_email_browser() -> None:
 
     sent_color = _sentiment_color(summary.get("sentiment_score"))
     st.html(
-        f'<div style="background:#1a1d21;border-radius:6px;padding:10px 14px;'
-        f'border-left:4px solid {sent_color};margin-bottom:10px;">'
-        f'<span style="color:#d1d2d3;font-weight:600;">{selected_name}</span>'
-        f'<span style="color:{sent_color};margin-left:12px;font-size:0.85em;">'
+        f'<div style="background:#FFFFFF;border-radius:8px;padding:10px 16px;'
+        f'border-left:3px solid {sent_color};border:1px solid #E0EAF4;'
+        f'margin-bottom:10px;font-family:Plus Jakarta Sans,sans-serif;">'
+        f'<span style="color:#1C1C2E;font-weight:600;">{selected_name}</span>'
+        f'<span style="color:{sent_color};margin-left:12px;font-size:0.82em;font-weight:500;">'
         f'Sentiment: {summary.get("sentiment_score", 0):.2f}</span>'
         f'<span style="margin-left:12px;">{badge_html}</span>'
         f'</div>'
@@ -276,17 +284,19 @@ def _render_email_browser() -> None:
                 badges += _signal_badge(label, _SIGNAL_COLORS[key])
 
         st.html(
-            f'<div style="background:#1a1d21;border:1px solid #2d3139;border-radius:6px;'
-            f'padding:12px 14px;margin:6px 0;">'
-            f'<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
+            f'<div style="background:#FFFFFF;border:1px solid #E0EAF4;border-radius:8px;'
+            f'padding:12px 16px;margin:6px 0;font-family:Plus Jakarta Sans,sans-serif;">'
+            f'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
             f'<span style="font-size:1.2em;">{source_icon}</span>'
-            f'<span style="color:#888;font-size:0.82em;">{source_label}</span>'
-            f'<span style="color:#555;font-size:0.78em;margin-left:auto;">'
+            f'<span style="color:#6B7280;font-size:0.82em;text-transform:uppercase;'
+            f'letter-spacing:1px;font-weight:500;">{source_label}</span>'
+            f'<span style="color:#99BBDD;font-size:0.78em;margin-left:auto;">'
             f'{(sig.get("processed_at","")[:16]).replace("T"," ")}</span>'
             f'</div>'
-            f'<div style="color:#d1d2d3;font-size:0.88em;line-height:1.5;margin-bottom:8px;">'
+            f'<div style="color:#1C1C2E;font-size:0.88em;line-height:1.6;margin-bottom:10px;'
+            f'font-style:italic;border-left:2px solid #E0EAF4;padding-left:10px;">'
             f'"{sig.get("raw_text","")}"</div>'
-            f'<div>{badges}</div>'
+            f'<div style="display:flex;flex-wrap:wrap;gap:4px;">{badges}</div>'
             f'</div>'
         )
 
@@ -370,10 +380,10 @@ def _render_urgency_alerts() -> None:
     for alert in alerts:
         churn   = bool(alert.get("churn_risk"))
         urgency = bool(alert.get("urgency_signal"))
-        border  = "#E01E5A" if churn else "#FF6B35"
+        border  = "#E03448" if churn else "#F07020"
         icon    = "🚨" if churn else "⚡"
         label   = "CHURN RISK" if churn else "URGENCY"
-        badge_color = "#E01E5A" if churn else "#FF6B35"
+        badge_color = "#E03448" if churn else "#F07020"
 
         sentiment_val = alert.get("avg_sentiment")
         if sentiment_val is not None:
@@ -383,27 +393,30 @@ def _render_urgency_alerts() -> None:
 
         tags = _signal_badge(label, badge_color)
         if churn and urgency:
-            tags += _signal_badge("⚡ URGENCY", "#FF6B35")
+            tags += _signal_badge("⚡ URGENCY", "#F07020")
 
         # Snippet from most recent communication
         texts = (alert.get("combined_text") or "").split(" ||| ")
         snippet = texts[0][:120] + "…" if texts and len(texts[0]) > 120 else (texts[0] if texts else "")
 
         st.html(
-            f'<div style="background:#1a1d21;border-left:4px solid {border};'
-            f'border-radius:6px;padding:14px 18px;margin:8px 0;">'
-            f'<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">'
+            f'<div style="background:#FFFFFF;border-left:4px solid {border};'
+            f'border-radius:8px;border:1px solid #E0EAF4;padding:14px 20px;margin:8px 0;'
+            f'font-family:Plus Jakarta Sans,sans-serif;'
+            f'box-shadow:0 1px 4px rgba(0,51,102,.07);">'
+            f'<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">'
             f'<span style="font-size:1.3em;">{icon}</span>'
-            f'<span style="color:#d1d2d3;font-weight:600;font-size:1em;">'
+            f'<span style="color:#1C1C2E;font-weight:600;font-size:0.95em;">'
             f'{alert.get("client_name","")}</span>'
-            f'<span style="color:#888;font-size:0.82em;">· {alert.get("industry","")}</span>'
+            f'<span style="color:#6B7280;font-size:0.82em;">· {alert.get("industry","")}</span>'
             f'<span style="margin-left:auto;">{tags}</span>'
             f'</div>'
-            f'<div style="color:#888;font-size:0.82em;margin-bottom:4px;">'
-            f'Account manager: <strong style="color:#d1d2d3">'
+            f'<div style="color:#6B7280;font-size:0.8em;margin-bottom:6px;">'
+            f'Account manager: <strong style="color:#003366;">'
             f'{alert.get("account_manager","—")}</strong>'
-            f' · {sent_str}</div>'
-            f'<div style="color:#aaa;font-size:0.85em;font-style:italic;">'
+            f' &nbsp;·&nbsp; {sent_str}</div>'
+            f'<div style="color:#6B7280;font-size:0.85em;font-style:italic;'
+            f'border-left:2px solid #E0EAF4;padding-left:10px;">'
             f'"{snippet}"</div>'
             f'</div>'
         )

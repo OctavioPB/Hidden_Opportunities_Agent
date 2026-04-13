@@ -115,7 +115,7 @@ def _render_training_history() -> None:
     metrics_df["n_samples"]  = df["n_samples"].values
 
     fig = go.Figure()
-    colors = {"auc_roc": "#36C5F0", "f1": "#2EB67D", "precision": "#ECB22E", "recall": "#E01E5A"}
+    colors = {"auc_roc": "#003366", "f1": "#27B97C", "precision": "#7C4DBD", "recall": "#F07020"}
     for metric, color in colors.items():
         if metric in metrics_df.columns:
             fig.add_trace(go.Scatter(
@@ -130,7 +130,10 @@ def _render_training_history() -> None:
         xaxis_title="Training Date",
         yaxis_title="Score",
         yaxis_range=[0, 1],
-        template="plotly_dark",
+        template="plotly_white",
+        paper_bgcolor="#F4F6F9",
+        plot_bgcolor="#FFFFFF",
+        font=dict(family="Plus Jakarta Sans, sans-serif", color="#1C1C2E"),
         height=250,
         margin=dict(t=40, b=20),
     )
@@ -160,8 +163,8 @@ def _render_feature_importance() -> None:
     labels  = [f["label"] for f in importance]
     values  = [f["importance"] for f in importance]
     colors  = [
-        "#2EB67D" if v >= max(values) * 0.6 else
-        "#ECB22E" if v >= max(values) * 0.3 else "#888"
+        "#27B97C" if v >= max(values) * 0.6 else
+        "#C8982A" if v >= max(values) * 0.3 else "#99BBDD"
         for v in values
     ]
 
@@ -175,14 +178,17 @@ def _render_feature_importance() -> None:
     ))
     fig.update_layout(
         xaxis_title="Importance Score",
-        template="plotly_dark",
+        template="plotly_white",
+        paper_bgcolor="#F4F6F9",
+        plot_bgcolor="#FFFFFF",
+        font=dict(family="Plus Jakarta Sans, sans-serif", color="#1C1C2E"),
         height=380,
         margin=dict(t=10, b=20, l=160),
         xaxis=dict(range=[0, max(values) * 1.25]),
     )
     st.plotly_chart(fig, use_container_width=True)
 
-    with st.expander("What does each feature mean?", icon="ℹ️"):
+    with st.expander("ℹ️ What does each feature mean?"):
         from src.ml.explainer import FEATURE_DIRECTIONS
         rows = []
         for f in importance:
@@ -285,10 +291,12 @@ def _render_why_panel(predictions: list[dict]) -> None:
 
     # ── Narrative ─────────────────────────────────────────────────────────────
     prob = explanation.get("probability", 0)
+    accent = "#27B97C" if prob >= 0.7 else "#C8982A" if prob >= 0.5 else "#E03448"
     st.html(
-        f'<div style="background:#1a1d21;border-radius:6px;padding:14px 18px;'
-        f'border-left:4px solid {"#2EB67D" if prob >= 0.7 else "#ECB22E" if prob >= 0.5 else "#E01E5A"};">'
-        f'<div style="color:#d1d2d3;font-size:1em;">{explanation.get("narrative","")}</div>'
+        f'<div style="background:#FFFFFF;border-radius:8px;padding:16px 20px;'
+        f'border-left:3px solid {accent};border:1px solid #E0EAF4;">'
+        f'<div style="font-family:Plus Jakarta Sans,sans-serif;font-size:14px;'
+        f'line-height:1.7;color:#1C1C2E;">{explanation.get("narrative","")}</div>'
         f'</div>'
     )
 
@@ -298,7 +306,7 @@ def _render_why_panel(predictions: list[dict]) -> None:
         names   = [f["label"] for f in top_features]
         shap_vs = [f["shap_value"] for f in top_features]
         values  = [f["value"] for f in top_features]
-        colors  = ["#2EB67D" if sv > 0 else "#E01E5A" for sv in shap_vs]
+        colors  = ["#27B97C" if sv > 0 else "#E03448" for sv in shap_vs]
 
         fig = go.Figure(go.Bar(
             x=shap_vs[::-1],
@@ -308,11 +316,14 @@ def _render_why_panel(predictions: list[dict]) -> None:
             text=[f"{sv:+.3f} (value: {v:.3g})" for sv, v in zip(shap_vs[::-1], values[::-1])],
             textposition="outside",
         ))
-        fig.add_vline(x=0, line_color="#555", line_width=1)
+        fig.add_vline(x=0, line_color="#E0EAF4", line_width=1)
         fig.update_layout(
             title=f"SHAP Feature Contributions — Acceptance Probability: {prob:.0%}",
             xaxis_title="SHAP value (impact on model output)",
-            template="plotly_dark",
+            template="plotly_white",
+            paper_bgcolor="#F4F6F9",
+            plot_bgcolor="#FFFFFF",
+            font=dict(family="Plus Jakarta Sans, sans-serif", color="#1C1C2E"),
             height=300,
             margin=dict(t=40, b=20, l=160),
         )

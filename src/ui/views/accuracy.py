@@ -109,10 +109,10 @@ def render():
 
     def _style_status(val):
         if val == "Perfect":
-            return "background-color: #1a3a2a; color: #2EB67D; font-weight: 600;"
+            return "background-color: #E0F7EF; color: #0D5C3A; font-weight: 600;"
         if val == "Extra":
-            return "background-color: #3a2a1a; color: #ECB22E;"
-        return "background-color: #3a1a1a; color: #E01E5A;"
+            return "background-color: #FEF0E6; color: #7A3800;"
+        return "background-color: #FDEAEA; color: #7A1020;"
 
     st.dataframe(
         df.style.map(_style_status, subset=["Status"]),

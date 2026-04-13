@@ -79,15 +79,15 @@ SCENARIOS = {
 # ── Colours / display helpers ─────────────────────────────────────────────────
 
 _INTENT_COLORS = {
-    INTENT_ACCEPTED:      "#2EB67D",
-    INTENT_REJECTED:      "#E01E5A",
-    INTENT_TOO_EXPENSIVE: "#ECB22E",
-    INTENT_NEED_INFO:     "#36C5F0",
-    INTENT_IGNORED:       "#888888",
-    INTENT_ESCALATED:     "#E01E5A",
+    INTENT_ACCEPTED:      "#27B97C",
+    INTENT_REJECTED:      "#E03448",
+    INTENT_TOO_EXPENSIVE: "#C8982A",
+    INTENT_NEED_INFO:     "#336699",
+    INTENT_IGNORED:       "#6B7280",
+    INTENT_ESCALATED:     "#E03448",
 }
 
-_TIER_COLORS = {"A": "#888", "B": "#ECB22E", "C": "#2EB67D"}
+_TIER_COLORS = {"A": "#6B7280", "B": "#C8982A", "C": "#27B97C"}
 _TIER_LABELS = {
     "A": "Tier A — Draft Only",
     "B": "Tier B — Human Approval Required",
@@ -355,17 +355,23 @@ def _step_feedback(proposal_id: str, intent: str, slow: bool) -> dict | None:
     color = _INTENT_COLORS.get(intent, "#888")
 
     st.html(
-        f'<div style="border-left:4px solid {color};background:#1a1d21;'
-        f'border-radius:6px;padding:12px 16px;margin:8px 0;">'
-        f'<div style="color:{color};font-weight:700;margin-bottom:6px;">'
+        f'<div style="border-left:4px solid {color};background:#FFFFFF;'
+        f'border:1px solid #E0EAF4;border-radius:8px;padding:14px 18px;margin:8px 0;'
+        f'font-family:Plus Jakarta Sans,sans-serif;box-shadow:0 1px 3px rgba(0,51,102,.06);">'
+        f'<div style="color:{color};font-weight:700;font-size:0.92em;'
+        f'text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">'
         f'{INTENT_LABELS[intent]}</div>'
-        f'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;color:#d1d2d3;">'
-        f'<div><span style="color:#999;font-size:0.8em;">REVENUE</span><br>'
-        f'${result["revenue"] or 0:,.0f}</div>'
-        f'<div><span style="color:#999;font-size:0.8em;">CONFIDENCE Δ</span><br>'
-        f'<span style="color:{color};">{result["confidence_delta"]:+.0f} pts</span></div>'
-        f'<div><span style="color:#999;font-size:0.8em;">ACTIONS</span><br>'
-        f'{"<br>".join(result["actions_taken"]) or "none"}</div>'
+        f'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;color:#1C1C2E;">'
+        f'<div><span style="color:#6B7280;font-size:0.72em;text-transform:uppercase;'
+        f'letter-spacing:2px;">Revenue</span><br>'
+        f'<span style="font-family:Fraunces,Georgia,serif;font-size:1.1em;font-weight:300;">'
+        f'${result["revenue"] or 0:,.0f}</span></div>'
+        f'<div><span style="color:#6B7280;font-size:0.72em;text-transform:uppercase;'
+        f'letter-spacing:2px;">Confidence Δ</span><br>'
+        f'<span style="color:{color};font-weight:600;">{result["confidence_delta"]:+.0f} pts</span></div>'
+        f'<div><span style="color:#6B7280;font-size:0.72em;text-transform:uppercase;'
+        f'letter-spacing:2px;">Actions</span><br>'
+        f'<span style="font-size:0.85em;">{"<br>".join(result["actions_taken"]) or "none"}</span></div>'
         f'</div></div>'
     )
 
@@ -512,18 +518,26 @@ def _render_sent_log() -> None:
         return
 
     for entry in reversed(sent[-10:]):
-        mode_color = "#2EB67D" if entry.get("send_mode") == "autonomous" else "#ECB22E"
+        mode_color = "#27B97C" if entry.get("send_mode") == "autonomous" else "#C8982A"
         st.html(
-            f'<div style="border-left:4px solid {mode_color};background:#1a1d21;'
-            f'border-radius:6px;padding:10px 14px;margin:6px 0;">'
-            f'<div style="display:grid;grid-template-columns:2fr 2fr 1fr 1fr;gap:4px 12px;color:#d1d2d3;">'
-            f'<div><span style="color:#999;font-size:0.78em;">CLIENT</span><br>{entry.get("client_name","")}</div>'
-            f'<div><span style="color:#999;font-size:0.78em;">SUBJECT</span><br>'
-            f'<span style="font-size:0.85em;">{entry.get("subject","")[:50]}…</span></div>'
-            f'<div><span style="color:#999;font-size:0.78em;">MODE</span><br>'
-            f'<span style="color:{mode_color};font-weight:600;">{entry.get("send_mode","").upper()}</span></div>'
-            f'<div><span style="color:#999;font-size:0.78em;">TIME</span><br>'
-            f'{(entry.get("timestamp","")[:16]).replace("T"," ")}</div>'
+            f'<div style="border-left:3px solid {mode_color};background:#FFFFFF;'
+            f'border:1px solid #E0EAF4;border-radius:8px;padding:10px 16px;margin:5px 0;'
+            f'font-family:Plus Jakarta Sans,sans-serif;">'
+            f'<div style="display:grid;grid-template-columns:2fr 2fr 1fr 1fr;gap:4px 12px;color:#1C1C2E;">'
+            f'<div><span style="color:#6B7280;font-size:0.72em;text-transform:uppercase;'
+            f'letter-spacing:2px;">Client</span><br>'
+            f'<span style="font-size:0.88em;font-weight:500;">{entry.get("client_name","")}</span></div>'
+            f'<div><span style="color:#6B7280;font-size:0.72em;text-transform:uppercase;'
+            f'letter-spacing:2px;">Subject</span><br>'
+            f'<span style="font-size:0.83em;color:#336699;">{entry.get("subject","")[:50]}…</span></div>'
+            f'<div><span style="color:#6B7280;font-size:0.72em;text-transform:uppercase;'
+            f'letter-spacing:2px;">Mode</span><br>'
+            f'<span style="color:{mode_color};font-weight:700;font-size:0.82em;">'
+            f'{entry.get("send_mode","").upper()}</span></div>'
+            f'<div><span style="color:#6B7280;font-size:0.72em;text-transform:uppercase;'
+            f'letter-spacing:2px;">Time</span><br>'
+            f'<span style="font-size:0.82em;color:#6B7280;">'
+            f'{(entry.get("timestamp","")[:16]).replace("T"," ")}</span></div>'
             f'</div></div>'
         )
 
@@ -612,7 +626,7 @@ def render() -> None:
     st.divider()
 
     # ── Auto-send queue status ─────────────────────────────────────────────────
-    with st.expander("Auto-Send Queue", icon="📤"):
+    with st.expander("📤 Auto-Send Queue"):
         queue = get_send_queue_summary()
         qc1, qc2, qc3, qc4 = st.columns(4)
         qc1.metric("Pending (Approved)", queue["approved_pending_send"])
@@ -666,14 +680,18 @@ def render() -> None:
                 delta  = entry.get("confidence_delta", 0)
                 delta_str = f"{delta:+.0f}" if delta != 0 else "0"
                 st.html(
-                    f'<div style="border-left:4px solid {color};background:#1a1d21;'
-                    f'padding:8px 14px;margin:4px 0;border-radius:4px;">'
-                    f'<span style="color:{color};font-weight:700;">{INTENT_LABELS.get(intent, intent)}</span>'
-                    f'&nbsp;&nbsp;<span style="color:#999;font-size:0.8em;">'
+                    f'<div style="border-left:3px solid {color};background:#FFFFFF;'
+                    f'border:1px solid #E0EAF4;padding:8px 14px;margin:4px 0;border-radius:6px;'
+                    f'font-family:Plus Jakarta Sans,sans-serif;display:flex;align-items:center;gap:10px;">'
+                    f'<span style="color:{color};font-weight:700;font-size:0.82em;'
+                    f'text-transform:uppercase;letter-spacing:.5px;min-width:100px;">'
+                    f'{INTENT_LABELS.get(intent, intent)}</span>'
+                    f'<span style="color:#1C1C2E;font-size:0.85em;font-weight:500;">'
                     f'{entry.get("client_name","")}</span>'
-                    f'&nbsp;·&nbsp;<span style="color:#999;font-size:0.8em;">'
-                    f'Δconfidence {delta_str}</span>'
-                    f'&nbsp;·&nbsp;<span style="color:#999;font-size:0.8em;">'
-                    f'${entry.get("revenue") or 0:,.0f} revenue</span>'
+                    f'<span style="color:#99BBDD;font-size:0.8em;">·</span>'
+                    f'<span style="color:#6B7280;font-size:0.8em;">Δ {delta_str} pts</span>'
+                    f'<span style="color:#99BBDD;font-size:0.8em;">·</span>'
+                    f'<span style="color:#C8982A;font-size:0.8em;font-family:Fraunces,Georgia,serif;">'
+                    f'${entry.get("revenue") or 0:,.0f}</span>'
                     f'</div>'
                 )
