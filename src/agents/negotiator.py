@@ -574,68 +574,64 @@ def _llm_extract_intent(text: str) -> str | None:
 
 _TURN_TEMPLATES = {
     1: dedent("""\
-        Estimado/a {client_name},
+        Dear {client_name},
 
-        Entendemos perfectamente que el presupuesto es un factor clave en su
-        decisión, y queremos hacer todo lo posible para encontrar un punto que
-        funcione para ambas partes.
+        We completely understand that budget is a key factor in your decision,
+        and we want to do everything we can to find a point that works for both sides.
 
-        Como señal de nuestro compromiso con {industry}, le ofrecemos una
-        reducción especial del **{discount_pct}%** sobre el precio original:
+        As a sign of our commitment to your success in {industry}, we are pleased
+        to offer a special reduction of **{discount_pct}%** off the original price:
 
         ~~${base_price:,.0f} USD~~ → **${offer_price:,.0f} USD**
 
-        Este precio incluye exactamente los mismos entregables y la misma
-        garantía de resultados. La reducción es posible porque valoramos
-        construir una relación de largo plazo con {client_name}.
+        This price includes exactly the same deliverables and the same results
+        guarantee. The reduction is possible because we value building a long-term
+        relationship with {client_name}.
 
-        ¿Le parece bien avanzar con esta propuesta ajustada?
+        Does this revised proposal work for you?
 
-        Con gusto,
-        El equipo de Hidden Opportunities Agency
+        Warm regards,
+        OPB Marketing
     """),
 
     2: dedent("""\
-        Estimado/a {client_name},
+        Dear {client_name},
 
-        Apreciamos su disposición para seguir conversando. Hemos revisado
-        internamente nuestros márgenes y estamos en condiciones de ofrecerle
-        una reducción adicional:
+        We appreciate your willingness to keep the conversation going. We have
+        reviewed our margins internally and are able to offer an additional reduction:
 
-        Precio final revisado: **${offer_price:,.0f} USD** ({discount_pct}% de descuento)
+        Revised final price: **${offer_price:,.0f} USD** ({discount_pct}% discount)
 
-        Para ser completamente transparentes: este es nuestro límite de
-        flexibilidad para este tipo de proyecto en el sector {industry}.
-        A este precio garantizamos la misma calidad y los mismos plazos
-        comprometidos originalmente.
+        To be completely transparent: this is our flexibility limit for this type
+        of project in the {industry} sector. At this price we guarantee the same
+        quality and the same timelines originally committed.
 
-        Le propongo que agendemos una llamada de 15 minutos para revisar
-        juntos los entregables y confirmar que este precio tiene sentido
-        para su negocio. ¿Tiene disponibilidad esta semana?
+        I would like to suggest a 15-minute call to walk through the deliverables
+        together and confirm this price makes sense for your business.
+        Do you have availability this week?
 
-        Saludos,
-        El equipo de Hidden Opportunities Agency
+        Best regards,
+        OPB Marketing
     """),
 
     3: dedent("""\
-        Estimado/a {client_name},
+        Dear {client_name},
 
-        Esta es nuestra oferta final: **${offer_price:,.0f} USD** — un {discount_pct}%
-        de descuento sobre el precio de lista, que es el máximo que podemos
-        ofrecer sin comprometer la calidad del trabajo.
+        This is our final offer: **${offer_price:,.0f} USD** — a {discount_pct}%
+        discount off the list price, which is the maximum we can offer without
+        compromising the quality of the work.
 
-        Si este precio no encaja con su presupuesto actual, le entiendo
-        perfectamente. Lo que sí me gustaría es mantener la puerta abierta:
-        si en los próximos 30 días su situación cambia, este precio seguirá
-        disponible para usted.
+        If this price does not fit your current budget, I completely understand.
+        What I would like is to keep the door open: if your situation changes in
+        the next 30 days, this price will still be available to you.
 
-        Alternativamente, puedo conectarle directamente con nuestro account
-        manager para explorar un plan de pagos u otras alternativas.
+        Alternatively, I can connect you directly with your account manager
+        to explore a payment plan or other options.
 
-        ¿Le gustaría que le llamara {manager_note} para discutirlo?
+        Would you like {manager_note} to give you a call to discuss this?
 
-        Atentamente,
-        El equipo de Hidden Opportunities Agency
+        Sincerely,
+        OPB Marketing
     """),
 }
 

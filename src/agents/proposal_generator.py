@@ -54,207 +54,205 @@ PROPOSALS_DIR.mkdir(parents=True, exist_ok=True)
 
 PROPOSAL_TEMPLATES: dict[str, dict[str, str]] = {
     "landing_page_optimization": {
-        "subject": "Propuesta: Optimización de Landing Page para {client_name}",
+        "subject": "Proposal: Landing Page Optimization for {client_name}",
         "body": dedent("""\
-            Estimado/a {client_name},
+            Dear {client_name},
 
-            Hemos estado monitoreando el rendimiento de tus campañas y encontramos
-            una oportunidad concreta para mejorar tus resultados en {industry}.
+            We have been monitoring your campaign performance and identified
+            a concrete opportunity to improve results in the {industry} sector.
 
-            **Lo que vemos en tus datos:**
-            - CTR actual: **{ctr:.1%}** (excelente — tus anuncios están funcionando)
-            - Tasa de rebote: **{bounce_rate:.0%}** (por encima del promedio ideal de 55%)
-            - Páginas por sesión: **{pages_per_session:.1f}** (los visitantes no están explorando)
+            **What we see in your data:**
+            - Current CTR: **{ctr:.1%}** (excellent — your ads are working)
+            - Bounce rate: **{bounce_rate:.0%}** (above the 55% ideal average)
+            - Pages per session: **{pages_per_session:.1f}** (visitors are not exploring further)
 
             {insight_paragraph}
 
-            **Nuestra propuesta:** A/B test de landing page optimizada
-            - Precio: **${suggested_price:,.0f} USD**
-            - Duración: 3 semanas (diseño + implementación + análisis)
-            - Garantía: si no mejoramos la tasa de conversión en un 20%, te devolvemos
-              el 50% del valor.
+            **Our proposal:** Optimized landing page A/B test
+            - Price: **${suggested_price:,.0f} USD**
+            - Duration: 3 weeks (design + implementation + analysis)
+            - Guarantee: if we do not improve your conversion rate by 20%, we refund
+              50% of the fee.
 
-            ¿Tienes 15 minutos esta semana para ver un mockup?
+            Do you have 15 minutes this week to review a mockup?
 
-            Saludos,
-            El equipo de Hidden Opportunities Agency
+            Best regards,
+            OPB Marketing
 
             ---
-            *Esta propuesta fue generada automáticamente por el agente de oportunidades.
-            Fue revisada y aprobada por tu account manager antes de enviarse.*
+            *This proposal was generated automatically by the opportunities agent
+            and reviewed by your account manager before being sent.*
         """),
     },
 
     "seo_content": {
-        "subject": "Propuesta: Estrategia de Contenido SEO para {client_name}",
+        "subject": "Proposal: SEO Content Strategy for {client_name}",
         "body": dedent("""\
-            Estimado/a {client_name},
+            Dear {client_name},
 
-            Tu sitio web en el sector {industry} tiene una base orgánica interesante
-            que no está siendo aprovechada al máximo.
+            Your website in the {industry} sector has a solid organic foundation
+            that is not yet being fully leveraged.
 
-            **Lo que vemos en tus datos:**
-            - Tráfico orgánico mensual: **{organic_traffic:,} visitas**
-            - Keywords posicionadas: **{keyword_rankings}** (hay margen de crecimiento)
-            - Tasa de conversión orgánica: **{conversion_rate:.1%}**
+            **What we see in your data:**
+            - Monthly organic traffic: **{organic_traffic:,} visits**
+            - Ranked keywords: **{keyword_rankings}** (significant room to grow)
+            - Organic conversion rate: **{conversion_rate:.1%}**
 
             {insight_paragraph}
 
-            **Nuestra propuesta:** Paquete de Contenido SEO — 4 artículos/mes
-            - Precio: **${suggested_price:,.0f} USD / mes**
-            - Incluye: investigación de keywords, redacción, optimización on-page
-            - Resultado esperado: +40% tráfico orgánico en 90 días
+            **Our proposal:** SEO Content Package — 4 articles/month
+            - Price: **${suggested_price:,.0f} USD / month**
+            - Includes: keyword research, copywriting, on-page optimization
+            - Expected result: +40% organic traffic within 90 days
 
-            ¿Te gustaría ver el calendario editorial que preparamos para ti?
+            Would you like to see the editorial calendar we have prepared for you?
 
-            Saludos,
-            El equipo de Hidden Opportunities Agency
+            Best regards,
+            OPB Marketing
         """),
     },
 
     "retargeting_campaign": {
-        "subject": "Propuesta: Campaña de Retargeting para {client_name}",
+        "subject": "Proposal: Retargeting Campaign for {client_name}",
         "body": dedent("""\
-            Estimado/a {client_name},
+            Dear {client_name},
 
-            Tus campañas publicitarias en {industry} están generando tráfico,
-            pero existe una oportunidad significativa para recuperar a los visitantes
-            que no convirtieron en su primera visita.
+            Your advertising campaigns in {industry} are generating traffic,
+            but there is a significant opportunity to re-engage visitors
+            who did not convert on their first visit.
 
-            **Lo que vemos en tus datos:**
-            - Inversión mensual estimada: **${monthly_ad_spend:,.0f} USD**
-            - ROAS actual: **{roas:.1f}x** (objetivo: ≥ 3.5x)
-            - Oportunidad: audiencias cálidas sin retargeting activo
+            **What we see in your data:**
+            - Estimated monthly ad spend: **${monthly_ad_spend:,.0f} USD**
+            - Current ROAS: **{roas:.1f}x** (target: ≥ 3.5x)
+            - Opportunity: warm audiences with no active retargeting
 
             {insight_paragraph}
 
-            **Nuestra propuesta:** Campaña de Retargeting Multi-Canal
-            - Precio: **${suggested_price:,.0f} USD** (setup + gestión del primer mes)
-            - Canales: Meta Ads + Google Display
-            - Resultado esperado: reducción del 30–50% en costo por adquisición
+            **Our proposal:** Multi-Channel Retargeting Campaign
+            - Price: **${suggested_price:,.0f} USD** (setup + first-month management)
+            - Channels: Meta Ads + Google Display
+            - Expected result: 30–50% reduction in cost per acquisition
 
-            ¿Coordinamos una llamada de 20 minutos para revisar la estrategia?
+            Can we schedule a 20-minute call to review the strategy?
 
-            Saludos,
-            El equipo de Hidden Opportunities Agency
+            Best regards,
+            OPB Marketing
         """),
     },
 
     "email_automation": {
-        "subject": "Propuesta: Automatización de Email Marketing para {client_name}",
+        "subject": "Proposal: Email Marketing Automation for {client_name}",
         "body": dedent("""\
-            Estimado/a {client_name},
+            Dear {client_name},
 
-            Tu base de suscriptores en {industry} es un activo valioso que
-            actualmente no está generando su potencial máximo de ingresos.
+            Your subscriber base in {industry} is a valuable asset that is
+            currently not generating its full revenue potential.
 
-            **Lo que vemos en tus datos:**
-            - Tasa de apertura actual: **{email_open_rate:.1%}** (promedio industria: 21%)
-            - Oportunidad: flujos automatizados pueden 2–3x las métricas actuales
+            **What we see in your data:**
+            - Current open rate: **{email_open_rate:.1%}** (industry average: 21%)
+            - Opportunity: automated flows can 2–3x current metrics
 
             {insight_paragraph}
 
-            **Nuestra propuesta:** Setup de Email Automation en 3 flujos
-            - Precio: **${suggested_price:,.0f} USD** (implementación única)
-            - Flujos: Bienvenida → Nutrición → Reactivación
-            - Plataforma: tu ESP actual (Mailchimp / ActiveCampaign / Klaviyo)
-            - Resultado esperado: tasa de apertura ≥ 30% en 60 días
+            **Our proposal:** Email Automation Setup — 3 flows
+            - Price: **${suggested_price:,.0f} USD** (one-time implementation)
+            - Flows: Welcome → Nurture → Reactivation
+            - Platform: your current ESP (Mailchimp / ActiveCampaign / Klaviyo)
+            - Expected result: open rate ≥ 30% within 60 days
 
-            ¿Te enviamos ejemplos de los flujos que implementaríamos?
+            Shall we send you examples of the flows we would implement?
 
-            Saludos,
-            El equipo de Hidden Opportunities Agency
+            Best regards,
+            OPB Marketing
         """),
     },
 
     "reactivation": {
-        "subject": "¡Hola {client_name}! Tenemos algo especial para ti",
+        "subject": "We have something for you, {client_name}",
         "body": dedent("""\
-            Estimado/a {client_name},
+            Dear {client_name},
 
-            Han pasado {days_inactive} días desde que trabajamos juntos activamente,
-            y queremos reconectar con una propuesta especial diseñada para tu negocio
-            en {industry}.
+            It has been {days_inactive} days since we last worked together actively,
+            and we would like to reconnect with a tailored proposal for your
+            business in {industry}.
 
             {insight_paragraph}
 
-            **Oferta de Reactivación Express — válida por 7 días:**
-            - Auditoría completa de tu presencia digital: **GRATIS**
-            - Plan de acción personalizado: incluido
-            - Primer mes de servicio con **20% de descuento** (ahorro de
-              ${savings:,.0f} USD sobre el precio estándar)
-            - Precio con descuento: **${discounted_price:,.0f} USD**
+            **Express Reactivation Offer — valid for 7 days:**
+            - Full digital presence audit: **FREE**
+            - Personalized action plan: included
+            - First month of service with **20% discount** (saving
+              ${savings:,.0f} USD off the standard price)
+            - Discounted price: **${discounted_price:,.0f} USD**
 
-            Esta es nuestra forma de decirte que valoramos la relación que
-            construimos y queremos seguir generando resultados para ti.
+            This is our way of saying we value the relationship we have built
+            and want to keep delivering results for you.
 
-            ¿Tienes 15 minutos esta semana para ponernos al día?
+            Do you have 15 minutes this week to catch up?
 
-            Con gusto,
-            El equipo de Hidden Opportunities Agency
+            Warm regards,
+            OPB Marketing
 
             ---
-            *Oferta válida hasta {offer_expiry}.*
+            *Offer valid until {offer_expiry}.*
         """),
     },
 
     "conversion_rate_audit": {
-        "subject": "Propuesta: Auditoría de Tasa de Conversión para {client_name}",
+        "subject": "Proposal: Conversion Rate Audit for {client_name}",
         "body": dedent("""\
-            Estimado/a {client_name},
+            Dear {client_name},
 
-            Detectamos una discrepancia importante en el funnel de tu negocio
-            en {industry} que está costándote ventas todos los días.
+            We detected a significant gap in your funnel in the {industry} sector
+            that is costing you sales every day.
 
-            **Lo que vemos en tus datos:**
-            - CTR de anuncios: **{ctr:.1%}** (excelente — la gente hace clic)
-            - Tasa de conversión: **{conversion_rate:.2%}** (muy por debajo del esperado)
-            - Oportunidad de mejora: por cada 1,000 visitantes, podrías tener
-              {potential_conversions:.0f} conversiones adicionales
+            **What we see in your data:**
+            - Ad CTR: **{ctr:.1%}** (excellent — people are clicking)
+            - Conversion rate: **{conversion_rate:.2%}** (well below benchmark)
+            - Improvement opportunity: for every 1,000 visitors you could gain
+              {potential_conversions:.0f} additional conversions
 
             {insight_paragraph}
 
-            **Nuestra propuesta:** Auditoría CRO + Plan de Acción
-            - Precio: **${suggested_price:,.0f} USD**
-            - Entregable: reporte con 5–10 recomendaciones priorizadas
-            - Tiempo: 1 semana de análisis + presentación ejecutiva
-            - Garantía: identificamos al menos 3 quick wins implementables
+            **Our proposal:** CRO Audit + Action Plan
+            - Price: **${suggested_price:,.0f} USD**
+            - Deliverable: report with 5–10 prioritized recommendations
+            - Timeline: 1 week of analysis + executive presentation
+            - Guarantee: we identify at least 3 implementable quick wins
 
-            ¿Agendamos una sesión de diagnóstico esta semana?
+            Shall we schedule a diagnostic session this week?
 
-            Saludos,
-            El equipo de Hidden Opportunities Agency
+            Best regards,
+            OPB Marketing
         """),
     },
 
     "upsell_ad_budget": {
-        "subject": "Propuesta: Escalar tu Inversión Publicitaria — {client_name}",
+        "subject": "Proposal: Scale Your Ad Investment — {client_name}",
         "body": dedent("""\
-            Estimado/a {client_name},
+            Dear {client_name},
 
-            Tenemos una noticia muy positiva: tus campañas en {industry}
-            están funcionando mejor de lo esperado, y existe una oportunidad
-            concreta para escalar los resultados.
+            We have great news: your campaigns in {industry} are outperforming
+            expectations, and there is a concrete opportunity to scale results further.
 
-            **Lo que vemos en tus datos:**
-            - ROAS actual: **{roas:.1f}x** (por encima del benchmark de 4x)
-            - Inversión mensual: **${monthly_ad_spend:,.0f} USD**
-            - ROI proyectado con escala: cada $1 adicional genera ${roas:.2f} en ingresos
+            **What we see in your data:**
+            - Current ROAS: **{roas:.1f}x** (above the 4x benchmark)
+            - Monthly spend: **${monthly_ad_spend:,.0f} USD**
+            - Projected ROI at scale: every additional $1 generates ${roas:.2f} in revenue
 
             {insight_paragraph}
 
-            **Nuestra propuesta:** Plan de Escala Publicitaria — 60 días
-            - Precio de gestión: **${suggested_price:,.0f} USD / mes**
-            - Presupuesto recomendado: ${recommended_budget:,.0f} USD/mes
-            - Estrategia: escalar los ad sets de mejor rendimiento + expansión
-              a nuevas audiencias similares
-            - Resultado esperado: +{projected_revenue_increase:.0f}% en ingresos
-              sin degradar el ROAS
+            **Our proposal:** Ad Scale Plan — 60 days
+            - Management fee: **${suggested_price:,.0f} USD / month**
+            - Recommended budget: ${recommended_budget:,.0f} USD/month
+            - Strategy: scale top-performing ad sets + expand to lookalike audiences
+            - Expected result: +{projected_revenue_increase:.0f}% revenue
+              without degrading ROAS
 
-            ¿Revisamos juntos las campañas que queremos escalar?
+            Would you like to review the campaigns we plan to scale together?
 
-            Saludos,
-            El equipo de Hidden Opportunities Agency
+            Best regards,
+            OPB Marketing
         """),
     },
 }
@@ -281,9 +279,9 @@ def _build_context(client: dict, metrics: dict, opp_type: str) -> dict:
 
     return {
         # Client basics
-        "client_name":       client.get("name", "Cliente"),
-        "industry":          client.get("industry", "su sector"),
-        "account_manager":   client.get("account_manager", "Tu account manager"),
+        "client_name":       client.get("name", "Client"),
+        "industry":          client.get("industry", "your sector"),
+        "account_manager":   client.get("account_manager", "Your account manager"),
         "contact_email":     client.get("contact_email", ""),
 
         # Metrics
@@ -321,29 +319,29 @@ def _build_llm_prompt(ctx: dict, opp_type: str, rationale: str) -> str:
     """
     label = OPPORTUNITY_LABELS.get(opp_type, opp_type.replace("_", " ").title())
     return dedent(f"""\
-        Eres un experto en marketing digital escribiendo una propuesta comercial
-        personalizada para un cliente de agencia.
+        You are a digital marketing expert writing a personalized commercial proposal
+        for an agency client.
 
-        DATOS DEL CLIENTE:
-        - Nombre: {ctx['client_name']}
-        - Industria: {ctx['industry']}
-        - Oportunidad detectada: {label}
-        - Análisis del agente: {rationale}
+        CLIENT DATA:
+        - Name: {ctx['client_name']}
+        - Industry: {ctx['industry']}
+        - Detected opportunity: {label}
+        - Agent analysis: {rationale}
 
-        MÉTRICAS CLAVE:
+        KEY METRICS:
         {json.dumps({k: v for k, v in ctx.items()
                      if k not in ('client_name', 'industry', 'insight_paragraph',
                                   'contact_email', 'account_manager', 'offer_expiry')
                      and isinstance(v, (int, float))}, indent=2, ensure_ascii=False)}
 
-        TAREA:
-        Escribe UN párrafo (3–4 oraciones) que:
-        1. Mencione un insight específico usando los números del cliente (no genérico).
-        2. Conecte el problema detectado con el impacto en su negocio ({ctx['industry']}).
-        3. Use un tono profesional pero cercano, en español.
-        4. NO repita información ya mencionada en el email — es un párrafo de análisis adicional.
+        TASK:
+        Write ONE paragraph (3–4 sentences) that:
+        1. References a specific insight using the client's actual numbers (not generic).
+        2. Connects the detected problem to the business impact in the {ctx['industry']} sector.
+        3. Uses a professional yet approachable tone, in English.
+        4. Does NOT repeat information already mentioned in the email — this is an additional analysis paragraph.
 
-        Responde SOLO con el párrafo, sin título, sin comillas, sin formato extra.
+        Reply with ONLY the paragraph — no title, no quotes, no extra formatting.
     """)
 
 
@@ -398,69 +396,67 @@ def _template_insight(ctx: dict, opp_type: str, rationale: str) -> str:
 
     insights = {
         "landing_page_optimization": (
-            f"Para ser más concretos: con un CTR de {ctx['ctr']:.1%}, "
-            f"{client} está pagando para que visitantes lleguen a la página, "
-            f"pero el {ctx['bounce_rate']:.0%} de ellos se va en los primeros segundos. "
-            f"En el sector {industry}, esto equivale a dejar ingresos potenciales "
-            f"sobre la mesa cada día que pasa sin optimización. "
-            f"Una landing enfocada en conversión, con un solo CTA claro, "
-            f"típicamente reduce la tasa de rebote entre 15 y 25 puntos porcentuales."
+            f"To be specific: with a CTR of {ctx['ctr']:.1%}, "
+            f"{client} is paying to bring visitors to the page, "
+            f"yet {ctx['bounce_rate']:.0%} of them leave within seconds. "
+            f"In the {industry} sector, this translates to potential revenue left on the table "
+            f"every day the funnel remains unoptimized. "
+            f"A conversion-focused landing page with a single clear CTA "
+            f"typically cuts bounce rate by 15–25 percentage points."
         ),
         "seo_content": (
-            f"Con {ctx['organic_traffic']:,} visitas mensuales orgánicas y solo "
-            f"{ctx['keyword_rankings']} keywords posicionadas, {client} está captando "
-            f"una fracción del tráfico disponible en {industry}. "
-            f"Competidores con estrategias de contenido estructuradas suelen rankear "
-            f"para 80–150 keywords en el mismo nicho. "
-            f"Un blog con 4 artículos optimizados al mes puede triplicar el alcance "
-            f"orgánico en 6 meses sin incrementar el presupuesto publicitario."
+            f"With {ctx['organic_traffic']:,} monthly organic visits and only "
+            f"{ctx['keyword_rankings']} ranked keywords, {client} is capturing "
+            f"a fraction of the available traffic in {industry}. "
+            f"Competitors with structured content strategies typically rank for "
+            f"80–150 keywords in the same niche. "
+            f"A blog publishing 4 optimized articles per month can triple organic reach "
+            f"within 6 months without increasing ad spend."
         ),
         "retargeting_campaign": (
-            f"Con una inversión mensual de ~${ctx['monthly_ad_spend']:,.0f} y un ROAS "
-            f"de {ctx['roas']:.1f}x, hay margen real para mejorar la eficiencia. "
-            f"El retargeting captura a los visitantes que ya conocen la marca de {client} "
-            f"pero no convirtieron — estas audiencias convierten 2–3x más que el "
-            f"tráfico frío al mismo CPC. "
-            f"En {industry}, el costo por conversión de retargeting suele ser "
-            f"40–60% menor que el de campañas de prospección."
+            f"With a monthly spend of ~${ctx['monthly_ad_spend']:,.0f} and a ROAS "
+            f"of {ctx['roas']:.1f}x, there is real room to improve efficiency. "
+            f"Retargeting reaches visitors who already know {client}'s brand "
+            f"but did not convert — these audiences convert 2–3x more than cold traffic "
+            f"at the same CPC. "
+            f"In {industry}, retargeting cost per conversion is typically "
+            f"40–60% lower than prospecting campaigns."
         ),
         "email_automation": (
-            f"Una tasa de apertura de {ctx['email_open_rate']:.1%} indica que la "
-            f"mayoría de los suscriptores de {client} no está viendo los mensajes. "
-            f"En {industry}, las secuencias automatizadas de bienvenida tienen tasas "
-            f"de apertura de 45–60% porque llegan en el momento exacto en que el "
-            f"contacto está más comprometido con la marca. "
-            f"Implementar 3 flujos básicos puede recuperar ese engagement sin "
-            f"requerir esfuerzo manual continuo del equipo."
+            f"An open rate of {ctx['email_open_rate']:.1%} indicates that the majority "
+            f"of {client}'s subscribers are not seeing the messages. "
+            f"In {industry}, automated welcome sequences achieve open rates of 45–60% "
+            f"because they arrive at the exact moment the contact is most engaged with the brand. "
+            f"Setting up 3 basic flows can recover that engagement "
+            f"without requiring continuous manual effort from the team."
         ),
         "reactivation": (
-            f"Después de {ctx['days_inactive']} días sin actividad, la probabilidad "
-            f"de cerrar una venta con {client} sigue siendo significativamente mayor "
-            f"que con un prospecto frío — el cliente ya conoce nuestra agencia y "
-            f"confió en nosotros antes. "
-            f"En {industry}, las campañas de reactivación personalizadas con un incentivo "
-            f"claro recuperan entre el 20 y el 35% de cuentas dormidas. "
-            f"El costo de reactivar es 5–8x menor que el de adquirir un cliente nuevo."
+            f"After {ctx['days_inactive']} days of inactivity, the probability "
+            f"of closing a sale with {client} is still significantly higher "
+            f"than with a cold prospect — they already know the agency and trusted us before. "
+            f"In {industry}, personalized reactivation campaigns with a clear incentive "
+            f"recover 20–35% of dormant accounts. "
+            f"The cost of reactivation is 5–8x lower than acquiring a new client."
         ),
         "conversion_rate_audit": (
-            f"El contraste entre un CTR de {ctx['ctr']:.1%} y una conversión de "
-            f"{ctx['conversion_rate']:.2%} es una señal clara de que el problema "
-            f"no está en los anuncios — está en el funnel post-clic. "
-            f"Para {client} en {industry}, esto significa que por cada 1,000 personas "
-            f"que hacen clic, solo {ctx['conversion_rate']*10:.1f} convierten, "
-            f"cuando el estándar del sector es 20–40. "
-            f"Una auditoría CRO típicamente identifica 3–5 fricciones que, "
-            f"al resolverse, duplican la tasa de conversión sin aumentar el gasto."
+            f"The contrast between a CTR of {ctx['ctr']:.1%} and a conversion rate of "
+            f"{ctx['conversion_rate']:.2%} is a clear signal that the problem "
+            f"is not in the ads — it is in the post-click funnel. "
+            f"For {client} in {industry}, this means that for every 1,000 people "
+            f"who click, only {ctx['conversion_rate']*10:.1f} convert, "
+            f"while the sector benchmark is 20–40. "
+            f"A CRO audit typically identifies 3–5 friction points that, "
+            f"once resolved, double the conversion rate without increasing spend."
         ),
         "upsell_ad_budget": (
-            f"Un ROAS de {ctx['roas']:.1f}x sobre una inversión de "
-            f"${ctx['monthly_ad_spend']:,.0f}/mes significa que cada dólar invertido "
-            f"está generando ${ctx['roas']:.2f} en ingresos para {client}. "
-            f"Escalar este presupuesto en {industry} sobre campañas ya probadas "
-            f"es el camino de menor riesgo hacia un crecimiento de ingresos inmediato. "
-            f"Con un presupuesto de ${ctx['recommended_budget']:,.0f}/mes, "
-            f"el modelo proyecta un incremento del "
-            f"{ctx['projected_revenue_increase']:.0f}% en ingresos sin degradar el ROAS."
+            f"A ROAS of {ctx['roas']:.1f}x on a spend of "
+            f"${ctx['monthly_ad_spend']:,.0f}/month means every dollar invested "
+            f"is generating ${ctx['roas']:.2f} in revenue for {client}. "
+            f"Scaling this budget in {industry} on already-proven campaigns "
+            f"is the lowest-risk path to immediate revenue growth. "
+            f"At a budget of ${ctx['recommended_budget']:,.0f}/month, "
+            f"the model projects a {ctx['projected_revenue_increase']:.0f}% increase "
+            f"in revenue without degrading ROAS."
         ),
     }
     return insights.get(opp_type, rationale)
@@ -476,12 +472,12 @@ def _render_template(opp_type: str, ctx: dict) -> tuple[str, str]:
     tmpl = PROPOSAL_TEMPLATES.get(opp_type)
     if tmpl is None:
         # Generic fallback for unknown types
-        subject = f"Propuesta: {OPPORTUNITY_LABELS.get(opp_type, opp_type)} para {ctx['client_name']}"
+        subject = f"Proposal: {OPPORTUNITY_LABELS.get(opp_type, opp_type)} for {ctx['client_name']}"
         body = (
-            f"Estimado/a {ctx['client_name']},\n\n"
+            f"Dear {ctx['client_name']},\n\n"
             f"{ctx['insight_paragraph']}\n\n"
-            f"Precio sugerido: ${ctx['suggested_price']:,.0f} USD\n\n"
-            f"Saludos,\nEl equipo de Hidden Opportunities Agency"
+            f"Suggested price: ${ctx['suggested_price']:,.0f} USD\n\n"
+            f"Best regards,\nOPB Marketing"
         )
         return subject, body
 
@@ -490,7 +486,7 @@ def _render_template(opp_type: str, ctx: dict) -> tuple[str, str]:
         body    = tmpl["body"].format(**ctx)
     except KeyError as e:
         # Missing placeholder — use safe fallback
-        subject = f"Propuesta para {ctx['client_name']}"
+        subject = f"Proposal for {ctx['client_name']}"
         body    = tmpl["body"].replace("{" + str(e).strip("'") + "}", "N/A")
         try:
             body = body.format(**ctx)
@@ -552,12 +548,12 @@ def _export_markdown(
     content = dedent(f"""\
         # {subject}
 
-        **Propuesta ID:** `{proposal_id}`
-        **Cliente:** {client_name}
-        **Tipo de oportunidad:** {OPPORTUNITY_LABELS.get(opp_type, opp_type)}
-        **Precio sugerido:** ${ctx['suggested_price']:,.0f} USD
-        **Generado:** {datetime.now().strftime('%Y-%m-%d %H:%M')}
-        **Estado:** Borrador — pendiente de aprobación
+        **Proposal ID:** `{proposal_id}`
+        **Client:** {client_name}
+        **Opportunity type:** {OPPORTUNITY_LABELS.get(opp_type, opp_type)}
+        **Suggested price:** ${ctx['suggested_price']:,.0f} USD
+        **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}
+        **Status:** Draft — pending approval
 
         ---
 
@@ -565,21 +561,21 @@ def _export_markdown(
 
         ---
 
-        ## Datos que motivaron esta propuesta
+        ## Data that triggered this proposal
 
-        | Métrica | Valor |
-        |---------|-------|
+        | Metric | Value |
+        |--------|-------|
     """)
 
     metric_map = {
-        "CTR":                f"{ctx.get('ctr', 0):.1%}",
-        "Tasa de rebote":     f"{ctx.get('bounce_rate', 0):.0%}",
-        "Tráfico orgánico":   f"{ctx.get('organic_traffic', 0):,}",
-        "ROAS":               f"{ctx.get('roas', 0):.1f}x",
-        "Gasto mensual":      f"${ctx.get('monthly_ad_spend', 0):,.0f}",
-        "Apertura email":     f"{ctx.get('email_open_rate', 0):.1%}",
-        "Conversión":         f"{ctx.get('conversion_rate', 0):.2%}",
-        "Días inactivo":      str(ctx.get('days_inactive', 0)),
+        "CTR":              f"{ctx.get('ctr', 0):.1%}",
+        "Bounce rate":      f"{ctx.get('bounce_rate', 0):.0%}",
+        "Organic traffic":  f"{ctx.get('organic_traffic', 0):,}",
+        "ROAS":             f"{ctx.get('roas', 0):.1f}x",
+        "Monthly spend":    f"${ctx.get('monthly_ad_spend', 0):,.0f}",
+        "Email open rate":  f"{ctx.get('email_open_rate', 0):.1%}",
+        "Conversion rate":  f"{ctx.get('conversion_rate', 0):.2%}",
+        "Days inactive":    str(ctx.get('days_inactive', 0)),
     }
     for k, v in metric_map.items():
         content += f"| {k} | {v} |\n"
@@ -587,13 +583,13 @@ def _export_markdown(
     content += dedent(f"""
         ---
 
-        ## Notas de producción
+        ## Production notes
 
-        > **En producción:** Este archivo se sube automáticamente a la carpeta de
-        > Google Drive del cliente. El account manager recibe una notificación en
-        > Slack con botones de Aprobar / Rechazar / Editar.
-        > Al hacer clic en "Aprobar", el agente envía el email al contacto del cliente
-        > ({ctx.get('contact_email', 'email@cliente.com')}) vía SendGrid API.
+        > **In production:** This file is automatically uploaded to the client's
+        > Google Drive folder. The account manager receives a Slack notification
+        > with Approve / Reject / Edit buttons.
+        > Clicking "Approve" triggers the agent to send the email to the client contact
+        > ({ctx.get('contact_email', 'client@example.com')}) via the SendGrid API.
     """)
 
     filepath.write_text(content, encoding="utf-8")
@@ -658,7 +654,7 @@ def generate_proposal(opportunity_id: str, rationale: str = "") -> dict[str, Any
     client_id = opp["client_id"]
 
     # ── Load client ───────────────────────────────────────────────────────────
-    client = crm.get_client(client_id) or {"name": "Cliente", "industry": ""}
+    client = crm.get_client(client_id) or {"name": "Client", "industry": ""}
 
     # ── Load metrics ──────────────────────────────────────────────────────────
     metrics: dict = {}

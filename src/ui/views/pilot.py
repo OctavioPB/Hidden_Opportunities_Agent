@@ -469,23 +469,28 @@ def _render_pilot_metrics() -> None:
 
     m = get_pilot_metrics()
 
-    # KPI row
-    k = st.columns(5)
-    k[0].metric("Opportunities Detected", m["total_opportunities"])
-    k[1].metric("Proposals Generated", m["proposals_generated"])
-    k[2].metric("Proposals Sent", m["proposals_sent"],
-                help=f"Autonomous: {m['autonomous_sent']} | Approved: {m['approved_sent']}")
-    k[3].metric("Accepted", m["proposals_accepted"],
-                delta=f"{m['acceptance_rate_pct']}% rate")
-    k[4].metric("Revenue", f"${m['total_revenue']:,.0f}")
+    # ── Row 1: primary KPIs ───────────────────────────────────────────────────
+    c1, c2, c3, c4, c5 = st.columns(5)
+    c1.metric("Opportunities Detected",  m["total_opportunities"])
+    c2.metric("Proposals Generated",     m["proposals_generated"])
+    c3.metric("Proposals Sent",          m["proposals_sent"],
+              help=f"Autonomous: {m['autonomous_sent']} | Approved: {m['approved_sent']}")
+    c4.metric("Accepted",                m["proposals_accepted"],
+              delta=f"{m['acceptance_rate_pct']}% rate")
+    c5.metric("Revenue",                 f"${m['total_revenue']:,.0f}")
 
-    k2 = st.columns(4)
-    k2[0].metric("Escalations", m["escalations"])
-    k2[1].metric("Rejections / Ignores", m["proposals_rejected"])
-    k2[2].metric("Time Saved (est.)", f"{m['time_saved_hours']}h",
-                 help="20 min manually per proposal → 2 min with agent")
-    k2[3].metric("Autonomous Sends", m["autonomous_sent"],
-                 help="Tier C: score ≥ 90, value ≤ $200")
+    st.markdown("")  # breathing room between rows
+
+    # ── Row 2: secondary KPIs (same column count so cards align) ─────────────
+    d1, d2, d3, d4, d5 = st.columns(5)
+    d1.metric("Escalations",         m["escalations"])
+    d2.metric("Rejections / Ignores",m["proposals_rejected"])
+    d3.metric("Time Saved (est.)",   f"{m['time_saved_hours']}h",
+              help="20 min manually per proposal → 2 min with agent")
+    d4.metric("Autonomous Sends",    m["autonomous_sent"],
+              help="Tier C: score ≥ 90, value ≤ $200")
+    d5.metric("Approval Rate",
+              f"{m['approved_sent']}/{m['proposals_generated']}" if m["proposals_generated"] else "—")
 
     production_badge(
         "Production: This report is generated from the DB and emailed to agency leadership "
