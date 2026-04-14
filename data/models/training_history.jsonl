@@ -1,1 +1,2 @@
 {"trained_at": "2026-04-13T00:29:25.258684", "n_samples": 2380, "metrics": {"auc_roc": 0.587, "avg_precision": 0.2365, "precision": 0.2425, "recall": 0.2533, "f1": 0.2478}}
+{"trained_at": "2026-04-14T09:17:55.504994", "n_samples": 2384, "metrics": {"auc_roc": 0.6007, "avg_precision": 0.2458, "precision": 0.2558, "recall": 0.2611, "f1": 0.2584}}

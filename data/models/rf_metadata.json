@@ -1,6 +1,6 @@
 {
-  "trained_at": "2026-04-13T00:29:25.258684",
-  "n_samples": 2380,
+  "trained_at": "2026-04-14T09:17:55.504994",
+  "n_samples": 2384,
   "n_features": 18,
   "feature_names": [
     "ctr",
@@ -32,31 +32,31 @@
     "n_jobs": -1
   },
   "metrics": {
-    "auc_roc": 0.587,
-    "avg_precision": 0.2365,
-    "precision": 0.2425,
-    "recall": 0.2533,
-    "f1": 0.2478
+    "auc_roc": 0.6007,
+    "avg_precision": 0.2458,
+    "precision": 0.2558,
+    "recall": 0.2611,
+    "f1": 0.2584
   },
   "feature_importance": {
-    "ctr": 0.061393,
-    "bounce_rate": 0.057578,
-    "pages_per_session": 0.055706,
-    "conversion_rate": 0.078942,
-    "organic_traffic": 0.05985,
-    "roas": 0.072789,
-    "ad_spend_monthly": 0.07299,
-    "email_open_rate": 0.06948,
-    "keyword_rankings": 0.054433,
-    "days_inactive": 0.097112,
-    "sentiment_score": 0.062534,
-    "mentions_price": 0.006059,
-    "asks_for_results": 0.007411,
-    "churn_risk": 0.004808,
-    "urgency_signal": 0.003814,
-    "account_age_days": 0.0618,
-    "industry_code": 0.025413,
-    "opportunity_type_code": 0.147887
+    "ctr": 0.063315,
+    "bounce_rate": 0.05919,
+    "pages_per_session": 0.052721,
+    "conversion_rate": 0.079928,
+    "organic_traffic": 0.063711,
+    "roas": 0.074023,
+    "ad_spend_monthly": 0.072317,
+    "email_open_rate": 0.071465,
+    "keyword_rankings": 0.052144,
+    "days_inactive": 0.09432,
+    "sentiment_score": 0.067251,
+    "mentions_price": 0.006412,
+    "asks_for_results": 0.008332,
+    "churn_risk": 0.004674,
+    "urgency_signal": 0.00271,
+    "account_age_days": 0.060068,
+    "industry_code": 0.024691,
+    "opportunity_type_code": 0.142726
   },
   "_production_note": "Production: model is retrained nightly if ≥ 10 new feedback rows since last training run. Artifact stored in S3 (versioned). Inference uses the latest artifact; rollback is available via METADATA_PATH → trained_at timestamp."
 }
