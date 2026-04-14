@@ -13,16 +13,8 @@ import streamlit as st
 import pandas as pd
 
 from src.agents.scorer import score_all_clients
-from src.agents.rules import OPPORTUNITY_LABELS, SUGGESTED_PRICES
-from src.data_sources.crm import get_all_clients
+from src.agents.rules import OPPORTUNITY_LABELS
 from src.ui.components import score_bar, production_badge, page_header
-
-
-_PRODUCTION_NOTE = (
-    "Production: this table is populated by the daily job (scripts/daily_job.py) "
-    "which pulls metrics from Google Analytics, Meta Ads, CRM, email platform, and SEO tool APIs "
-    "and applies the rules engine. The job runs every morning at 08:00 via cron."
-)
 
 
 @st.cache_data(ttl=60)
