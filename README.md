@@ -1,6 +1,6 @@
 # Hidden Opportunities Agent
 
-An autonomous AI sales agent that detects upsell and cross-sell opportunities for a digital marketing agency, generates personalized proposals, negotiates price objections, and closes deals — with minimal human intervention.
+The Hidden Opportunities Agent is an autonomous system designed to maximize the revenue potential of an agency's current client list. Rather than waiting for manual account reviews, the agent continuously monitors client data to identify logical next steps for service expansion, such as moving from social media management to full-scale content strategy. Once a gap is found, it handles the labor-intensive stages of the funnel—drafting custom proposals, addressing budget concerns, and finalizing terms. By automating these recurring sales tasks, the agency can capture "hidden" revenue that usually falls through the cracks, while freeing up the team to focus on delivery and high-stakes client relationships.
 
 Built in 7 sprints across a two-week development cycle. All client data is **synthetic**. No real emails are sent in demo mode.
 
