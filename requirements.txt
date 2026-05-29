@@ -9,9 +9,14 @@ pandas==2.2.2
 # Database
 # SQLite is built into Python — no extra package needed
 
-# Web UI (Sprint 3+)
+# Web UI — Streamlit (legacy, kept for reference)
 streamlit==1.33.0
 plotly==5.22.0
+
+# FastAPI backend (React migration)
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+python-multipart==0.0.12
 
 # LLM integration (Sprint 3+)
 openai==1.30.1
