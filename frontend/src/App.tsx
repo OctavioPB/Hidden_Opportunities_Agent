@@ -10,23 +10,26 @@ import MLModelPage from './pages/MLModelPage'
 import TextSignalsPage from './pages/TextSignalsPage'
 import NegotiationPage from './pages/NegotiationPage'
 import InfoPage from './pages/InfoPage'
+import AnalyticsDashboardPage from './pages/AnalyticsDashboardPage'
 
 export type Page =
   | 'opportunities' | 'text-signals' | 'ml-model'
   | 'negotiation'   | 'proposals'    | 'pilot'
   | 'alert-feed'    | 'accuracy'     | 'info'
+  | 'analytics-dashboard'
 
 function renderPage(page: Page) {
   switch (page) {
-    case 'opportunities': return <OpportunitiesPage />
-    case 'text-signals':  return <TextSignalsPage />
-    case 'ml-model':      return <MLModelPage />
-    case 'negotiation':   return <NegotiationPage />
-    case 'proposals':     return <ProposalsPage />
-    case 'pilot':         return <PilotPage />
-    case 'alert-feed':    return <AlertFeedPage />
-    case 'accuracy':      return <AccuracyPage />
-    case 'info':          return <InfoPage />
+    case 'opportunities':       return <OpportunitiesPage />
+    case 'text-signals':        return <TextSignalsPage />
+    case 'ml-model':            return <MLModelPage />
+    case 'negotiation':         return <NegotiationPage />
+    case 'proposals':           return <ProposalsPage />
+    case 'pilot':               return <PilotPage />
+    case 'alert-feed':          return <AlertFeedPage />
+    case 'accuracy':            return <AccuracyPage />
+    case 'info':                return <InfoPage />
+    case 'analytics-dashboard': return <AnalyticsDashboardPage />
   }
 }
 

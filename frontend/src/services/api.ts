@@ -282,4 +282,58 @@ export const api = {
     list: () => request<Client[]>('/clients'),
     demo: () => request<Client[]>('/clients/demo'),
   },
+
+  followUps: {
+    list: (proposal_id?: string) =>
+      request<Record<string, unknown>[]>(proposal_id ? `/follow-ups?proposal_id=${proposal_id}` : '/follow-ups'),
+    schedule: (proposal_id: string) =>
+      request<{ scheduled: number; entries: Record<string, unknown>[] }>('/follow-ups/schedule', {
+        method: 'POST', body: JSON.stringify({ proposal_id }),
+      }),
+    process: () => request<{ processed: number }>('/follow-ups/process', { method: 'POST' }),
+    cancel: (id: string) => request<{ cancelled: boolean }>(`/follow-ups/${id}/cancel`, { method: 'DELETE' }),
+    log: () => request<Record<string, unknown>[]>('/follow-ups/log'),
+  },
+
+  analytics: {
+    summary: (period_days = 30) =>
+      request<{
+        period_days: number; pipeline_value: number; revenue_realized: number; roi_pct: number;
+        proposals_generated: number; proposals_sent: number; proposals_accepted: number;
+        proposals_ignored: number; proposals_rejected: number; escalations: number;
+        acceptance_rate: number; clients_reached: number; follow_ups_sent: number;
+        time_saved_hours: number;
+        by_type: { opportunity_type: string; proposals: number; accepted: number; revenue: number }[];
+        weekly_trend: { week_start: string; sent: number; accepted: number; acceptance_rate: number; revenue: number }[];
+      }>(`/analytics/summary?period_days=${period_days}`),
+    snapshot: () => request<Record<string, unknown>>('/analytics/snapshot', { method: 'POST' }),
+    snapshots: (limit = 12) => request<Record<string, unknown>[]>(`/analytics/snapshots?limit=${limit}`),
+  },
+
+  churn: {
+    scan: () => request<{ escalated: number; records: Record<string, unknown>[] }>('/churn/scan', { method: 'POST' }),
+    escalations: (limit = 50) => request<Record<string, unknown>[]>(`/churn/escalations?limit=${limit}`),
+    log: () => request<Record<string, unknown>[]>('/churn/log'),
+  },
+
+  crm: {
+    syncLog: (limit = 50) => request<Record<string, unknown>[]>(`/crm/sync-log?limit=${limit}`),
+    log: () => request<Record<string, unknown>[]>('/crm/log'),
+    sync: (proposal_id: string, client_id: string, revenue: number, opportunity_type: string) =>
+      request<{ ok: boolean }>('/crm/sync', {
+        method: 'POST', body: JSON.stringify({ proposal_id, client_id, revenue, opportunity_type }),
+      }),
+  },
+
+  seasonal: {
+    upcoming: (weeks = 8) => request<{ name: string; date: string; days_away: number; types: string[]; current_boost: number }[]>(`/seasonal/upcoming?weeks=${weeks}`),
+    boosts: () => request<{ opportunity_type: string; multiplier: number; months: number[] }[]>('/seasonal/boosts'),
+    updatePropensity: () => request<{ updated: boolean; counts: Record<string, number> }>('/propensity/update', { method: 'POST' }),
+    propensityClients: () => request<Record<string, unknown>[]>('/propensity/clients'),
+    updateChannel: (client_id: string, channel: string, whatsapp_number?: string) =>
+      request<{ updated: boolean }>('/clients/channel', {
+        method: 'PATCH', body: JSON.stringify({ client_id, channel, whatsapp_number }),
+      }),
+    whatsappLog: () => request<Record<string, unknown>[]>('/whatsapp/log'),
+  },
 }

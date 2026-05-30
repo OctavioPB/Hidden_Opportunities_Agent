@@ -138,13 +138,13 @@ function AgentWorkflowDiagram() {
 // ── Diagram 2: System Architecture (Engineering View) ─────────────────────────
 
 function ArchitectureDiagram() {
-  const W = 900, H = 360
+  const W = 900, H = 378
 
   // Layer definitions
   const layers = [
     { label: 'Browser', y: 10,  h: 70,  fill: C.navyTint, stroke: C.navy30 },
-    { label: 'Backend', y: 120, h: 110, fill: C.goldTint, stroke: C.gold   },
-    { label: 'Storage', y: 270, h: 70,  fill: C.navyTint, stroke: C.navy30 },
+    { label: 'Backend', y: 120, h: 128, fill: C.goldTint, stroke: C.gold   },
+    { label: 'Storage', y: 288, h: 70,  fill: C.navyTint, stroke: C.navy30 },
   ]
 
   return (
@@ -190,7 +190,7 @@ function ArchitectureDiagram() {
       <text x={335} y={103} fontSize={8} fill={C.mid} fontFamily="'Plus Jakarta Sans',sans-serif">HTTP /api/*</text>
 
       {/* Backend layer: FastAPI box */}
-      <rect x={110} y={132} width={420} height={86} rx={6}
+      <rect x={110} y={132} width={420} height={104} rx={6}
             fill="white" stroke={C.gold} strokeWidth={1.5} />
       <text x={320} y={152} textAnchor="middle" fontSize={12} fontWeight="700"
             fill={C.navy} fontFamily="'Plus Jakarta Sans',sans-serif">
@@ -198,65 +198,66 @@ function ArchitectureDiagram() {
       </text>
       <text x={320} y={168} textAnchor="middle" fontSize={9} fill={C.mid}
             fontFamily="'Plus Jakarta Sans',sans-serif">
-        backend/routers/ → src/agents/ · src/ml/ · src/nlp/ · src/data_sources/
+        backend/routers/ → src/agents/ · src/integrations/ · src/ml/ · src/nlp/ · src/data_sources/
       </text>
-      {/* Router pills */}
-      {['opportunities','proposals','pilot','ml','text-signals','negotiations','alerts','clients'].map((r, i) => {
-        const cols = 4, col = i % cols, row = Math.floor(i / cols)
-        const x = 125 + col * 100, y = 182 + row * 18
+      {/* Router pills — 14 routers in 3 rows */}
+      {['opportunities','proposals','text-signals','negotiations','follow-ups','analytics','churn','crm','seasonal','pilot','ml','alerts','clients','accuracy'].map((r, i) => {
+        const cols = 5, col = i % cols, row = Math.floor(i / cols)
+        const x = 118 + col * 80, y = 182 + row * 16
         return (
           <g key={r}>
-            <rect x={x} y={y} width={88} height={13} rx={3} fill={C.navyTint} stroke={C.navy30} strokeWidth={0.5} />
-            <text x={x + 44} y={y + 9.5} textAnchor="middle" fontSize={7.5} fill={C.navy60}
+            <rect x={x} y={y} width={74} height={12} rx={3} fill={C.navyTint} stroke={C.navy30} strokeWidth={0.5} />
+            <text x={x + 37} y={y + 8.5} textAnchor="middle" fontSize={6.5} fill={C.navy60}
                   fontFamily="'Plus Jakarta Sans',sans-serif">/api/{r}</text>
           </g>
         )
       })}
 
       {/* Backend→Storage arrow */}
-      <line x1={320} y1={232} x2={320} y2={268} stroke={C.navy60} strokeWidth={1.5} markerEnd="url(#arch-arrow)" />
-      <line x1={320} y1={268} x2={320} y2={234} stroke={C.navy30} strokeWidth={1} strokeDasharray="3 2" markerEnd="url(#arch-arrow-dash)" />
+      <line x1={320} y1={250} x2={320} y2={286} stroke={C.navy60} strokeWidth={1.5} markerEnd="url(#arch-arrow)" />
+      <line x1={320} y1={286} x2={320} y2={252} stroke={C.navy30} strokeWidth={1} strokeDasharray="3 2" markerEnd="url(#arch-arrow-dash)" />
 
       {/* Storage layer: SQLite */}
-      <rect x={80} y={282} width={280} height={46} rx={6}
+      <rect x={60} y={300} width={320} height={46} rx={6}
             fill="white" stroke={C.navy60} strokeWidth={1.5} />
-      <text x={220} y={302} textAnchor="middle" fontSize={11} fontWeight="700"
+      <text x={220} y={320} textAnchor="middle" fontSize={11} fontWeight="700"
             fill={C.navy} fontFamily="'Plus Jakarta Sans',sans-serif">
         SQLite — data/db/opportunities.db
       </text>
-      <text x={220} y={318} textAnchor="middle" fontSize={8} fill={C.mid}
+      <text x={220} y={335} textAnchor="middle" fontSize={8} fill={C.mid}
             fontFamily="'Plus Jakarta Sans',sans-serif">
-        clients · metrics · opportunities · proposals · feedback
+        12 tables · clients · proposals · follow_up_queue · churn_escalation_log · …
       </text>
 
       {/* Right column: External APIs */}
-      <rect x={660} y={10} width={230} height={340} rx={8}
+      <rect x={660} y={10} width={230} height={358} rx={8}
             fill={C.navyTint} stroke={C.navy30} strokeWidth={1} />
       <text x={775} y={28} textAnchor="middle" fontSize={8} fontWeight="700" letterSpacing="1.5"
             fill={C.mid} fontFamily="'Plus Jakarta Sans',sans-serif">EXTERNAL APIS (PROD)</text>
 
       {[
-        { label: 'Google Analytics',  note: 'CTR · bounce · conversions' },
-        { label: 'Meta Ads Manager',  note: 'CTR · ROAS · ad spend' },
-        { label: 'HubSpot CRM',       note: 'days inactive · contacts' },
-        { label: 'Mailchimp',         note: 'open rate · click rate' },
-        { label: 'SendGrid',          note: 'email delivery · BCC' },
-        { label: 'Anthropic / OpenAI',note: 'proposal generation · NLP' },
-        { label: 'Stripe',            note: 'payment link creation' },
-        { label: 'Slack',             note: 'alert webhooks' },
+        { label: 'Google Analytics',   note: 'CTR · bounce · conversions' },
+        { label: 'Meta Ads Manager',   note: 'CTR · ROAS · ad spend' },
+        { label: 'HubSpot CRM',        note: 'contacts · deal write-back' },
+        { label: 'Mailchimp',          note: 'open rate · click rate' },
+        { label: 'SendGrid',           note: 'email delivery · BCC' },
+        { label: 'Anthropic / OpenAI', note: 'proposal generation · NLP' },
+        { label: 'Stripe',             note: 'payment link creation' },
+        { label: 'WhatsApp Business',  note: 'outreach channel (opted-in)' },
+        { label: 'Slack',              note: 'churn alerts · webhooks' },
       ].map((api, i) => (
         <g key={api.label}>
-          <rect x={670} y={38 + i * 38} width={210} height={30} rx={5}
+          <rect x={670} y={38 + i * 36} width={210} height={28} rx={5}
                 fill="white" stroke={C.navy30} strokeWidth={0.8} />
-          <text x={685} y={56 + i * 38} fontSize={9} fontWeight="600" fill={C.navy}
+          <text x={685} y={54 + i * 36} fontSize={9} fontWeight="600" fill={C.navy}
                 fontFamily="'Plus Jakarta Sans',sans-serif">{api.label}</text>
-          <text x={685} y={67 + i * 38} fontSize={7.5} fill={C.mid}
+          <text x={685} y={63 + i * 36} fontSize={7.5} fill={C.mid}
                 fontFamily="'Plus Jakarta Sans',sans-serif">{api.note}</text>
         </g>
       ))}
 
       {/* Dashed line connecting backend to External APIs panel */}
-      <line x1={640} y1={175} x2={658} y2={175} stroke={C.navy30}
+      <line x1={640} y1={184} x2={658} y2={184} stroke={C.navy30}
             strokeWidth={1} strokeDasharray="4 3" markerEnd="url(#arch-arrow-dash)" />
     </svg>
   )
@@ -513,6 +514,74 @@ function BusinessView() {
         </div>
       </section>
 
+      {/* Platform Features (ROADMAP) */}
+      <section>
+        <Eyebrow>Platform Features</Eyebrow>
+        <h2 style={{ fontFamily: 'var(--fd)', fontSize: 22, fontWeight: 300, color: 'var(--dark)', margin: '6px 0 8px' }}>
+          Beyond detection — a full <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>revenue engine</em>
+        </h2>
+        <p style={{ fontFamily: 'var(--fb)', fontSize: 13, color: 'var(--mid)', lineHeight: 1.7, marginBottom: 24, maxWidth: 720 }}>
+          Seven platform capabilities extend the core detect → propose → approve cycle into a closed-loop revenue system — from automated nurture sequences to executive analytics.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+          {[
+            {
+              n: '01',
+              title: 'Automated Follow-Up Sequences',
+              body: 'When a client ignores a proposal, the agent schedules up to 3 follow-up emails at increasing urgency angles (value reminder → social proof → expiring offer). Each turn adapts the message angle. Sequences are cancelled immediately on any positive reply.',
+              tag: 'Follow-Ups tab in Proposals',
+            },
+            {
+              n: '02',
+              title: 'Executive ROI Dashboard',
+              body: 'A live analytics page aggregates pipeline value, revenue realized, acceptance rate, and time saved across configurable rolling windows. Weekly snapshots are stored for trend charts. The digest is available in-app and exportable for stakeholder presentations.',
+              tag: 'Analytics → ROI Dashboard',
+            },
+            {
+              n: '03',
+              title: 'Churn Prevention Escalation',
+              body: 'The agent scans NLP signals for churn risk and urgency flags on a daily schedule. When a client shows high-risk patterns, an escalation record is created and the account manager is notified. Demo mode logs to JSONL; production routes to Slack.',
+              tag: 'Churn tab in Text Signals',
+            },
+            {
+              n: '04',
+              title: 'Client Propensity Tiers',
+              body: 'Each client is scored by their historical acceptance rate across all proposals. Clients are ranked into High / Medium / Low propensity tiers. Tier badges appear on every opportunity card and a filter lets account managers focus outreach on the highest-propensity accounts.',
+              tag: 'Propensity filter in Opportunities',
+            },
+            {
+              n: '05',
+              title: 'CRM Write-Back',
+              body: 'Accepted proposals are pushed back to HubSpot as closed-won deals, keeping CRM deal stages in sync with agent activity. In demo mode all sync operations are logged to a local JSONL file. The CRM sync log is visible in the Proposals page.',
+              tag: 'CRM sync log in Proposals',
+            },
+            {
+              n: '06',
+              title: 'Seasonal Opportunity Calendar',
+              body: 'Score multipliers are applied based on the marketing calendar — Black Friday, Q4 budget season, mid-year sprints, back-to-school, and more. Upcoming events with their boost percentages are displayed in an expandable calendar panel on the Opportunities page.',
+              tag: '▸ Seasonal Calendar in Opportunities',
+            },
+            {
+              n: '07',
+              title: 'WhatsApp Business Outreach',
+              body: 'Opted-in clients can receive proposal outreach via WhatsApp Business API instead of email. Each client has a preferred_channel field (email by default). Demo mode logs all WhatsApp messages to a local JSONL file; production calls the official Cloud API.',
+              tag: 'Channel preference per client',
+            },
+          ].map(f => (
+            <div key={f.n} style={{ ...card, padding: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 10 }}>
+                <span style={{ fontFamily: 'var(--fd)', fontSize: 26, fontWeight: 300, color: 'var(--gold)', lineHeight: 1, flexShrink: 0 }}>{f.n}</span>
+                <div>
+                  <div style={{ fontFamily: 'var(--fb)', fontSize: 13, fontWeight: 700, color: 'var(--dark)', marginBottom: 2 }}>{f.title}</div>
+                  <span style={{ fontFamily: 'var(--fb)', fontSize: 9, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--gold)', background: 'rgba(200,152,42,0.1)', padding: '1px 7px', borderRadius: 'var(--radius-pill)' }}>{f.tag}</span>
+                </div>
+              </div>
+              <p style={{ fontFamily: 'var(--fb)', fontSize: 12, color: 'var(--mid)', lineHeight: 1.75, margin: 0 }}>{f.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Data sources */}
       <section>
         <Eyebrow>Data Sources</Eyebrow>
@@ -548,40 +617,46 @@ function BusinessView() {
 
 function EngineeringView() {
   const stack = [
-    { layer: 'Frontend',   tech: 'React 18 + TypeScript 5.6',     detail: 'Strict mode · Vite 5 dev server · Zustand global state · Inline React.CSSProperties (no CSS framework)' },
-    { layer: 'Routing',    tech: 'State-based (no router library)', detail: 'Page union type in App.tsx · switch in renderPage() · nav group dropdowns in Nav.tsx' },
-    { layer: 'API client', tech: 'Native fetch in api.ts',          detail: 'Single base request() fn · all HTTP calls centralised · typed interfaces per endpoint' },
-    { layer: 'Backend',    tech: 'FastAPI 0.115 + Uvicorn',         detail: '9 routers, one per domain · startup hook runs init_db() + migrate_db() · CORS for :5173' },
-    { layer: 'Database',   tech: 'SQLite (built-in)',               detail: 'WAL mode · 8 tables · no ORM · raw SQL via sqlite3.Row dicts · file at data/db/opportunities.db' },
-    { layer: 'ML',         tech: 'scikit-learn RandomForest',       detail: '200 trees · balanced class weights · max_depth=8 · SHAP TreeExplainer · joblib persistence' },
-    { layer: 'NLP',        tech: 'Keyword + LLM extraction',        detail: 'Two-pass: keyword patterns first, then claude-haiku-4-5 for structured JSON (temperature=0)' },
-    { layer: 'LLM',        tech: 'Anthropic / OpenAI (switchable)', detail: 'Configured via LLM_PROVIDER env var · deterministic template fallback when no API key' },
+    { layer: 'Frontend',      tech: 'React 18 + TypeScript 5.6',     detail: 'Strict mode · Vite 5 dev server · Inline React.CSSProperties (no CSS framework) · 10 pages' },
+    { layer: 'Routing',       tech: 'State-based (no router library)', detail: 'Page union type in App.tsx · switch in renderPage() · nav group dropdowns in Nav.tsx' },
+    { layer: 'API client',    tech: 'Native fetch in api.ts',          detail: 'Single base request() fn · all HTTP calls centralised · typed interfaces per endpoint' },
+    { layer: 'Backend',       tech: 'FastAPI 0.115 + Uvicorn',         detail: '14 routers, one per domain · startup hook runs init_db() + migrate_db() · CORS for :5173' },
+    { layer: 'Database',      tech: 'SQLite (built-in)',               detail: 'WAL mode · 12 tables · no ORM · raw SQL via sqlite3.Row dicts · file at data/db/opportunities.db' },
+    { layer: 'ML',            tech: 'scikit-learn RandomForest',       detail: '200 trees · balanced class weights · max_depth=8 · SHAP TreeExplainer · joblib persistence' },
+    { layer: 'NLP',           tech: 'Keyword + LLM extraction',        detail: 'Two-pass: keyword patterns first, then claude-haiku-4-5 for structured JSON (temperature=0)' },
+    { layer: 'LLM',           tech: 'Anthropic / OpenAI (switchable)', detail: 'Configured via LLM_PROVIDER env var · deterministic template fallback when no API key' },
+    { layer: 'Integrations',  tech: 'HubSpot CRM · WhatsApp Business', detail: 'Demo mode logs to JSONL files; production mode calls real APIs with same interface' },
   ]
 
   const modules = [
-    { path: 'backend/',                  note: 'FastAPI app + 9 routers (thin wrappers over src/)' },
-    { path: 'src/agents/',               note: 'scorer · rules · proposal_generator · negotiator · email_sender · feedback_loop · auto_sender · alerts · payment_link' },
+    { path: 'backend/',                  note: 'FastAPI app + 14 routers: opportunities · proposals · pilot · ml_model · text_signals · negotiations · alerts · clients · follow_ups · analytics · churn · crm · seasonal · (whatsapp/propensity via seasonal router)' },
+    { path: 'src/agents/',               note: 'scorer · rules · proposal_generator · negotiator · email_sender · feedback_loop · auto_sender · alerts · payment_link · follow_up_engine · analytics_engine · churn_escalation · propensity_ranker · seasonal_engine' },
+    { path: 'src/integrations/',         note: 'hubspot.py (CRM write-back) · whatsapp.py (outreach channel) · __init__.py' },
     { path: 'src/data_sources/',         note: 'crm · google_analytics · meta_ads · email_marketing · seo · text_signals' },
     { path: 'src/ml/',                   note: 'model (train/load) · dataset (feature engineering) · inference (predict_for_all) · explainer (SHAP)' },
     { path: 'src/nlp/',                  note: 'pipeline (orchestrator) · signal_extractor (keyword + LLM)' },
-    { path: 'src/db/',                   note: 'schema (init_db, migrate_db, get_connection)' },
-    { path: 'src/synthetic/',            note: 'generator (75 synthetic clients + metrics via Faker)' },
-    { path: 'scripts/',                  note: 'seed_db · daily_job · train_model · run_detection · process_text' },
-    { path: 'frontend/src/pages/',       note: '8 pages: Opportunities · AlertFeed · Accuracy · Proposals · Pilot · MLModel · TextSignals · Negotiation · Info' },
+    { path: 'src/db/',                   note: 'schema.py — init_db() creates 12 tables · migrate_db() adds columns/tables to existing DBs safely' },
+    { path: 'src/synthetic/',            note: 'generator (75 synthetic clients + metrics via Faker, fixed seed=42 for reproducibility)' },
+    { path: 'scripts/',                  note: 'seed_db · daily_job (7 pipeline steps) · train_model · run_detection · process_text' },
+    { path: 'frontend/src/pages/',       note: '10 pages: Opportunities · TextSignals · MLModel · Negotiation · Proposals · Pilot · AlertFeed · Accuracy · AnalyticsDashboard · Info' },
     { path: 'frontend/src/components/',  note: 'Nav · Footer · Eyebrow (shared OPB components)' },
-    { path: 'frontend/src/services/',    note: 'api.ts (all typed HTTP calls)' },
-    { path: 'frontend/src/styles/',      note: 'tokens.css (all CSS custom properties)' },
+    { path: 'frontend/src/services/',    note: 'api.ts — typed HTTP calls for all 14 router domains' },
+    { path: 'frontend/src/styles/',      note: 'tokens.css (all CSS custom properties — colour, spacing, typography)' },
   ]
 
   const dbTables = [
-    { name: 'clients',          cols: 'id · name · industry · account_age_days · is_demo_scenario · account_manager' },
-    { name: 'client_metrics',   cols: 'client_id · date · bounce_rate · ctr · roas · email_open_rate · organic_traffic · days_inactive · …' },
-    { name: 'opportunities',    cols: 'id · client_id · opportunity_type · score · ml_probability · status · detected_at' },
-    { name: 'proposals',        cols: 'id · opportunity_id · client_id · subject · body · status · approved_by · sent_at · suggested_price' },
-    { name: 'negotiation_log',  cols: 'proposal_id · turn · role · message · intent · offer_price · timestamp' },
-    { name: 'feedback_log',     cols: 'proposal_id · client_id · intent · outcome · confidence_delta · revenue · simulated' },
-    { name: 'text_signals',     cols: 'client_id · source · raw_text · sentiment · mentions_price · churn_risk · urgency_signal · processed_at' },
-    { name: 'alerts',           cols: 'client_id · opportunity_type · score · label · suggested_price · timestamp · slack_payload' },
+    { name: 'clients',               cols: 'id · name · industry · account_age_days · is_demo_scenario · account_manager · propensity_score · propensity_tier · preferred_channel · whatsapp_number · crm_contact_id · crm_deal_id' },
+    { name: 'client_metrics',        cols: 'client_id · date · bounce_rate · ctr · roas · email_open_rate · organic_traffic · days_inactive · …' },
+    { name: 'opportunities',         cols: 'id · client_id · opportunity_type · score · ml_probability · status · detected_at' },
+    { name: 'proposals',             cols: 'id · opportunity_id · client_id · subject · body · status · approved_by · sent_at · suggested_price · payment_link' },
+    { name: 'negotiation_log',       cols: 'proposal_id · turn · role · message · intent · offer_price · timestamp' },
+    { name: 'feedback_log',          cols: 'proposal_id · outcome · revenue · notes · logged_at' },
+    { name: 'text_signals',          cols: 'client_id · source · raw_text · sentiment · mentions_price · churn_risk · urgency_signal · interest_signal · processed_at' },
+    { name: 'follow_up_queue',       cols: 'id · proposal_id · client_id · sequence_turn · scheduled_at · status · angle · subject · body · sent_at' },
+    { name: 'churn_escalation_log',  cols: 'id · client_id · account_manager · churn_signal · escalated_at · proposal_id · slack_sent' },
+    { name: 'analytics_snapshots',   cols: 'snapshot_date · pipeline_value · revenue_realized · proposals_sent · proposals_accepted · acceptance_rate · time_saved_hours' },
+    { name: 'crm_sync_log',          cols: 'proposal_id · client_id · action · crm_deal_id · revenue · synced_at · demo_mode' },
+    { name: 'alerts',                cols: 'client_id · opportunity_type · score · label · suggested_price · timestamp · slack_payload' },
   ]
 
   const th: React.CSSProperties = { fontFamily: 'var(--fb)', fontSize: 9, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', padding: '10px 16px', color: '#fff', background: 'var(--primary)', textAlign: 'left', whiteSpace: 'nowrap' }
@@ -640,7 +715,7 @@ function EngineeringView() {
           From client list to ranked <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>opportunities</em>
         </h2>
         <p style={{ fontFamily: 'var(--fb)', fontSize: 13, color: 'var(--mid)', lineHeight: 1.7, marginBottom: 24, maxWidth: 720 }}>
-          <span style={code}>score_all_clients()</span> orchestrates the full pipeline. Each client's metrics are merged into a single flat dict, evaluated against all 7 rules, and optionally augmented with an ML probability. The blended score — 0.55 × ML probability × 100 + 0.45 × rule score — drives the final ranking.
+          <span style={code}>score_all_clients()</span> orchestrates the full pipeline. Each client's metrics are merged into a single flat dict, evaluated against all 7 rules, and optionally augmented with an ML probability. The blended score — 0.55 × ML probability × 100 + 0.45 × rule score — is then multiplied by any active seasonal boost and annotated with the client's propensity tier before ranking.
         </p>
         <div style={{ ...card, padding: 32 }}>
           <DetectionPipelineDiagram />
@@ -722,6 +797,8 @@ function EngineeringView() {
             { decision: 'Hand-coded SVG over charting libraries', rationale: 'Recharts and Plotly ship their own visual vocabulary. Every pixel of every chart in this system needs to follow OPB colour rules — categorical series use only the navy gradient, status colours are reserved for data signals only. A library cannot enforce these constraints.' },
             { decision: 'Rule engine + ML blend',     rationale: 'Rules are explainable and immediately useful even before any training data exists. The ML model improves ranking precision once enough feedback has been collected. The 0.55/0.45 blend lets the model take increasing influence without fully deprecating the rules.' },
             { decision: 'Demo mode via synthetic data', rationale: 'All data sources (GA, Meta Ads, HubSpot, Mailchimp) are proxied through demo adapters that return deterministic synthetic data seeded with Faker. This makes the full stack runnable without any real API credentials, useful for internal demos and development.' },
+            { decision: 'Integrations log-first in demo mode', rationale: 'HubSpot write-back, WhatsApp outreach, and Slack churn alerts all check DEMO_MODE at call time and write structured JSONL to the logs/ directory instead of calling external APIs. The same interface contract holds in both modes — swapping from demo to production requires only setting credentials in .env.' },
+            { decision: 'Seasonal boosts applied post-score', rationale: 'Score multipliers are applied after the blended ML+rule score is computed, not inside it. This keeps the ML model\'s training distribution stable. A June client does not need a different model — only the final ranking changes. Multipliers are capped at ×1.25 to prevent seasonal noise from dominating opportunity type signal.' },
           ].map(d => (
             <div key={d.decision} style={{ ...card, padding: 24 }}>
               <div style={{ fontFamily: 'var(--fb)', fontSize: 12, fontWeight: 700, color: 'var(--dark)', marginBottom: 8 }}>{d.decision}</div>
@@ -759,7 +836,7 @@ export default function InfoPage() {
             Hidden Opportunities <em style={{ fontStyle: 'italic', color: 'var(--gold-light)' }}>Agent</em>
           </h1>
           <p style={{ fontFamily: 'var(--fb)', fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 40, maxWidth: 640 }}>
-            An autonomous agent that detects upsell and cross-sell opportunities in marketing agency client data, generates personalized proposals, and manages the full detect → propose → approve → send → feedback cycle.
+            A full-cycle revenue agent for marketing agencies — detects upsell and cross-sell opportunities, generates personalized proposals, runs automated follow-up sequences, monitors churn risk, and surfaces ROI analytics for account managers and executives.
           </p>
 
           <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>

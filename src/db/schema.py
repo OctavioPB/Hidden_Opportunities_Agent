@@ -147,6 +147,52 @@ def init_db() -> None:
         )
     """)
 
+    # ── follow_up_queue (Feature 1 — automated follow-up sequences) ──────────────
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS follow_up_queue (
+            id             TEXT PRIMARY KEY,
+            proposal_id    TEXT NOT NULL REFERENCES proposals(id),
+            client_id      TEXT NOT NULL REFERENCES clients(id),
+            sequence_turn  INTEGER DEFAULT 1,
+            scheduled_at   TEXT NOT NULL,
+            status         TEXT DEFAULT 'pending',
+            angle          TEXT,
+            subject        TEXT,
+            body           TEXT,
+            sent_at        TEXT,
+            created_at     TEXT DEFAULT (datetime('now'))
+        )
+    """)
+
+    # ── churn_escalation_log (Feature 3 — churn prevention) ──────────────────────
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS churn_escalation_log (
+            id               TEXT PRIMARY KEY,
+            client_id        TEXT NOT NULL REFERENCES clients(id),
+            account_manager  TEXT,
+            churn_signal     TEXT,
+            escalated_at     TEXT DEFAULT (datetime('now')),
+            proposal_id      TEXT,
+            slack_sent       INTEGER DEFAULT 0,
+            email_draft_id   TEXT
+        )
+    """)
+
+    # ── analytics_snapshots (Feature 2 — ROI dashboard) ──────────────────────────
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS analytics_snapshots (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            snapshot_date   TEXT NOT NULL,
+            pipeline_value  REAL DEFAULT 0,
+            revenue_realized REAL DEFAULT 0,
+            proposals_sent  INTEGER DEFAULT 0,
+            proposals_accepted INTEGER DEFAULT 0,
+            acceptance_rate REAL DEFAULT 0,
+            time_saved_hours REAL DEFAULT 0,
+            created_at      TEXT DEFAULT (datetime('now'))
+        )
+    """)
+
     conn.commit()
     conn.close()
     print(f"[db] Schema initialized at {config.DB_PATH}")
@@ -177,9 +223,87 @@ def migrate_db() -> None:
     if proposals_exists:
         p_cols = {row[1] for row in cur.execute("PRAGMA table_info(proposals)").fetchall()}
         if "payment_link" not in p_cols:
-            cur.execute(
-                "ALTER TABLE proposals ADD COLUMN payment_link TEXT"
-            )
+            cur.execute("ALTER TABLE proposals ADD COLUMN payment_link TEXT")
+
+    # Feature 4 + 5 + 7: new columns on clients
+    tables_existing = {r[0] for r in cur.execute(
+        "SELECT name FROM sqlite_master WHERE type='table'"
+    ).fetchall()}
+
+    if "clients" in tables_existing:
+        c_cols = {row[1] for row in cur.execute("PRAGMA table_info(clients)").fetchall()}
+        for col, defn in [
+            ("propensity_score",    "REAL"),
+            ("propensity_tier",     "TEXT"),
+            ("propensity_updated_at","TEXT"),
+            ("whatsapp_number",     "TEXT"),
+            ("whatsapp_opted_in",   "INTEGER DEFAULT 0"),
+            ("preferred_channel",   "TEXT DEFAULT 'email'"),
+            ("crm_contact_id",      "TEXT"),
+            ("crm_deal_id",         "TEXT"),
+        ]:
+            if col not in c_cols:
+                cur.execute(f"ALTER TABLE clients ADD COLUMN {col} {defn}")
+
+    # Feature 1: follow_up_queue
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS follow_up_queue (
+            id             TEXT PRIMARY KEY,
+            proposal_id    TEXT NOT NULL,
+            client_id      TEXT NOT NULL,
+            sequence_turn  INTEGER DEFAULT 1,
+            scheduled_at   TEXT NOT NULL,
+            status         TEXT DEFAULT 'pending',
+            angle          TEXT,
+            subject        TEXT,
+            body           TEXT,
+            sent_at        TEXT,
+            created_at     TEXT DEFAULT (datetime('now'))
+        )
+    """)
+
+    # Feature 2: analytics_snapshots
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS analytics_snapshots (
+            id               INTEGER PRIMARY KEY AUTOINCREMENT,
+            snapshot_date    TEXT NOT NULL,
+            pipeline_value   REAL DEFAULT 0,
+            revenue_realized REAL DEFAULT 0,
+            proposals_sent   INTEGER DEFAULT 0,
+            proposals_accepted INTEGER DEFAULT 0,
+            acceptance_rate  REAL DEFAULT 0,
+            time_saved_hours REAL DEFAULT 0,
+            created_at       TEXT DEFAULT (datetime('now'))
+        )
+    """)
+
+    # Feature 3: churn_escalation_log
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS churn_escalation_log (
+            id               TEXT PRIMARY KEY,
+            client_id        TEXT NOT NULL,
+            account_manager  TEXT,
+            churn_signal     TEXT,
+            escalated_at     TEXT DEFAULT (datetime('now')),
+            proposal_id      TEXT,
+            slack_sent       INTEGER DEFAULT 0,
+            email_draft_id   TEXT
+        )
+    """)
+
+    # Feature 5: crm_sync_log
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS crm_sync_log (
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            proposal_id    TEXT,
+            client_id      TEXT,
+            action         TEXT,
+            crm_deal_id    TEXT,
+            revenue        REAL,
+            synced_at      TEXT DEFAULT (datetime('now')),
+            demo_mode      INTEGER DEFAULT 1
+        )
+    """)
 
     conn.commit()
     conn.close()

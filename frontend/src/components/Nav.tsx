@@ -24,8 +24,9 @@ const GROUPS: NavGroupDef[] = [
   {
     label: 'Analytics',
     pages: [
-      { id: 'alert-feed', label: 'Alert Feed' },
-      { id: 'accuracy',   label: 'Accuracy'   },
+      { id: 'analytics-dashboard', label: 'ROI Dashboard' },
+      { id: 'alert-feed',          label: 'Alert Feed'    },
+      { id: 'accuracy',            label: 'Accuracy'      },
     ],
   },
   {

@@ -184,6 +184,86 @@ const secondaryBtn: React.CSSProperties = {
   border: '1px solid var(--primary-10)', borderRadius: 'var(--radius-sm)', padding: '8px 16px', cursor: 'pointer',
 }
 
+function FollowUpQueuePanel() {
+  const [queue,      setQueue]      = useState<Record<string, unknown>[]>([])
+  const [processing, setProcessing] = useState(false)
+  const [msg,        setMsg]        = useState<string | null>(null)
+
+  useEffect(() => { api.followUps.list().then(setQueue) }, [])
+
+  const processDue = async () => {
+    setProcessing(true)
+    const res = await api.followUps.process()
+    setMsg(`Processed ${res.processed} due follow-up(s).`)
+    api.followUps.list().then(setQueue)
+    setProcessing(false)
+  }
+
+  const cancel = async (id: string) => {
+    await api.followUps.cancel(id)
+    api.followUps.list().then(setQueue)
+  }
+
+  const pending = queue.filter(q => q.status === 'pending')
+  const sent    = queue.filter(q => q.status === 'sent')
+
+  const statusColor = (s: string) => s === 'pending' ? 'var(--status-orange)' : s === 'sent' ? 'var(--status-green)' : 'var(--mid)'
+  const statusBg    = (s: string) => s === 'pending' ? 'rgba(240,112,32,0.08)' : s === 'sent' ? 'rgba(39,185,124,0.08)' : 'rgba(107,114,128,0.08)'
+
+  const th: React.CSSProperties = { fontFamily: 'var(--fb)', fontSize: 9, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', padding: '10px 14px', color: '#fff', background: 'var(--primary)', textAlign: 'left' }
+  const td: React.CSSProperties = { fontFamily: 'var(--fb)', fontSize: 12, padding: '9px 14px', color: 'var(--dark)' }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ fontFamily: 'var(--fb)', fontSize: 13, color: 'var(--mid)' }}>
+          <strong style={{ color: 'var(--dark)' }}>{pending.length}</strong> pending · <strong style={{ color: 'var(--status-green)' }}>{sent.length}</strong> sent
+        </div>
+        <button onClick={processDue} disabled={processing} style={{ fontFamily: 'var(--fb)', fontSize: 9, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', backgroundColor: 'var(--gold)', color: '#fff', border: 'none', borderRadius: 'var(--radius-sm)', padding: '8px 16px', cursor: processing ? 'wait' : 'pointer', marginLeft: 'auto' }}>
+          {processing ? 'Processing…' : 'Process Due Now'}
+        </button>
+      </div>
+      {msg && <div style={{ fontFamily: 'var(--fb)', fontSize: 12, color: 'var(--status-green)' }}>{msg}</div>}
+
+      {queue.length === 0 ? (
+        <p style={{ fontFamily: 'var(--fb)', fontSize: 13, color: 'var(--mid)' }}>
+          No follow-ups scheduled yet. They are created automatically when a client ignores a proposal.
+        </p>
+      ) : (
+        <div style={{ overflowX: 'auto', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-card)', border: '1px solid var(--primary-10)' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>{['Client', 'Turn', 'Angle', 'Scheduled', 'Status', ''].map(h => <th key={h} style={th}>{h}</th>)}</tr>
+            </thead>
+            <tbody>
+              {queue.map((q, i) => (
+                <tr key={q.id as string} style={{ background: i % 2 === 0 ? 'var(--white)' : 'rgba(0,51,102,0.02)', borderBottom: '1px solid var(--primary-10)' }}>
+                  <td style={{ ...td, fontWeight: 600 }}>{q.client_name as string}</td>
+                  <td style={{ ...td, textAlign: 'center' }}>{q.sequence_turn as number}</td>
+                  <td style={{ ...td, color: 'var(--mid)', fontStyle: 'italic' }}>{(q.angle as string ?? '').replace('_', ' ')}</td>
+                  <td style={{ ...td, color: 'var(--mid)' }}>{(q.scheduled_at as string ?? '').slice(0, 10)}</td>
+                  <td style={td}>
+                    <span style={{ fontFamily: 'var(--fb)', fontSize: 10, fontWeight: 700, color: statusColor(q.status as string), background: statusBg(q.status as string), padding: '2px 8px', borderRadius: 'var(--radius-pill)' }}>
+                      {q.status as string}
+                    </span>
+                  </td>
+                  <td style={td}>
+                    {q.status === 'pending' && (
+                      <button onClick={() => cancel(q.id as string)} style={{ fontFamily: 'var(--fb)', fontSize: 9, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', background: 'none', color: 'var(--mid)', border: '1px solid var(--primary-10)', borderRadius: 'var(--radius-sm)', padding: '3px 8px', cursor: 'pointer' }}>
+                        Cancel
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function ProposalsPage() {
   const [proposals,   setProposals]   = useState<Proposal[]>([])
   const [loading,     setLoading]     = useState(true)
@@ -191,10 +271,11 @@ export default function ProposalsPage() {
   const [selStatus,   setSelStatus]   = useState('All')
   const [selType,     setSelType]     = useState('All')
   const [demoOnly,    setDemoOnly]    = useState(false)
-  const [view,        setView]        = useState<'Cards' | 'Log'>('Cards')
+  const [view,        setView]        = useState<'Cards' | 'Log' | 'Follow-Ups' | 'CRM'>('Cards')
   const [minScore,    setMinScore]    = useState(70)
   const [genMsg,      setGenMsg]      = useState<string | null>(null)
   const [showGenerate, setShowGenerate] = useState(false)
+  const [crmLog,      setCrmLog]      = useState<Record<string, unknown>[]>([])
 
   const reload = () => {
     setLoading(true)
@@ -202,6 +283,9 @@ export default function ProposalsPage() {
   }
 
   useEffect(() => { reload() }, [])
+  useEffect(() => {
+    if (view === 'CRM') api.crm.log().then(setCrmLog)
+  }, [view])
 
   const filtered = proposals.filter(p =>
     (selStatus === 'All' || p.status === selStatus) &&
@@ -323,8 +407,10 @@ export default function ProposalsPage() {
 
           {/* View toggle */}
           <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid var(--primary-10)' }}>
-            <button style={tabBtn(view === 'Cards')} onClick={() => setView('Cards')}>Cards</button>
-            <button style={tabBtn(view === 'Log')}   onClick={() => setView('Log')}>Log</button>
+            <button style={tabBtn(view === 'Cards')}      onClick={() => setView('Cards')}>Cards</button>
+            <button style={tabBtn(view === 'Log')}         onClick={() => setView('Log')}>Log</button>
+            <button style={tabBtn(view === 'Follow-Ups')} onClick={() => setView('Follow-Ups')}>Follow-Ups</button>
+            <button style={tabBtn(view === 'CRM')}         onClick={() => setView('CRM')}>CRM Sync</button>
           </div>
 
           {loading && <p style={{ fontFamily: 'var(--fb)', fontSize: 14, color: 'var(--mid)' }}>Loading proposals…</p>}
@@ -359,6 +445,61 @@ export default function ProposalsPage() {
                 </tbody>
               </table>
             </div>
+          )}
+
+          {/* Feature 1 — Follow-Up Queue */}
+          {!loading && view === 'Follow-Ups' && (
+            <section>
+              <Eyebrow>Follow-Up Sequences</Eyebrow>
+              <h2 style={{ fontFamily: 'var(--fd)', fontSize: 21, fontWeight: 300, color: 'var(--dark)', margin: '6px 0 20px' }}>
+                Scheduled <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>follow-up queue</em>
+              </h2>
+              <FollowUpQueuePanel />
+            </section>
+          )}
+
+          {/* Feature 5 — CRM Sync Log */}
+          {!loading && view === 'CRM' && (
+            <section>
+              <Eyebrow>CRM Write-Back</Eyebrow>
+              <h2 style={{ fontFamily: 'var(--fd)', fontSize: 21, fontWeight: 300, color: 'var(--dark)', margin: '6px 0 8px' }}>
+                HubSpot <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>sync log</em>
+              </h2>
+              <p style={{ fontFamily: 'var(--fb)', fontSize: 13, color: 'var(--mid)', marginBottom: 20 }}>
+                In demo mode, CRM syncs are logged here instead of calling the HubSpot API.
+                Each accepted proposal triggers an automatic deal creation.
+              </p>
+              {crmLog.length === 0 ? (
+                <p style={{ fontFamily: 'var(--fb)', fontSize: 13, color: 'var(--mid)' }}>
+                  No CRM syncs yet. Accept a proposal to trigger the first sync.
+                </p>
+              ) : (
+                <div style={{ overflowX: 'auto', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-card)', border: '1px solid var(--primary-10)' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr>{['Action', 'Client', 'Proposal', 'Revenue', 'Synced At'].map(h => <th key={h} style={th}>{h}</th>)}</tr>
+                    </thead>
+                    <tbody>
+                      {crmLog.map((r, i) => (
+                        <tr key={i} style={{ background: i % 2 === 0 ? 'var(--white)' : 'rgba(0,51,102,0.02)', borderBottom: '1px solid var(--primary-10)' }}>
+                          <td style={td}>
+                            <span style={{ fontFamily: 'var(--fb)', fontSize: 10, fontWeight: 700, color: 'var(--status-green)', background: 'rgba(39,185,124,0.08)', padding: '2px 8px', borderRadius: 'var(--radius-pill)' }}>
+                              {r.action as string}
+                            </span>
+                          </td>
+                          <td style={{ ...td, fontWeight: 600 }}>{(r.client_id as string ?? '').slice(0, 8)}…</td>
+                          <td style={{ ...td, color: 'var(--mid)' }}>{(r.proposal_id as string ?? '').slice(0, 8)}…</td>
+                          <td style={{ ...td, color: 'var(--gold)', fontFamily: 'var(--fd)', fontSize: 14, fontWeight: 300 }}>
+                            {r.revenue != null ? `$${(r.revenue as number).toLocaleString()}` : '—'}
+                          </td>
+                          <td style={{ ...td, color: 'var(--mid)' }}>{(r.synced_at as string ?? '').slice(0, 16).replace('T', ' ')}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
           )}
         </div>
       </div>

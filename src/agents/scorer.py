@@ -124,8 +124,39 @@ def score_all_clients() -> list[dict]:
                 "is_demo_scenario": client.get("is_demo_scenario", 0),
             })
 
-    sort_key = "blended_score" if any(r["ml_probability"] is not None for r in results) else "score"
-    return sorted(results, key=lambda r: r[sort_key], reverse=True)
+    # Feature 6: apply seasonal score boosts
+    try:
+        from src.agents.seasonal_engine import apply_seasonal_boosts
+        results = apply_seasonal_boosts(results)
+    except Exception:
+        pass
+
+    # Feature 4: annotate with propensity tier (read-only; tiers updated separately)
+    try:
+        conn_p = get_connection()
+        propensity = {
+            r[0]: (r[1], r[2])
+            for r in conn_p.execute(
+                "SELECT id, propensity_tier, propensity_score FROM clients"
+            ).fetchall()
+        }
+        conn_p.close()
+        for r in results:
+            tier, score = propensity.get(r["client_id"], (None, None))
+            r["propensity_tier"]  = tier or "medium"
+            r["propensity_score"] = score or 0.5
+    except Exception:
+        for r in results:
+            r.setdefault("propensity_tier",  "medium")
+            r.setdefault("propensity_score", 0.5)
+
+    # Sort: high-propensity first, then by blended/rule score
+    _TIER_ORDER = {"high": 0, "medium": 1, "low": 2}
+    sort_key = "blended_score" if any(r.get("ml_probability") is not None for r in results) else "score"
+    return sorted(
+        results,
+        key=lambda r: (_TIER_ORDER.get(r.get("propensity_tier", "medium"), 1), -r[sort_key]),
+    )
 
 
 # ── Persistence ───────────────────────────────────────────────────────────────

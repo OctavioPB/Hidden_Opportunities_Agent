@@ -16,6 +16,7 @@ from backend.routers import (
     opportunities, alerts, accuracy,
     proposals, pilot, ml_model,
     text_signals, negotiations, clients,
+    follow_ups, analytics, churn, crm, seasonal,
 )
 
 app = FastAPI(title="Hidden Opportunities Agent API", version="0.7.0")
@@ -44,6 +45,11 @@ app.include_router(ml_model.router,      prefix="/api")
 app.include_router(text_signals.router,  prefix="/api")
 app.include_router(negotiations.router,  prefix="/api")
 app.include_router(clients.router,       prefix="/api")
+app.include_router(follow_ups.router,    prefix="/api")
+app.include_router(analytics.router,     prefix="/api")
+app.include_router(churn.router,         prefix="/api")
+app.include_router(crm.router,           prefix="/api")
+app.include_router(seasonal.router,      prefix="/api")
 
 
 @app.get("/api/health")

@@ -2,6 +2,54 @@ import { useState, useEffect } from 'react'
 import Eyebrow from '../components/Eyebrow'
 import { api, type Opportunity } from '../services/api'
 
+type UpcomingEvent = { name: string; date: string; days_away: number; types: string[]; current_boost: number }
+
+function PropensityBadge({ tier }: { tier: string }) {
+  const cfg: Record<string, { color: string; bg: string }> = {
+    high:   { color: 'var(--status-green)',  bg: 'rgba(39,185,124,0.08)' },
+    medium: { color: 'var(--gold)',           bg: 'rgba(200,152,42,0.08)' },
+    low:    { color: 'var(--mid)',            bg: 'rgba(107,114,128,0.08)' },
+  }
+  const c = cfg[tier] ?? cfg.medium
+  return (
+    <span style={{ fontFamily: 'var(--fb)', fontSize: 8, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: c.color, background: c.bg, padding: '2px 7px', borderRadius: 'var(--radius-pill)', border: `1px solid ${c.color}30` }}>
+      {tier}
+    </span>
+  )
+}
+
+function SeasonalBadge({ boost }: { boost: number }) {
+  if (!boost || boost <= 1.0) return null
+  return (
+    <span style={{ fontFamily: 'var(--fb)', fontSize: 8, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: '#e8c46a', background: 'rgba(200,152,42,0.12)', padding: '2px 7px', borderRadius: 'var(--radius-pill)', border: '1px solid rgba(200,152,42,0.25)' }}>
+      ↑ {((boost - 1) * 100).toFixed(0)}% seasonal
+    </span>
+  )
+}
+
+function SeasonalCalendarPanel({ events }: { events: UpcomingEvent[] }) {
+  if (!events.length) return null
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {events.map(ev => (
+        <div key={ev.name} style={{ display: 'flex', gap: 16, alignItems: 'center', padding: '10px 16px', background: 'rgba(200,152,42,0.05)', border: '1px solid rgba(200,152,42,0.15)', borderRadius: 'var(--radius-sm)', borderLeft: '3px solid var(--gold)' }}>
+          <div style={{ minWidth: 48, textAlign: 'center' }}>
+            <div style={{ fontFamily: 'var(--fd)', fontSize: 20, fontWeight: 300, color: 'var(--gold)' }}>{ev.days_away}</div>
+            <div style={{ fontFamily: 'var(--fb)', fontSize: 8, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--mid)' }}>days</div>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: 'var(--fb)', fontSize: 13, fontWeight: 600, color: 'var(--dark)' }}>{ev.name}</div>
+            <div style={{ fontFamily: 'var(--fb)', fontSize: 11, color: 'var(--mid)', marginTop: 2 }}>{ev.date} · boosts: {ev.types.map(t => OPPORTUNITY_LABELS[t] ?? t).join(', ')}</div>
+          </div>
+          <span style={{ fontFamily: 'var(--fb)', fontSize: 10, fontWeight: 700, color: 'var(--gold)', background: 'rgba(200,152,42,0.1)', padding: '3px 10px', borderRadius: 'var(--radius-pill)' }}>
+            ×{ev.current_boost.toFixed(2)}
+          </span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 const OPPORTUNITY_LABELS: Record<string, string> = {
   landing_page_optimization: 'Landing Page Optimization',
   seo_content:               'SEO Content Package',
@@ -66,20 +114,27 @@ export default function OpportunitiesPage() {
   const [selType,     setSelType]     = useState('All')
   const [selIndustry, setSelIndustry] = useState('All')
   const [demoOnly,    setDemoOnly]    = useState(false)
+  const [selPropensity, setSelPropensity] = useState('All')
+  const [events,      setEvents]      = useState<UpcomingEvent[]>([])
+  const [showCalendar, setShowCalendar] = useState(false)
   const [view,        setView]        = useState<'Cards' | 'Table'>('Cards')
 
   useEffect(() => {
     api.opportunities.meta().then(setMeta).catch(() => null)
+    api.seasonal.upcoming(8).then(setEvents).catch(() => null)
   }, [])
 
   useEffect(() => {
     setLoading(true)
     setError(null)
     api.opportunities.list(selType, selIndustry, demoOnly)
-      .then(setData)
+      .then(d => {
+        const filtered = selPropensity !== 'All' ? d.filter((r: Opportunity) => (r as unknown as Record<string, unknown>).propensity_tier === selPropensity) : d
+        setData(filtered)
+      })
       .catch(e => setError(String(e)))
       .finally(() => setLoading(false))
-  }, [selType, selIndustry, demoOnly])
+  }, [selType, selIndustry, demoOnly, selPropensity])
 
   const totalClients = new Set(data.map(r => r.client_id)).size
   const highConf     = data.filter(r => r.score >= 80).length
@@ -149,11 +204,38 @@ export default function OpportunitiesPage() {
                 {meta.industries.map(i => <option key={i} value={i}>{i}</option>)}
               </select>
             </div>
+            <div>
+              <label style={{ fontFamily: 'var(--fb)', fontSize: 10, fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--mid)', display: 'block', marginBottom: 6 }}>Propensity</label>
+              <select style={selectStyle} value={selPropensity} onChange={e => setSelPropensity(e.target.value)}>
+                <option value="All">All Tiers</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'var(--fb)', fontSize: 13, color: 'var(--dark)', cursor: 'pointer', paddingBottom: 2 }}>
               <input type="checkbox" checked={demoOnly} onChange={e => setDemoOnly(e.target.checked)} />
               Demo clients only
             </label>
+            <button onClick={() => setShowCalendar(c => !c)} style={{ marginLeft: 'auto', fontFamily: 'var(--fb)', fontSize: 9, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', background: showCalendar ? 'var(--gold)' : 'none', color: showCalendar ? '#fff' : 'var(--gold)', border: '1px solid var(--gold)', borderRadius: 'var(--radius-sm)', padding: '8px 14px', cursor: 'pointer', paddingBottom: 8 }}>
+              {showCalendar ? '▾' : '▸'} Seasonal Calendar
+            </button>
           </div>
+
+          {/* Seasonal calendar panel */}
+          {showCalendar && (
+            <div style={{ backgroundColor: 'var(--white)', borderRadius: 'var(--radius-md)', padding: 24, border: '1px solid var(--primary-10)', boxShadow: 'var(--shadow-card)' }}>
+              <Eyebrow>Upcoming Events</Eyebrow>
+              <h2 style={{ fontFamily: 'var(--fd)', fontSize: 21, fontWeight: 300, color: 'var(--dark)', margin: '6px 0 16px' }}>
+                Seasonal <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>opportunity boosts</em>
+              </h2>
+              {events.length === 0 ? (
+                <p style={{ fontFamily: 'var(--fb)', fontSize: 13, color: 'var(--mid)' }}>No seasonal events in the next 8 weeks.</p>
+              ) : (
+                <SeasonalCalendarPanel events={events} />
+              )}
+            </div>
+          )}
 
           {/* View toggle */}
           <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid var(--primary-10)' }}>
@@ -191,6 +273,10 @@ export default function OpportunitiesPage() {
                       </div>
                       <div style={{ fontFamily: 'var(--fb)', fontSize: 13, fontWeight: 600, color: 'var(--primary)', marginTop: 2 }}>
                         {OPPORTUNITY_LABELS[r.opportunity_type] ?? r.label}
+                      </div>
+                      <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+                        <PropensityBadge tier={(r as unknown as Record<string, unknown>).propensity_tier as string ?? 'medium'} />
+                        <SeasonalBadge boost={(r as unknown as Record<string, unknown>).seasonal_boost as number ?? 1} />
                       </div>
                     </div>
                     <div style={{ fontFamily: 'var(--fd)', fontSize: 24, fontWeight: 300, color: 'var(--gold)', flexShrink: 0 }}>

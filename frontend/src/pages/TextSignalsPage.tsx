@@ -127,7 +127,10 @@ export default function TextSignalsPage() {
   const [loading,     setLoading]     = useState(true)
   const [processing,  setProcessing]  = useState(false)
   const [processMsg,  setProcessMsg]  = useState<string | null>(null)
-  const [activeTab,   setActiveTab]   = useState<'Browser' | 'Matrix' | 'Urgency'>('Browser')
+  const [activeTab,   setActiveTab]   = useState<'Browser' | 'Matrix' | 'Urgency' | 'Churn'>('Browser')
+  const [churnLog,    setChurnLog]    = useState<Record<string, unknown>[]>([])
+  const [scanning,    setScanning]    = useState(false)
+  const [scanMsg,     setScanMsg]     = useState<string | null>(null)
 
   const reload = () => {
     setLoading(true)
@@ -159,6 +162,18 @@ export default function TextSignalsPage() {
     reload()
     setProcessing(false)
   }
+
+  const runChurnScan = async () => {
+    setScanning(true); setScanMsg(null)
+    const res = await api.churn.scan()
+    setScanMsg(`${res.escalated} churn escalation(s) processed.`)
+    api.churn.log().then(setChurnLog)
+    setScanning(false)
+  }
+
+  useEffect(() => {
+    if (activeTab === 'Churn') api.churn.log().then(setChurnLog)
+  }, [activeTab])
 
   const tabBtn = (t: string): React.CSSProperties => ({
     background: 'none', border: 'none', cursor: 'pointer',
@@ -237,6 +252,7 @@ export default function TextSignalsPage() {
             <button style={tabBtn('Browser')} onClick={() => setActiveTab('Browser')}>Email Browser</button>
             <button style={tabBtn('Matrix')}  onClick={() => setActiveTab('Matrix')}>Signal Matrix</button>
             <button style={tabBtn('Urgency')} onClick={() => setActiveTab('Urgency')}>Urgency Alerts</button>
+            <button style={tabBtn('Churn')}   onClick={() => setActiveTab('Churn')}>Churn Escalations</button>
           </div>
 
           {loading && <p style={{ fontFamily: 'var(--fb)', fontSize: 14, color: 'var(--mid)' }}>Loading…</p>}
@@ -375,6 +391,54 @@ export default function TextSignalsPage() {
                   </div>
                 )
               })}
+            </section>
+          )}
+          {/* Churn Escalations (Feature 3) */}
+          {!loading && activeTab === 'Churn' && (
+            <section>
+              <Eyebrow>Churn Prevention</Eyebrow>
+              <h2 style={{ fontFamily: 'var(--fd)', fontSize: 21, fontWeight: 300, color: 'var(--dark)', margin: '6px 0 16px' }}>
+                Escalation <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>log</em>
+              </h2>
+              <div style={{ display: 'flex', gap: 16, marginBottom: 20, alignItems: 'center' }}>
+                <p style={{ fontFamily: 'var(--fb)', fontSize: 13, color: 'var(--mid)', flex: 1 }}>
+                  Clients with active churn or urgency signals. The agent automatically notifies their account manager.
+                </p>
+                <button onClick={runChurnScan} disabled={scanning} style={{ fontFamily: 'var(--fb)', fontSize: 9, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', backgroundColor: 'var(--status-red)', color: '#fff', border: 'none', borderRadius: 'var(--radius-sm)', padding: '10px 20px', cursor: scanning ? 'wait' : 'pointer', opacity: scanning ? 0.7 : 1, flexShrink: 0 }}>
+                  {scanning ? 'Scanning…' : 'Run Churn Scan Now'}
+                </button>
+              </div>
+              {scanMsg && <div style={{ fontFamily: 'var(--fb)', fontSize: 12, color: 'var(--status-green)', marginBottom: 16 }}>{scanMsg}</div>}
+
+              {churnLog.length === 0 ? (
+                <p style={{ fontFamily: 'var(--fb)', fontSize: 13, color: 'var(--mid)' }}>
+                  No escalations recorded yet. Run the churn scan or process NLP emails first.
+                </p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {churnLog.map((entry, i) => {
+                    const churnSignal = entry.churn_signal as string ?? ''
+                    const color = churnSignal === 'churn_risk' ? 'var(--status-red)' : 'var(--status-orange)'
+                    const bg    = churnSignal === 'churn_risk' ? 'rgba(224,52,72,0.06)' : 'rgba(240,112,32,0.06)'
+                    return (
+                      <div key={i} style={{ backgroundColor: 'var(--white)', borderLeft: `3px solid ${color}`, border: '1px solid var(--primary-10)', borderRadius: 8, padding: '14px 20px', boxShadow: 'var(--shadow-card)' }}>
+                        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 8 }}>
+                          <span style={{ fontFamily: 'var(--fb)', fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>{entry.client_name as string ?? entry.client_id as string}</span>
+                          <span style={{ fontFamily: 'var(--fb)', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color, background: bg, padding: '2px 8px', borderRadius: 'var(--radius-pill)' }}>
+                            {churnSignal.replace('_', ' ')}
+                          </span>
+                          <span style={{ marginLeft: 'auto', fontFamily: 'var(--fb)', fontSize: 11, color: 'var(--mid)' }}>
+                            {(entry.escalated_at as string ?? '').slice(0, 10)}
+                          </span>
+                        </div>
+                        <div style={{ fontFamily: 'var(--fb)', fontSize: 12, color: 'var(--mid)' }}>
+                          Account manager: <strong style={{ color: 'var(--primary)' }}>{entry.account_manager as string ?? '—'}</strong>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </section>
           )}
         </div>
