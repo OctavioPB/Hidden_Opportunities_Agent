@@ -314,9 +314,10 @@ export default function ProposalsPage() {
   }
 
   const selectStyle: React.CSSProperties = {
-    fontFamily: 'var(--fb)', fontSize: 13, color: 'var(--dark)',
+    fontFamily: 'var(--fb)', fontSize: 13, color: '#1c1c2e',
     border: '1px solid var(--primary-10)', borderRadius: 'var(--radius-sm)',
-    padding: '8px 12px', backgroundColor: 'var(--white)', cursor: 'pointer',
+    padding: '8px 12px', backgroundColor: '#fff', cursor: 'pointer',
+    colorScheme: 'light',
   }
   const tabBtn = (active: boolean): React.CSSProperties => ({
     background: 'none', border: 'none', cursor: 'pointer',

@@ -106,7 +106,7 @@ function ScoreBar({ score }: { score: number }) {
   )
 }
 
-export default function OpportunitiesPage() {
+export default function OpportunitiesPage({ onSelectClient }: { onSelectClient?: (clientId: string) => void }) {
   const [data,        setData]        = useState<Opportunity[]>([])
   const [meta,        setMeta]        = useState<{ types: string[]; industries: string[] }>({ types: [], industries: [] })
   const [loading,     setLoading]     = useState(true)
@@ -141,9 +141,10 @@ export default function OpportunitiesPage() {
   const totalValue   = data.reduce((s, r) => s + r.suggested_price, 0)
 
   const selectStyle: React.CSSProperties = {
-    fontFamily: 'var(--fb)', fontSize: 13, color: 'var(--dark)',
+    fontFamily: 'var(--fb)', fontSize: 13, color: '#1c1c2e',
     border: '1px solid var(--primary-10)', borderRadius: 'var(--radius-sm)',
-    padding: '8px 12px', backgroundColor: 'var(--white)', cursor: 'pointer',
+    padding: '8px 12px', backgroundColor: '#fff', cursor: 'pointer',
+    colorScheme: 'light',
   }
 
   const tabBtn = (active: boolean): React.CSSProperties => ({
@@ -264,7 +265,9 @@ export default function OpportunitiesPage() {
           {!loading && !error && data.length > 0 && view === 'Cards' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {data.map((r, i) => (
-                <div key={i} style={{ ...card, padding: 28 }}>
+                <div key={i} onClick={() => onSelectClient?.(r.client_id)} style={{ ...card, padding: 28, cursor: onSelectClient ? 'pointer' : 'default', transition: 'box-shadow 0.15s' }}
+                  onMouseEnter={e => { if (onSelectClient) (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 16px rgba(0,51,102,0.14)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = 'var(--shadow-card)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                     <div>
                       <div style={{ fontFamily: 'var(--fb)', fontSize: 14, fontWeight: 600, color: 'var(--dark)' }}>
@@ -298,7 +301,7 @@ export default function OpportunitiesPage() {
           )}
 
           {!loading && !error && data.length > 0 && view === 'Table' && (
-            <OppTable rows={data} />
+            <OppTable rows={data} onSelectClient={onSelectClient} />
           )}
         </div>
       </div>
@@ -306,7 +309,7 @@ export default function OpportunitiesPage() {
   )
 }
 
-function OppTable({ rows }: { rows: Opportunity[] }) {
+function OppTable({ rows, onSelectClient }: { rows: Opportunity[]; onSelectClient?: (clientId: string) => void }) {
   const [sortKey, setSortKey] = useState<string>('score')
   const [asc,     setAsc]     = useState(false)
 
@@ -343,7 +346,10 @@ function OppTable({ rows }: { rows: Opportunity[] }) {
         </thead>
         <tbody>
           {sorted.map((r, i) => (
-            <tr key={i} style={{ background: i % 2 === 0 ? 'var(--white)' : 'rgba(0,51,102,0.02)', borderBottom: '1px solid var(--primary-10)' }}>
+            <tr key={i} onClick={() => onSelectClient?.(r.client_id)}
+              style={{ background: i % 2 === 0 ? 'var(--white)' : 'rgba(0,51,102,0.02)', borderBottom: '1px solid var(--primary-10)', cursor: onSelectClient ? 'pointer' : 'default' }}
+              onMouseEnter={e => { if (onSelectClient) (e.currentTarget as HTMLTableRowElement).style.background = 'rgba(0,51,102,0.06)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = i % 2 === 0 ? 'var(--white)' : 'rgba(0,51,102,0.02)' }}>
               <td style={{ ...td, fontWeight: 600 }}>{r.client_name}</td>
               <td style={{ ...td, color: 'var(--mid)' }}>{r.industry}</td>
               <td style={td}>{OPPORTUNITY_LABELS[r.opportunity_type] ?? r.label}</td>

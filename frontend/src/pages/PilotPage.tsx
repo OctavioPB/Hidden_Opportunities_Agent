@@ -197,14 +197,14 @@ export default function PilotPage() {
                   <div style={{ flex: 1 }}>
                     <label style={{ fontFamily: 'var(--fb)', fontSize: 10, fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--mid)', display: 'block', marginBottom: 6 }}>Client</label>
                     <select value={selClient} onChange={e => setSelClient(e.target.value)} disabled={step !== 'idle'}
-                      style={{ fontFamily: 'var(--fb)', fontSize: 13, color: 'var(--dark)', border: '1px solid var(--primary-10)', borderRadius: 'var(--radius-sm)', padding: '8px 12px', backgroundColor: 'var(--white)', cursor: 'pointer', width: '100%' }}>
+                      style={{ fontFamily: 'var(--fb)', fontSize: 13, color: '#1c1c2e', border: '1px solid var(--primary-10)', borderRadius: 'var(--radius-sm)', padding: '8px 12px', backgroundColor: '#fff', cursor: 'pointer', width: '100%', colorScheme: 'light' }}>
                       {clients.map(c => <option key={c.id} value={c.id}>{c.name} ({c.industry})</option>)}
                     </select>
                   </div>
                   <div style={{ flex: 1 }}>
                     <label style={{ fontFamily: 'var(--fb)', fontSize: 10, fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--mid)', display: 'block', marginBottom: 6 }}>Demo Scenario</label>
                     <select value={selScenario} onChange={e => setSelScenario(e.target.value)} disabled={step !== 'idle'}
-                      style={{ fontFamily: 'var(--fb)', fontSize: 13, color: 'var(--dark)', border: '1px solid var(--primary-10)', borderRadius: 'var(--radius-sm)', padding: '8px 12px', backgroundColor: 'var(--white)', cursor: 'pointer', width: '100%' }}>
+                      style={{ fontFamily: 'var(--fb)', fontSize: 13, color: '#1c1c2e', border: '1px solid var(--primary-10)', borderRadius: 'var(--radius-sm)', padding: '8px 12px', backgroundColor: '#fff', cursor: 'pointer', width: '100%', colorScheme: 'light' }}>
                       {Object.keys(SCENARIOS).map(k => <option key={k} value={k}>{k}</option>)}
                     </select>
                     <div style={{ fontFamily: 'var(--fb)', fontSize: 11, color: 'var(--mid)', marginTop: 6 }}>{SCENARIOS[selScenario].description}</div>

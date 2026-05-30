@@ -10,7 +10,7 @@ def get_opportunities(
     industry: str = "All",
     demo_only: bool = False,
 ) -> list[dict]:
-    results = score_all_clients()
+    results = score_all_clients()          # returns from cache after first call
     if opp_type != "All":
         results = [r for r in results if r["opportunity_type"] == opp_type]
     if industry != "All":
@@ -22,9 +22,9 @@ def get_opportunities(
 
 @router.get("/opportunities/meta")
 def get_opportunities_meta() -> dict:
-    """Return unique opportunity types and industries for filter dropdowns."""
+    """Filter options — derived from the same cached scoring run."""
     results = score_all_clients()
     return {
-        "types": sorted({r["opportunity_type"] for r in results}),
-        "industries": sorted({r["industry"] for r in results}),
+        "types":      sorted({r["opportunity_type"] for r in results}),
+        "industries": sorted({r["industry"]          for r in results}),
     }

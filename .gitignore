@@ -38,6 +38,7 @@ logs/
 .idea/
 *.swp
 *.swo
+planning/
 
 # OS
 .DS_Store

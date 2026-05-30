@@ -157,6 +157,27 @@ export interface Client {
   is_demo_scenario?: number
 }
 
+export interface ClientDetail {
+  client: {
+    id: string; name: string; industry: string; company_size: string
+    account_age_days: number; monthly_spend: number; contact_email: string
+    account_manager: string; is_demo_scenario: number
+    propensity_tier: string | null; preferred_channel: string
+  }
+  metrics: {
+    bounce_rate?: number; pages_per_session?: number; conversion_rate?: number
+    organic_traffic?: number; ctr?: number; cpc?: number; roas?: number
+    ad_spend?: number; email_open_rate?: number; email_click_rate?: number
+    keyword_rankings?: number; days_inactive?: number; days_since_last_contact?: number
+    monthly_spend?: number; account_age_days?: number
+  }
+  opportunities: Record<string, unknown>[]
+  signals_summary: Record<string, unknown>
+  signals: Record<string, unknown>[]
+  proposals: { id: string; opportunity_type: string; subject: string; status: string; suggested_price: number; sent_at: string | null; payment_link: string | null }[]
+  feedback: Record<string, unknown>[]
+}
+
 // ── API methods ─────────────────────────────────────────────────────────────
 
 export const api = {
@@ -279,8 +300,9 @@ export const api = {
   },
 
   clients: {
-    list: () => request<Client[]>('/clients'),
-    demo: () => request<Client[]>('/clients/demo'),
+    list:   () => request<Client[]>('/clients'),
+    demo:   () => request<Client[]>('/clients/demo'),
+    detail: (id: string) => request<ClientDetail>(`/clients/${id}/detail`),
   },
 
   followUps: {

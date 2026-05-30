@@ -268,7 +268,7 @@ export default function NegotiationPage() {
                   <div style={{ marginBottom: 24 }}>
                     <label style={{ fontFamily: 'var(--fb)', fontSize: 10, fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--mid)', display: 'block', marginBottom: 6 }}>Proposal to negotiate</label>
                     <select value={selPid} onChange={e => setSelPid(e.target.value)}
-                      style={{ fontFamily: 'var(--fb)', fontSize: 13, color: 'var(--dark)', border: '1px solid var(--primary-10)', borderRadius: 'var(--radius-sm)', padding: '8px 12px', backgroundColor: 'var(--white)', cursor: 'pointer', minWidth: 380 }}>
+                      style={{ fontFamily: 'var(--fb)', fontSize: 13, color: '#1c1c2e', border: '1px solid var(--primary-10)', borderRadius: 'var(--radius-sm)', padding: '8px 12px', backgroundColor: '#fff', cursor: 'pointer', minWidth: 380, colorScheme: 'light' }}>
                       {sentProposals.map(p => (
                         <option key={p.id as string} value={p.id as string}>
                           {p.client_name as string} — {(p.opportunity_type as string).replace(/_/g, ' ')} (${(p.suggested_price as number).toLocaleString()}) [{p.status as string}]
@@ -292,7 +292,7 @@ export default function NegotiationPage() {
                         <div style={{ flex: 1 }}>
                           <label style={{ fontFamily: 'var(--fb)', fontSize: 10, fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--mid)', display: 'block', marginBottom: 6 }}>Client reply type</label>
                           <select value={simChoice} onChange={e => setSimChoice(e.target.value)}
-                            style={{ fontFamily: 'var(--fb)', fontSize: 13, color: 'var(--dark)', border: '1px solid var(--primary-10)', borderRadius: 'var(--radius-sm)', padding: '8px 12px', backgroundColor: 'var(--white)', cursor: 'pointer', width: '100%' }}>
+                            style={{ fontFamily: 'var(--fb)', fontSize: 13, color: '#1c1c2e', border: '1px solid var(--primary-10)', borderRadius: 'var(--radius-sm)', padding: '8px 12px', backgroundColor: '#fff', cursor: 'pointer', width: '100%', colorScheme: 'light' }}>
                             {Object.keys(SIM_REPLIES).map(k => <option key={k} value={k}>{k}</option>)}
                           </select>
                           <div style={{ fontFamily: 'var(--fb)', fontSize: 12, color: 'var(--mid)', fontStyle: 'italic', marginTop: 6 }}>"{SIM_REPLIES[simChoice]}"</div>
@@ -347,7 +347,7 @@ export default function NegotiationPage() {
                     <div style={{ flex: 1 }}>
                       <label style={{ fontFamily: 'var(--fb)', fontSize: 10, fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--mid)', display: 'block', marginBottom: 6 }}>Proposal</label>
                       <select value={payPid} onChange={e => { setPayPid(e.target.value); setPayAmount((acceptedNoLink.find(p => p.id === e.target.value)?.suggested_price as number) || 0) }}
-                        style={{ fontFamily: 'var(--fb)', fontSize: 13, color: 'var(--dark)', border: '1px solid var(--primary-10)', borderRadius: 'var(--radius-sm)', padding: '8px 12px', backgroundColor: 'var(--white)', cursor: 'pointer', width: '100%' }}>
+                        style={{ fontFamily: 'var(--fb)', fontSize: 13, color: '#1c1c2e', border: '1px solid var(--primary-10)', borderRadius: 'var(--radius-sm)', padding: '8px 12px', backgroundColor: '#fff', cursor: 'pointer', width: '100%', colorScheme: 'light' }}>
                         {acceptedNoLink.map(p => <option key={p.id as string} value={p.id as string}>{p.client_name as string} — ${(p.suggested_price as number).toLocaleString()} [{p.status as string}]</option>)}
                       </select>
                     </div>
