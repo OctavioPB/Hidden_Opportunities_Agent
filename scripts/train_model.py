@@ -30,7 +30,7 @@ def run(augment: bool = True, cv_folds: int = 5, verbose: bool = True) -> dict:
     start = datetime.now()
 
     print(f"\n{'='*55}")
-    print(f"  Hidden Opportunities Agent — Model Training")
+    print("  Hidden Opportunities Agent — Model Training")
     print(f"  {start.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"{'='*55}\n")
 
@@ -59,7 +59,7 @@ def run(augment: bool = True, cv_folds: int = 5, verbose: bool = True) -> dict:
     print(f"      Precision : {m['precision']:.4f}")
     print(f"      Recall    : {m['recall']:.4f}")
     print(f"      F1        : {m['f1']:.4f}")
-    print(f"\n      Top features by importance:")
+    print("\n      Top features by importance:")
     top5 = sorted(metadata["feature_importance"].items(), key=lambda kv: kv[1], reverse=True)[:5]
     for name, imp in top5:
         print(f"        {name:<28} {imp:.4f}")

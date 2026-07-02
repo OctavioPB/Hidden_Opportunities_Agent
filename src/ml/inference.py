@@ -29,7 +29,7 @@ from typing import Any
 
 import numpy as np
 
-from src.ml.dataset import _metrics_to_row, FEATURE_NAMES
+from src.ml.dataset import _metrics_to_row
 from src.ml.model import load_model, predict_proba, model_is_trained
 from src.ml.explainer import explain_single
 from src.agents.rules import ALL_OPPORTUNITY_TYPES, evaluate as rules_evaluate

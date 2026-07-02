@@ -6,7 +6,6 @@ are nullable so earlier sprints can run without migration headaches.
 """
 
 import sqlite3
-from pathlib import Path
 
 import config
 

@@ -14,7 +14,6 @@ Usage:
 """
 
 import argparse
-import json
 import sqlite3
 import sys
 from pathlib import Path
@@ -90,7 +89,7 @@ def _insert_text_signals(conn: sqlite3.Connection, signals: list[dict]) -> None:
 
 def seed(reset: bool = False) -> None:
     print(f"\n{'='*50}")
-    print(f"  Hidden Opportunities Agent — DB Seed")
+    print("  Hidden Opportunities Agent — DB Seed")
     print(f"  DB path   : {config.DB_PATH}")
     print(f"  Demo mode : {config.DEMO_MODE}")
     print(f"  Seed      : {config.SYNTHETIC_SEED}")

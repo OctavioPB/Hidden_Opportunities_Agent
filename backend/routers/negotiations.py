@@ -1,10 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel
 from src.agents.negotiator import (
     start_negotiation, process_client_reply, kill_negotiation,
     get_thread, get_active_negotiations, get_negotiation_summary,
 )
-from src.agents.payment_link import create_payment_link, list_payment_links, get_payment_link
+from src.agents.payment_link import create_payment_link, list_payment_links
 from src.agents.feedback_loop import record_client_reply, INTENT_TOO_EXPENSIVE
 from src.db.schema import get_connection
 

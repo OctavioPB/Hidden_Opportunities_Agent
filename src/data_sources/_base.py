@@ -5,10 +5,7 @@ Provides the DB query helper and the production annotation decorator
 that adds the 'in_production' note to every returned record.
 """
 
-import sqlite3
-from typing import Any
 
-import config
 from src.db.schema import get_connection
 
 

@@ -17,7 +17,7 @@ as a fallback when the model has insufficient training data.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Callable
+from collections.abc import Callable
 
 
 # ── Opportunity types ─────────────────────────────────────────────────────────

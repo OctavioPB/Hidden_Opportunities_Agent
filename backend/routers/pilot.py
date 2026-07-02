@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from src.agents.scorer import score_client, persist_opportunities, score_all_clients
-from src.agents.proposal_generator import generate_proposal, get_all_proposals, approve_proposal
+from src.agents.proposal_generator import generate_proposal, approve_proposal
 from src.agents.email_sender import send_proposal_email, load_sent_log
 from src.agents.feedback_loop import (
     record_client_reply, get_pilot_metrics,
@@ -120,7 +120,7 @@ def send(req: SendRequest) -> dict:
             bcc_manager=True,
         )
     except Exception as e:
-        raise HTTPException(500, str(e))
+        raise HTTPException(500, str(e)) from e
     return {"sent": True, "tier": tier}
 
 

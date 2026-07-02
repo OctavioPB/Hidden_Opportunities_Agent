@@ -63,7 +63,7 @@ def run(
 ) -> dict:
     start = datetime.now()
     print(f"\n{'='*60}")
-    print(f"  Hidden Opportunities Agent -- Daily Job")
+    print("  Hidden Opportunities Agent -- Daily Job")
     print(f"  {start.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"  Demo mode  : {config.DEMO_MODE}")
     print(f"  Dry run    : {dry_run}")
@@ -243,7 +243,7 @@ def run(
         "dry_run":             dry_run,
     }
 
-    print(f"\n[4/4] Summary")
+    print("\n[4/4] Summary")
     print(f"      Clients scanned        : {summary['clients_scanned']}")
     print(f"      Opportunities found    : {summary['opportunities_found']}")
     print(f"      New in DB              : {summary['new_in_db']}")

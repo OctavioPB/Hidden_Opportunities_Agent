@@ -30,14 +30,14 @@ PRODUCTION MODE
 from __future__ import annotations
 
 import json
-import uuid
+import re
 from datetime import datetime
 from textwrap import dedent
 from typing import Any
 
 import config
 import src.db.schema as _schema
-from src.agents.rules import OPPORTUNITY_LABELS, SUGGESTED_PRICES
+from src.agents.rules import OPPORTUNITY_LABELS
 
 
 # ── Negotiation constants ─────────────────────────────────────────────────────
@@ -368,17 +368,6 @@ def get_negotiation_summary() -> dict:
 
     active = total - accepted - escalated - rejected
 
-    # Average discount given on accepted deals
-    avg_discount_row = conn.execute(
-        """
-        SELECT AVG(
-            CAST(REPLACE(SUBSTR(message, INSTR(message,'%')-2, 2), ' ', '') AS REAL)
-        )
-        FROM negotiation_log
-        WHERE role = 'agent' AND offer_price IS NOT NULL
-        """
-    ).fetchone()[0]
-
     conn.close()
 
     return {
@@ -481,8 +470,6 @@ def _append_log(entry: dict) -> None:
 
 # ── Intent extraction ─────────────────────────────────────────────────────────
 
-import re as _re
-
 # Each entry is a tuple (pattern, use_word_boundary).
 # Phrases are matched as substrings; single tokens use \b word boundary.
 _ACCEPT_PATTERNS = [
@@ -511,7 +498,7 @@ def _match_patterns(text_lower: str, patterns: list[str]) -> bool:
     """Return True if any pattern matches the (already lower-cased) text."""
     for pat in patterns:
         if pat.startswith(r"\b") or pat.startswith("(") or "|" in pat:
-            if _re.search(pat, text_lower):
+            if re.search(pat, text_lower):
                 return True
         elif pat in text_lower:
             return True

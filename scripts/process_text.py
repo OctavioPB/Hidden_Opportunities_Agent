@@ -37,7 +37,7 @@ def run(
     start = datetime.now()
 
     print(f"\n{'='*55}")
-    print(f"  Hidden Opportunities Agent — Text Processing")
+    print("  Hidden Opportunities Agent — Text Processing")
     print(f"  {start.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"{'='*55}\n")
 
@@ -63,7 +63,7 @@ def run(
 
     # Full DB summary
     db_summary = get_pipeline_summary()
-    print(f"\n      DB totals:")
+    print("\n      DB totals:")
     print(f"        Total signals   : {db_summary['total_signals']}")
     print(f"        Processed       : {db_summary['processed']}")
     print(f"        Unprocessed     : {db_summary['unprocessed']}")

@@ -20,7 +20,7 @@ def train_model() -> dict:
         result = train_run(augment=True, cv_folds=5, verbose=False)
         return result
     except Exception as e:
-        raise HTTPException(500, str(e))
+        raise HTTPException(500, str(e)) from e
 
 
 @router.get("/ml/predictions")

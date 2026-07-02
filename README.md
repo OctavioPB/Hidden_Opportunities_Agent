@@ -175,8 +175,10 @@ hidden_opportunities_agent/
 │   ├── churn_escalations.jsonl
 │   └── ...
 │
+├── planning/
+│   └── GOVERNANCE.md            # Autonomy rules & escalation policy
+│
 ├── run.bat                      # Windows launcher (starts backend + opens browser)
-├── GOVERNANCE.md                # Autonomy rules & escalation policy
 ├── Dockerfile
 └── requirements.txt
 ```
@@ -765,7 +767,10 @@ python -m pytest tests/ -v
 python -m pytest tests/test_sprint7.py -v
 
 # With coverage
-python -m pytest tests/ --cov=src --cov-report=term-missing
+python -m pytest tests/ --cov --cov-report=term-missing
+
+# Lint
+ruff check .
 ```
 
 **Test isolation:** Every test that touches the DB uses an `isolated_db` fixture that monkeypatches `config.DB_PATH` to a temporary file. Tests never touch the real database.

@@ -26,7 +26,6 @@ from __future__ import annotations
 import json
 import uuid
 from datetime import datetime
-from pathlib import Path
 from typing import Any
 
 import config
@@ -208,7 +207,7 @@ def _send_via_sendgrid(payload: dict) -> None:
     """
     try:
         from sendgrid import SendGridAPIClient
-        from sendgrid.helpers.mail import Mail, To, Bcc
+        from sendgrid.helpers.mail import Mail
 
         message = Mail(
             from_email    = config.EMAIL_FROM,

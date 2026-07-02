@@ -1,8 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from src.agents.follow_up_engine import (
-    get_follow_up_queue, cancel_follow_ups,
-    process_due_follow_ups, load_follow_up_log,
+    get_follow_up_queue, process_due_follow_ups, load_follow_up_log,
     schedule_follow_up,
 )
 

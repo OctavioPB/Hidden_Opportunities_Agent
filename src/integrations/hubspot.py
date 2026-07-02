@@ -13,7 +13,6 @@ from __future__ import annotations
 import json
 import uuid
 from datetime import datetime
-from pathlib import Path
 
 import config
 from src.db.schema import get_connection

@@ -41,9 +41,10 @@ sendgrid==6.11.0
 # PDF / contracts (Sprint 7)
 reportlab==4.2.0
 
-# Testing
+# Testing / linting
 pytest==8.2.0
 pytest-cov==5.0.0
+ruff==0.15.20
 
 # Utilities
 python-dateutil==2.9.0

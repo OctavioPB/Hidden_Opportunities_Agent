@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from src.agents.seasonal_engine import get_upcoming_events, get_current_boosts, get_seasonal_multiplier
+from src.agents.seasonal_engine import get_upcoming_events, get_current_boosts
 from src.agents.propensity_ranker import update_client_propensity_tiers, get_all_propensities
 from src.integrations.whatsapp import (
     set_channel_preference, get_opted_in_clients, load_whatsapp_log,

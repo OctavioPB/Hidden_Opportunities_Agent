@@ -25,7 +25,6 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
-from pathlib import Path
 from typing import Any
 
 import joblib
@@ -36,7 +35,6 @@ from sklearn.metrics import (
     average_precision_score,
 )
 from sklearn.model_selection import StratifiedKFold, cross_val_predict
-from sklearn.preprocessing import label_binarize
 
 import config
 from src.ml.dataset import FEATURE_NAMES
@@ -116,7 +114,7 @@ def train(
     # ── Feature importance ────────────────────────────────────────────────────
     importances = {
         name: round(float(imp), 6)
-        for name, imp in zip(feature_names, clf.feature_importances_)
+        for name, imp in zip(feature_names, clf.feature_importances_, strict=True)
     }
 
     # ── Metadata ──────────────────────────────────────────────────────────────

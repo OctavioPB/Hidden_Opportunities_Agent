@@ -106,13 +106,19 @@ def get_shap_values(
     explainer = shap.TreeExplainer(model)
     sv        = explainer.shap_values(Xarr)
 
-    # For binary classification RF, shap_values is a list [class0_sv, class1_sv]
+    # For binary classification RF, shap_values may come back as:
+    #   - a list [class0_sv, class1_sv]                    (older shap)
+    #   - an ndarray shaped (n_samples, n_features, n_classes) (newer shap)
+    #   - a plain (n_samples, n_features) ndarray           (single-output)
     if isinstance(sv, list):
         sv_class1  = sv[1]
-        base_value = float(explainer.expected_value[1])
+        base_value = float(np.asarray(explainer.expected_value)[1])
+    elif isinstance(sv, np.ndarray) and sv.ndim == 3:
+        sv_class1  = sv[:, :, 1]
+        base_value = float(np.asarray(explainer.expected_value)[1])
     else:
         sv_class1  = sv
-        base_value = float(explainer.expected_value)
+        base_value = float(np.asarray(explainer.expected_value).reshape(-1)[0])
 
     return sv_class1, np.full(sv_class1.shape[0], base_value)
 
@@ -147,7 +153,7 @@ def explain_single(
 
     # Sort features by absolute SHAP value
     ranked = sorted(
-        zip(FEATURE_NAMES, sv_row, feature_row),
+        zip(FEATURE_NAMES, sv_row, feature_row, strict=True),
         key=lambda t: abs(t[1]),
         reverse=True,
     )[:top_n]

@@ -10,7 +10,7 @@ No external dependencies — all logic is purely temporal.
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 
 # Opportunity type constants (mirrors rules.py to avoid circular imports)
 _LPO  = "landing_page_optimization"
@@ -114,7 +114,7 @@ def get_current_boosts() -> list[dict]:
     today = date.today()
     boosts = []
     seen = set()
-    for (opp_type, months), mult in SEASONAL_BOOSTS.items():
+    for (opp_type, months), _mult in SEASONAL_BOOSTS.items():
         if opp_type not in seen:
             seen.add(opp_type)
             m = get_seasonal_multiplier(opp_type, today)
