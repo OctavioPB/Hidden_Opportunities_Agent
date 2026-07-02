@@ -23,12 +23,10 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-import config
 from src.db.schema import get_connection
 from src.agents.email_sender import (
     send_proposal_email,
     SEND_MODE_AUTONOMOUS,
-    SEND_MODE_APPROVED,
 )
 from src.agents.rules import REACTIVATION
 

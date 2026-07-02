@@ -609,22 +609,6 @@ def section_header(title: str, subtitle: str = "") -> None:
     """)
 
 
-# ── Eyebrow label ──────────────────────────────────────────────────────────────
-
-def eyebrow_label(text: str) -> None:
-    """Gold eyebrow label above a section heading."""
-    st.html(f"""
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;margin-top:4px;">
-      <div style="width:20px;height:1px;background:#C8982A;"></div>
-      <span style="
-        font-family:'Plus Jakarta Sans',sans-serif;
-        font-size:9px;letter-spacing:3.5px;text-transform:uppercase;
-        color:#C8982A;font-weight:600;
-      ">{text}</span>
-    </div>
-    """)
-
-
 # ── Production badge ───────────────────────────────────────────────────────────
 
 def production_badge(note: str) -> None:
@@ -649,40 +633,6 @@ def production_badge(note: str) -> None:
         font-family:'Plus Jakarta Sans',sans-serif;
         font-size:12px;color:#4B5563;line-height:1.65;
       ">{note}</span>
-    </div>
-    """)
-
-
-# ── Demo banner ────────────────────────────────────────────────────────────────
-
-def demo_banner() -> None:
-    """Slim demo-mode banner at the top of the main content area."""
-    st.html("""
-    <div style="
-      background: #FDFAF3;
-      border: 1px solid rgba(200,152,42,.25);
-      border-left: 3px solid #C8982A;
-      border-radius: 8px;
-      padding: 8px 18px;
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    ">
-      <span style="
-        font-family:'Plus Jakarta Sans',sans-serif;
-        font-size:9px;font-weight:700;
-        letter-spacing:2.5px;text-transform:uppercase;
-        color:#C8982A;white-space:nowrap;
-      ">Demo Mode</span>
-      <span style="width:1px;height:14px;background:#E8C46A;opacity:.4;flex-shrink:0;"></span>
-      <span style="
-        font-family:'Plus Jakarta Sans',sans-serif;
-        font-size:12px;color:#78716C;line-height:1.5;
-      ">
-        All data is synthetic. In production each panel connects to the live API
-        shown in the <strong style="color:#92400E;">Production integration</strong> notes.
-      </span>
     </div>
     """)
 

@@ -71,7 +71,7 @@ _INTEREST_KWORDS = {
 _POSITIVE_WORDS = {
     "great", "excellent", "impressed", "happy", "satisfied", "love",
     "amazing", "fantastic", "wonderful", "brilliant", "thrilled",
-    "fantastic", "perfect", "awesome", "delighted",
+    "perfect", "awesome", "delighted",
 }
 
 _NEGATIVE_WORDS = {

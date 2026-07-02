@@ -39,10 +39,10 @@ from src.agents.negotiator import (
     NEG_INTENT_ACCEPT, NEG_INTENT_REJECT, NEG_INTENT_COUNTER, NEG_INTENT_INFO,
 )
 from src.agents.payment_link import create_payment_link, list_payment_links, get_payment_link
-from src.agents.feedback_loop import record_client_reply, INTENT_TOO_EXPENSIVE, INTENT_ACCEPTED
+from src.agents.feedback_loop import record_client_reply, INTENT_TOO_EXPENSIVE
 from src.agents.proposal_generator import get_all_proposals
 from src.data_sources.crm import get_all_clients
-from src.ui.components import page_header, section_header, production_badge, score_bar
+from src.ui.components import page_header, section_header, production_badge
 
 
 # ── Simulated client replies for the demo ─────────────────────────────────────

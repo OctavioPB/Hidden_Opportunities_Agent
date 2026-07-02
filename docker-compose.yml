@@ -15,13 +15,3 @@ services:
     environment:
       - DEMO_MODE=true
     restart: unless-stopped
-
-  # Optional: lightweight log viewer via adminer-style approach
-  # Uncomment in Sprint 2+ when you want a DB browser
-  # db-browser:
-  #   image: coleifer/sqlite-web
-  #   ports:
-  #     - "8080:8080"
-  #   volumes:
-  #     - ./data/db:/data
-  #   command: sqlite_web /data/opportunities.db --host 0.0.0.0

@@ -38,6 +38,7 @@ logs/
 .idea/
 *.swp
 *.swo
+planning/
 
 # OS
 .DS_Store
@@ -52,3 +53,10 @@ Thumbs.db
 
 # Docker
 .docker/
+
+# Linting / coverage
+.ruff_cache/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/

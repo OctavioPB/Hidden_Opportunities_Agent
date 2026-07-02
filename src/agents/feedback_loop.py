@@ -30,7 +30,6 @@ from __future__ import annotations
 import json
 import uuid
 from datetime import datetime, timedelta
-from pathlib import Path
 from typing import Any
 
 import config
@@ -207,6 +206,32 @@ def record_client_reply(
             actions_taken.append(f"Payment link: {link_result['url']}")
         except Exception as _e:
             print(f"[feedback_loop] Payment link generation failed: {_e}")
+        # Feature 5: CRM write-back on acceptance
+        try:
+            from src.integrations.hubspot import create_deal, log_activity
+            create_deal(p["client_id"], proposal_id, revenue or 0, p["opportunity_type"])
+            log_activity(p["client_id"], f"Proposal accepted via Hidden Opportunities Agent. Revenue: ${revenue or 0:,.0f}")
+            actions_taken.append("CRM deal created")
+        except Exception as _e:
+            print(f"[feedback_loop] CRM write-back failed: {_e}")
+        # Feature 1: cancel any pending follow-ups for this proposal
+        try:
+            from src.agents.follow_up_engine import cancel_follow_ups
+            n = cancel_follow_ups(proposal_id)
+            if n > 0:
+                actions_taken.append(f"Cancelled {n} pending follow-up(s)")
+        except Exception as _e:
+            print(f"[feedback_loop] Follow-up cancel failed: {_e}")
+
+    elif intent == INTENT_IGNORED:
+        # Feature 1: schedule automated follow-up sequence
+        try:
+            from src.agents.follow_up_engine import schedule_follow_up
+            entries = schedule_follow_up(proposal_id)
+            if entries:
+                actions_taken.append(f"Scheduled {len(entries)} follow-up(s)")
+        except Exception as _e:
+            print(f"[feedback_loop] Follow-up scheduling failed: {_e}")
 
     elif intent == INTENT_TOO_EXPENSIVE:
         # Sprint 7: trigger autonomous negotiation instead of silently logging
