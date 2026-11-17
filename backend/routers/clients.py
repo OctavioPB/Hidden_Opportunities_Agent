@@ -5,6 +5,7 @@ from src.data_sources import meta_ads
 from src.data_sources import email_marketing
 from src.data_sources import seo
 from src.data_sources.text_signals import get_client_signals, get_signal_summary
+from src.agents.scorer import score_all_clients
 from src.db.schema import get_connection
 
 router = APIRouter(tags=["clients"])
@@ -43,8 +44,10 @@ def client_detail(client_id: str) -> dict:
         metrics.update(src)
 
     # Opportunities for this client (filter cached scoring run)
-    from src.agents.scorer import score_all_clients
-    opportunities = [o for o in score_all_clients() if o["client_id"] == client_id]
+    opportunities = [
+        {k: v for k, v in o.items() if k != "_metrics"}
+        for o in score_all_clients() if o["client_id"] == client_id
+    ]
 
     # Text signals
     signals_summary = get_signal_summary(client_id)

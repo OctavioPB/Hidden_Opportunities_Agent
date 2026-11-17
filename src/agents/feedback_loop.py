@@ -34,6 +34,7 @@ from typing import Any
 
 import config
 from src.db.schema import get_connection
+from src.jsonl import append_jsonl, read_jsonl
 
 # ── Valid reply intents ───────────────────────────────────────────────────────
 INTENT_ACCEPTED      = "accepted"
@@ -82,6 +83,11 @@ _REVENUE_BY_INTENT = {
     INTENT_IGNORED:       0.0,
     INTENT_ESCALATED:     0.0,
 }
+
+# Intents that resolve a proposal and therefore cancel its pending follow-ups
+_FOLLOW_UP_STOPPING_INTENTS = frozenset({
+    INTENT_ACCEPTED, INTENT_REJECTED, INTENT_TOO_EXPENSIVE, INTENT_ESCALATED,
+})
 
 # ── Feedback log path (demo) ──────────────────────────────────────────────────
 FEEDBACK_LOG = config.LOGS_DIR / "feedback.jsonl"
@@ -160,7 +166,9 @@ def record_client_reply(
     new_proposal_status = {
         INTENT_ACCEPTED:      "accepted",
         INTENT_REJECTED:      "rejected",
-        INTENT_TOO_EXPENSIVE: "rejected",
+        # Price objection opens a negotiation: the proposal stays open until
+        # the negotiator accepts, rejects or escalates it.
+        INTENT_TOO_EXPENSIVE: "sent",
         INTENT_NEED_INFO:     "sent",        # keep open for follow-up
         INTENT_IGNORED:       "sent",
         INTENT_ESCALATED:     "rejected",
@@ -175,9 +183,11 @@ def record_client_reply(
     new_opp_status = {
         INTENT_ACCEPTED:      "closed",
         INTENT_REJECTED:      "rejected",
-        INTENT_TOO_EXPENSIVE: "rejected",
+        # Still open: marking these "rejected" would let the next detection run
+        # insert a duplicate opportunity for the same client and type.
+        INTENT_TOO_EXPENSIVE: "sent",
         INTENT_NEED_INFO:     "sent",
-        INTENT_IGNORED:       "rejected",
+        INTENT_IGNORED:       "sent",
         INTENT_ESCALATED:     "escalated",
     }[intent]
 
@@ -189,12 +199,25 @@ def record_client_reply(
     conn.commit()
     conn.close()
 
-    # ── 5. Adjust confidence modifier ─────────────────────────────────────────
+    # ── 5. Confidence modifier ────────────────────────────────────────────────
+    # Not stored separately: get_confidence_modifier() derives it from the
+    # feedback_log rows written in step 2.
     delta = _CONFIDENCE_DELTA.get(intent, 0.0)
-    _store_confidence_modifier(p["client_id"], p["opportunity_type"], delta)
 
     # ── 6. Downstream actions ─────────────────────────────────────────────────
     actions_taken: list[str] = []
+
+    # Feature 1: any reply that resolves the proposal stops its follow-up
+    # sequence — a client who accepted, declined or complained must not keep
+    # receiving automated "just checking in" emails.
+    if intent in _FOLLOW_UP_STOPPING_INTENTS:
+        try:
+            from src.agents.follow_up_engine import cancel_follow_ups
+            n = cancel_follow_ups(proposal_id)
+            if n > 0:
+                actions_taken.append(f"Cancelled {n} pending follow-up(s)")
+        except Exception as _e:
+            print(f"[feedback_loop] Follow-up cancel failed: {_e}")
 
     if intent == INTENT_ACCEPTED:
         meeting = _schedule_meeting(p, simulated=simulated)
@@ -214,14 +237,6 @@ def record_client_reply(
             actions_taken.append("CRM deal created")
         except Exception as _e:
             print(f"[feedback_loop] CRM write-back failed: {_e}")
-        # Feature 1: cancel any pending follow-ups for this proposal
-        try:
-            from src.agents.follow_up_engine import cancel_follow_ups
-            n = cancel_follow_ups(proposal_id)
-            if n > 0:
-                actions_taken.append(f"Cancelled {n} pending follow-up(s)")
-        except Exception as _e:
-            print(f"[feedback_loop] Follow-up cancel failed: {_e}")
 
     elif intent == INTENT_IGNORED:
         # Feature 1: schedule automated follow-up sequence
@@ -284,19 +299,36 @@ def record_client_reply(
     return result
 
 
-# ── Confidence modifier store ─────────────────────────────────────────────────
+# ── Confidence modifier ───────────────────────────────────────────────────────
 
-def _store_confidence_modifier(client_id: str, opp_type: str, delta: float) -> None:
+def get_all_confidence_modifiers() -> dict[tuple[str, str], float]:
     """
-    Persist a cumulative confidence adjustment for a client × opportunity type.
-    Stored in the feedback_log; aggregated at query time by get_confidence_modifier().
+    Confidence modifier for every (client_id, opportunity_type) that has
+    feedback, in one query. Same rule as get_confidence_modifier(): the sum of
+    the deltas of the 10 most recent outcomes, clamped to [-50, +50].
+    """
+    conn = get_connection()
+    rows = conn.execute(
+        """
+        SELECT client_id, opportunity_type, outcome FROM (
+            SELECT p.client_id, o.opportunity_type, fl.outcome,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY p.client_id, o.opportunity_type
+                       ORDER BY fl.logged_at DESC, fl.id DESC
+                   ) AS rn
+            FROM feedback_log fl
+            JOIN proposals     p ON p.id = fl.proposal_id
+            JOIN opportunities o ON o.id = p.opportunity_id
+        ) WHERE rn <= 10
+        """
+    ).fetchall()
+    conn.close()
 
-    In Sprint 5 this table becomes a feature for the ML model.
-    """
-    # We reuse feedback_log for audit purposes.  The modifier is computed
-    # from the sum of confidence_delta values across all feedback rows.
-    # No separate table needed — works correctly for the demo scale.
-    pass   # already written to feedback_log in record_client_reply()
+    totals: dict[tuple[str, str], float] = {}
+    for r in rows:
+        key = (r["client_id"], r["opportunity_type"])
+        totals[key] = totals.get(key, 0.0) + _CONFIDENCE_DELTA.get(r["outcome"], 0.0)
+    return {k: max(-50.0, min(50.0, v)) for k, v in totals.items()}
 
 
 def get_confidence_modifier(client_id: str, opp_type: str) -> float:
@@ -348,11 +380,11 @@ def _schedule_meeting(proposal: dict, simulated: bool = False) -> dict:
         "description": (
             f"Client accepted proposal #{proposal['id'][:8]}. "
             f"Opportunity: {proposal['opportunity_type']}. "
-            f"Value: ${proposal['suggested_price']:,.0f}"
+            f"Value: ${proposal['suggested_price'] or 0:,.0f}"
         ),
         "start":       start_dt.isoformat(),
         "end":         end_dt.isoformat(),
-        "attendees":   [proposal.get("contact_email", "client@demo.local"),
+        "attendees":   [proposal.get("contact_email") or "client@demo.local",
                         _guess_manager_email(proposal.get("account_manager") or "manager")],
         "created_at":  now,
         "simulated":   simulated,
@@ -364,9 +396,7 @@ def _schedule_meeting(proposal: dict, simulated: bool = False) -> dict:
     }
 
     if config.DEMO_MODE or simulated:
-        CALENDAR_LOG.parent.mkdir(parents=True, exist_ok=True)
-        with CALENDAR_LOG.open("a", encoding="utf-8") as fh:
-            fh.write(json.dumps(event, ensure_ascii=False) + "\n")
+        append_jsonl(CALENDAR_LOG, event)
     else:
         _create_google_calendar_event(event)
 
@@ -418,9 +448,7 @@ def _escalate_to_human(proposal: dict, notes: str, simulated: bool = False) -> d
     }
 
     if config.DEMO_MODE or simulated:
-        ESCALATION_LOG.parent.mkdir(parents=True, exist_ok=True)
-        with ESCALATION_LOG.open("a", encoding="utf-8") as fh:
-            fh.write(json.dumps(alert, ensure_ascii=False) + "\n")
+        append_jsonl(ESCALATION_LOG, alert)
     else:
         _send_slack_escalation(alert)
 
@@ -448,51 +476,19 @@ def _guess_manager_email(name: str) -> str:
 # ── Log readers ───────────────────────────────────────────────────────────────
 
 def _write_feedback_log(entry: dict) -> None:
-    FEEDBACK_LOG.parent.mkdir(parents=True, exist_ok=True)
-    with FEEDBACK_LOG.open("a", encoding="utf-8") as fh:
-        fh.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    append_jsonl(FEEDBACK_LOG, entry)
 
 
 def load_feedback_log() -> list[dict]:
-    if not FEEDBACK_LOG.exists():
-        return []
-    records = []
-    for line in FEEDBACK_LOG.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if line:
-            try:
-                records.append(json.loads(line))
-            except json.JSONDecodeError:
-                pass
-    return records
+    return read_jsonl(FEEDBACK_LOG)
 
 
 def load_calendar_log() -> list[dict]:
-    if not CALENDAR_LOG.exists():
-        return []
-    records = []
-    for line in CALENDAR_LOG.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if line:
-            try:
-                records.append(json.loads(line))
-            except json.JSONDecodeError:
-                pass
-    return records
+    return read_jsonl(CALENDAR_LOG)
 
 
 def load_escalation_log() -> list[dict]:
-    if not ESCALATION_LOG.exists():
-        return []
-    records = []
-    for line in ESCALATION_LOG.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if line:
-            try:
-                records.append(json.loads(line))
-            except json.JSONDecodeError:
-                pass
-    return records
+    return read_jsonl(ESCALATION_LOG)
 
 
 # ── Pilot report helpers ──────────────────────────────────────────────────────

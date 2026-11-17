@@ -4,12 +4,14 @@ Run from project root: uvicorn backend.main:app --reload --port 8000
 """
 
 import sys
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from src.db.schema import init_db, migrate_db
 from backend.routers import (
@@ -19,7 +21,15 @@ from backend.routers import (
     follow_ups, analytics, churn, crm, seasonal,
 )
 
-app = FastAPI(title="Hidden Opportunities Agent API", version="0.7.0")
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    init_db()
+    migrate_db()
+    yield
+
+
+app = FastAPI(title="Hidden Opportunities Agent API", version="0.7.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -30,10 +40,18 @@ app.add_middleware(
 )
 
 
-@app.on_event("startup")
-def startup() -> None:
-    init_db()
-    migrate_db()
+@app.exception_handler(ValueError)
+async def value_error_handler(_request: Request, exc: ValueError) -> JSONResponse:
+    """
+    The agents signal bad input (unknown proposal, invalid intent, proposal in
+    the wrong status) with ValueError. Report it as a client error with the
+    message instead of an opaque 500.
+    """
+    if isinstance(exc, UnicodeError):   # an encoding bug, not bad input
+        return JSONResponse(status_code=500, content={"detail": "Internal Server Error"})
+    message = str(exc)
+    status = 404 if "not found" in message.lower() else 400
+    return JSONResponse(status_code=status, content={"detail": message})
 
 
 app.include_router(opportunities.router, prefix="/api")

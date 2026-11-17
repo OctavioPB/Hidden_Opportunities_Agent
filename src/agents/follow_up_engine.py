@@ -5,17 +5,19 @@ When a client ignores a proposal (INTENT_IGNORED), the engine schedules
 two follow-up touches spaced 7 and 14 days out, each with a different angle.
 
 DEMO MODE  → sends are written to logs/follow_ups.jsonl; email not dispatched.
-PRODUCTION → sends via send_proposal_email(); same delivery pipeline as initial proposals.
+PRODUCTION → sends via email_sender.send_reactivation_email(); same SendGrid
+             pipeline as initial proposals. A failed send stays 'pending' and is
+             retried on the next run.
 """
 
 from __future__ import annotations
 
-import json
 import uuid
 from datetime import datetime, timedelta
 
 import config
 from src.db.schema import get_connection
+from src.jsonl import append_jsonl, read_jsonl
 
 FOLLOW_UP_LOG = config.LOGS_DIR / "follow_ups.jsonl"
 
@@ -42,19 +44,26 @@ _ANGLES = {
 }
 
 MAX_TURNS = 2
+
+# A follow-up only makes sense while the proposal is still awaiting an answer
+_OPEN_PROPOSAL_STATUSES = frozenset({"sent", "approved", "draft", "pending_approval"})
 DAYS_BETWEEN = [7, 14]  # Turn 1 at +7 days, Turn 2 at +14 days
 
 
 def schedule_follow_up(proposal_id: str) -> list[dict]:
     """
     Create follow-up queue entries for a proposal that was ignored.
-    Skips if entries already exist (idempotent).
+
+    Idempotent: a proposal gets one sequence. Entries that are pending or
+    already sent block a new one — turn 2 tells the client it is the last
+    note, so the sequence must not restart after it has run.
     """
     conn = get_connection()
 
-    # Check if already scheduled
+    # Check if already scheduled or already delivered
     existing = conn.execute(
-        "SELECT COUNT(*) FROM follow_up_queue WHERE proposal_id=? AND status='pending'",
+        "SELECT COUNT(*) FROM follow_up_queue "
+        "WHERE proposal_id=? AND status IN ('pending', 'sent')",
         (proposal_id,),
     ).fetchone()[0]
     if existing > 0:
@@ -90,7 +99,7 @@ def schedule_follow_up(proposal_id: str) -> list[dict]:
         subject    = f"{angle_cfg['subject_prefix']} {opp_label}"
         body       = (
             f"Hi,\n\n{angle_cfg['body_hook']}\n\n"
-            f"Original proposal: {opp_label} — ${p['suggested_price']:,.0f}\n\n"
+            f"Original proposal: {opp_label} — ${p['suggested_price'] or 0:,.0f}\n\n"
             f"Happy to jump on a quick call if that's easier.\n\nBest regards"
         )
 
@@ -143,7 +152,11 @@ def process_due_follow_ups() -> list[dict]:
     Send all pending follow-ups that are due now or past-due.
     Called by the daily job.
     DEMO MODE  → logs to follow_ups.jsonl, no email sent.
-    PRODUCTION → calls send_proposal_email() with the follow-up content.
+    PRODUCTION → emails the follow-up content via SendGrid.
+
+    Follow-ups whose proposal has since been resolved (accepted, rejected,
+    paid, escalated) are cancelled instead of sent. An entry is marked 'sent'
+    only when the send succeeded; failures stay pending for the next run.
     """
     conn = get_connection()
     now_iso = datetime.now().isoformat()
@@ -151,7 +164,7 @@ def process_due_follow_ups() -> list[dict]:
     due = conn.execute(
         """
         SELECT fq.*, c.name AS client_name, c.contact_email,
-               p.subject AS original_subject
+               p.subject AS original_subject, p.status AS proposal_status
         FROM follow_up_queue fq
         JOIN clients  c ON c.id = fq.client_id
         JOIN proposals p ON p.id = fq.proposal_id
@@ -166,16 +179,20 @@ def process_due_follow_ups() -> list[dict]:
     sent = []
     for row in due:
         entry = dict(row)
-        _send_follow_up(entry)
-        _mark_sent(entry["id"])
-        sent.append(entry)
+        if entry["proposal_status"] not in _OPEN_PROPOSAL_STATUSES:
+            cancel_follow_ups(entry["proposal_id"])
+            continue
+        if _send_follow_up(entry):
+            _mark_sent(entry["id"])
+            sent.append(entry)
 
     if sent:
         print(f"[follow_up] Processed {len(sent)} due follow-up(s).")
     return sent
 
 
-def _send_follow_up(entry: dict) -> None:
+def _send_follow_up(entry: dict) -> bool:
+    """Deliver one follow-up. Returns True when it was sent (or logged, in demo mode)."""
     now = datetime.now().isoformat()
     log_record = {
         "timestamp":     now,
@@ -188,27 +205,29 @@ def _send_follow_up(entry: dict) -> None:
         "subject":       entry["subject"],
         "body_preview":  (entry.get("body") or "")[:120],
         "demo_mode":     config.DEMO_MODE,
-        "_production":   "Production: calls send_proposal_email() with follow-up content via SendGrid.",
+        "_production":   "Production: emails the follow-up content to the client via SendGrid.",
     }
 
     if config.DEMO_MODE:
-        FOLLOW_UP_LOG.parent.mkdir(parents=True, exist_ok=True)
-        with FOLLOW_UP_LOG.open("a", encoding="utf-8") as fh:
-            fh.write(json.dumps(log_record, ensure_ascii=False) + "\n")
+        append_jsonl(FOLLOW_UP_LOG, log_record)
         print(f"[follow_up][DEMO] Turn {entry['sequence_turn']} → {entry['client_name'][:20]} "
               f"({entry['angle']})")
-    else:
-        try:
-            from src.agents.email_sender import send_proposal_email
-            send_proposal_email(
-                entry["proposal_id"],
-                send_mode="follow_up",
-                bcc_manager=True,
-                override_subject=entry["subject"],
-                override_body=entry.get("body", ""),
-            )
-        except Exception as exc:
-            print(f"[follow_up] Send failed for {entry['id'][:8]}: {exc}")
+        return True
+
+    try:
+        from src.agents.email_sender import SEND_MODE_FOLLOW_UP, send_reactivation_email
+        send_reactivation_email(
+            entry["client_id"],
+            subject=entry["subject"],
+            body=entry.get("body") or "",
+            send_mode=SEND_MODE_FOLLOW_UP,
+            proposal_id=entry["proposal_id"],
+        )
+    except Exception as exc:
+        print(f"[follow_up] Send failed for {entry['id'][:8]}, will retry next run: {exc}")
+        return False
+    append_jsonl(FOLLOW_UP_LOG, log_record)
+    return True
 
 
 def _mark_sent(follow_up_id: str) -> None:
@@ -249,14 +268,4 @@ def get_follow_up_queue(proposal_id: str | None = None) -> list[dict]:
 
 
 def load_follow_up_log() -> list[dict]:
-    if not FOLLOW_UP_LOG.exists():
-        return []
-    records = []
-    for line in FOLLOW_UP_LOG.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if line:
-            try:
-                records.append(json.loads(line))
-            except json.JSONDecodeError:
-                pass
-    return records
+    return read_jsonl(FOLLOW_UP_LOG)

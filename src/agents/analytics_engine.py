@@ -91,7 +91,14 @@ def get_analytics_summary(period_days: int = 30) -> dict:
                COALESCE(SUM(fl.revenue),0)                            AS revenue
         FROM proposals p
         JOIN opportunities o ON o.id = p.opportunity_id
-        LEFT JOIN feedback_log fl ON fl.proposal_id = p.id AND fl.outcome='accepted'
+        LEFT JOIN (
+            -- pre-aggregated so a proposal with several feedback rows
+            -- still counts as one proposal
+            SELECT proposal_id, SUM(revenue) AS revenue
+            FROM feedback_log
+            WHERE outcome='accepted'
+            GROUP BY proposal_id
+        ) fl ON fl.proposal_id = p.id
         WHERE COALESCE(p.sent_at, p.created_at) >= ?
         GROUP BY o.opportunity_type
         ORDER BY revenue DESC

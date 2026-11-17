@@ -66,13 +66,51 @@ def update_body(proposal_id: str, req: BodyUpdate) -> dict:
 @router.post("/proposals/{proposal_id}/revoke")
 def revoke_approval(proposal_id: str) -> dict:
     conn = get_connection()
-    conn.execute(
-        "UPDATE proposals SET status='draft', updated_at=? WHERE id=?",
+    # Only an approval can be revoked — never pull a sent or answered proposal back to draft
+    cur = conn.execute(
+        "UPDATE proposals SET status='draft', approved_by=NULL, updated_at=? "
+        "WHERE id=? AND status='approved'",
         (datetime.now().isoformat(), proposal_id),
     )
     conn.commit()
     conn.close()
+    if cur.rowcount == 0:
+        raise HTTPException(409, "Only an approved proposal can be revoked.")
     return {"revoked": True}
+
+
+_METRIC_FIELDS = (
+    "ctr", "bounce_rate", "pages_per_session", "conversion_rate", "organic_traffic",
+    "ad_spend", "roas", "email_open_rate", "days_inactive", "keyword_rankings",
+)
+
+
+def _shape_metrics(m: dict) -> dict:
+    out = {f: m.get(f) or 0 for f in _METRIC_FIELDS}
+    out["ad_spend"] *= 30   # stored per day, shown per month
+    return out
+
+
+@router.get("/proposals/metrics")
+def get_all_proposal_metrics() -> dict[str, dict]:
+    """
+    Latest client metrics for every proposal, keyed by proposal id.
+    One request for the whole proposals page instead of one per card.
+    """
+    conn = get_connection()
+    rows = conn.execute(
+        """
+        SELECT p.id AS proposal_id, cm.*
+        FROM proposals p
+        JOIN (
+            SELECT *,
+                   ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY date DESC, id DESC) AS rn
+            FROM client_metrics
+        ) cm ON cm.client_id = p.client_id AND cm.rn = 1
+        """
+    ).fetchall()
+    conn.close()
+    return {r["proposal_id"]: _shape_metrics(dict(r)) for r in rows}
 
 
 @router.get("/proposals/{proposal_id}/metrics")
@@ -92,16 +130,4 @@ def get_proposal_metrics(proposal_id: str) -> dict:
     conn.close()
     if not row:
         raise HTTPException(404, "No metrics found")
-    m = dict(row)
-    return {
-        "ctr":              m.get("ctr", 0),
-        "bounce_rate":      m.get("bounce_rate", 0),
-        "pages_per_session":m.get("pages_per_session", 0),
-        "conversion_rate":  m.get("conversion_rate", 0),
-        "organic_traffic":  m.get("organic_traffic", 0),
-        "ad_spend":         (m.get("ad_spend", 0) or 0) * 30,
-        "roas":             m.get("roas", 0),
-        "email_open_rate":  m.get("email_open_rate", 0),
-        "days_inactive":    m.get("days_inactive", 0),
-        "keyword_rankings": m.get("keyword_rankings", 0),
-    }
+    return _shape_metrics(dict(row))

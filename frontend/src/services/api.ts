@@ -5,7 +5,11 @@ async function request<T>(path: string, opts?: RequestInit): Promise<T> {
     ...opts,
     headers: { 'Content-Type': 'application/json', ...opts?.headers },
   })
-  if (!res.ok) throw new Error(`${res.status} ${path}`)
+  if (!res.ok) {
+    // FastAPI puts the reason in `detail`; show it instead of a bare status code
+    const detail = await res.json().then(b => b?.detail, () => null)
+    throw new Error(typeof detail === 'string' ? detail : `${res.status} ${path}`)
+  }
   return res.json() as Promise<T>
 }
 
@@ -24,6 +28,9 @@ export interface Opportunity {
   rationale: string
   triggered_signals: string[]
   is_demo_scenario: number
+  propensity_tier: 'high' | 'medium' | 'low'
+  propensity_score: number
+  seasonal_boost?: number
 }
 
 export interface Alert {
@@ -204,7 +211,7 @@ export const api = {
 
   proposals: {
     list: (status = 'All', opp_type = 'All', demo_only = false) =>
-      request<Proposal[]>(`/proposals?status=${status}&opp_type=${encodeURIComponent(opp_type)}&demo_only=${demo_only}`),
+      request<Proposal[]>(`/proposals?status=${encodeURIComponent(status)}&opp_type=${encodeURIComponent(opp_type)}&demo_only=${demo_only}`),
     generateAll: (min_score: number) =>
       request<{ generated: number; total: number }>('/proposals/generate-all', {
         method: 'POST',
@@ -224,6 +231,8 @@ export const api = {
       request<{ revoked: boolean }>(`/proposals/${id}/revoke`, { method: 'POST' }),
     metrics: (id: string) =>
       request<Record<string, number>>(`/proposals/${id}/metrics`),
+    allMetrics: () =>
+      request<Record<string, Record<string, number>>>('/proposals/metrics'),
   },
 
   pilot: {
@@ -307,7 +316,7 @@ export const api = {
 
   followUps: {
     list: (proposal_id?: string) =>
-      request<Record<string, unknown>[]>(proposal_id ? `/follow-ups?proposal_id=${proposal_id}` : '/follow-ups'),
+      request<Record<string, unknown>[]>(proposal_id ? `/follow-ups?proposal_id=${encodeURIComponent(proposal_id)}` : '/follow-ups'),
     schedule: (proposal_id: string) =>
       request<{ scheduled: number; entries: Record<string, unknown>[] }>('/follow-ups/schedule', {
         method: 'POST', body: JSON.stringify({ proposal_id }),

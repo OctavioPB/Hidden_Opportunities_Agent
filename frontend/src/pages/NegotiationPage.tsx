@@ -168,10 +168,8 @@ export default function NegotiationPage() {
     const text = SIM_REPLIES[simChoice]
     const res  = await api.negotiations.reply(selPid, text, true)
     setDemoMsg(`Intent: ${res.intent as string} | Status: ${res.status as string}`)
-    if ((res.status as string) === 'accepted' && res.offer_price) {
-      setDemoMsg(prev => `${prev} · Payment link: generating…`)
-      const link = await api.paymentLinks.create(selPid)
-      setDemoMsg(prev => `${prev?.replace('generating…', '')} ${link.url}`)
+    if ((res.status as string) === 'accepted' && res.payment_link) {
+      setDemoMsg(prev => `${prev} · Payment link: ${res.payment_link as string}`)
     }
     api.negotiations.thread(selPid).then(setDemoThread)
     reload()

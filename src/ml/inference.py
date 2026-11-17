@@ -30,8 +30,8 @@ from typing import Any
 import numpy as np
 
 from src.ml.dataset import _metrics_to_row
-from src.ml.model import load_model, predict_proba, model_is_trained
-from src.ml.explainer import explain_single
+from src.ml.model import load_model, model_is_trained, predict_proba_batch
+from src.ml.explainer import explain_batch
 from src.agents.rules import ALL_OPPORTUNITY_TYPES, evaluate as rules_evaluate
 from src.data_sources import crm
 from src.data_sources import google_analytics as ga
@@ -69,6 +69,79 @@ def _get_latest_metrics(client_id: str) -> dict:
     return merged
 
 
+def _predict(
+    clients_with_metrics: list[tuple[dict, dict]],
+    model,
+) -> list[dict[str, Any]]:
+    """
+    Score every opportunity type for the given (client_row, metrics) pairs.
+
+    All feature rows go through the model in one predict_proba call and all
+    surfaced predictions through one SHAP call, so the cost is two batch
+    operations regardless of portfolio size.
+    """
+    # ── Pass 1: rules + feature rows (pure Python) ────────────────────────────
+    candidates: list[tuple[dict, str, Any, list[float]]] = []
+    for client_row, metrics in clients_with_metrics:
+        try:
+            industry     = client_row.get("industry", "")
+            age          = int(client_row.get("account_age_days") or 365)
+            rule_results = {r.opportunity_type: r for r in rules_evaluate(metrics)}
+            for opp_type in ALL_OPPORTUNITY_TYPES:
+                candidates.append((
+                    client_row, opp_type, rule_results.get(opp_type),
+                    _metrics_to_row(metrics, industry, opp_type, age),
+                ))
+        except Exception as e:
+            print(f"[inference] Error for client {client_row.get('id')}: {e}")
+
+    # ── Pass 2: one batch of probabilities ────────────────────────────────────
+    if model is not None and candidates:
+        probs: list[float | None] = list(predict_proba_batch([c[3] for c in candidates], model))
+    else:
+        probs = [None] * len(candidates)
+
+    kept: list[tuple[dict, str, Any, list[float], float | None, float]] = []
+    for (client_row, opp_type, rule_res, feature_row), ml_prob in zip(candidates, probs, strict=True):
+        rule_score = rule_res.score if rule_res else 0.0
+        blended    = (
+            ML_WEIGHT * ml_prob * 100 + RULE_WEIGHT * rule_score
+            if ml_prob is not None else rule_score
+        )
+        # Only surface if either rule or ML thinks it's notable
+        if blended < 45 and (ml_prob is None or ml_prob < 0.35):
+            continue
+        kept.append((client_row, opp_type, rule_res, feature_row, ml_prob, blended))
+
+    # ── Pass 3: one batch of SHAP explanations, only for surfaced rows ────────
+    if model is not None and kept:
+        explanations: list[dict | None] = list(explain_batch(
+            [k[3] for k in kept], model, top_n=4, probs=[k[4] for k in kept],
+        ))
+    else:
+        explanations = [None] * len(kept)
+
+    predictions = []
+    for (client_row, opp_type, rule_res, _row, ml_prob, blended), explanation in zip(
+        kept, explanations, strict=True
+    ):
+        predictions.append({
+            "client_id":        client_row["id"],
+            "client_name":      client_row.get("name", ""),
+            "industry":         client_row.get("industry", ""),
+            "opportunity_type": opp_type,
+            "rule_score":       round(rule_res.score if rule_res else 0.0, 1),
+            "ml_probability":   round(ml_prob, 4) if ml_prob is not None else None,
+            "blended_score":    round(blended, 1),
+            "is_demo_scenario": client_row.get("is_demo_scenario", 0),
+            "explanation":      explanation,
+            "suggested_price":  rule_res.suggested_price if rule_res else 0,
+            "rationale":        rule_res.rationale if rule_res else "",
+        })
+
+    return sorted(predictions, key=lambda r: r["blended_score"], reverse=True)
+
+
 def predict_for_client(
     client_id: str,
     model=None,
@@ -86,50 +159,7 @@ def predict_for_client(
     if client_row is None:
         return []
 
-    metrics   = _get_latest_metrics(client_id)
-    industry  = client_row.get("industry", "")
-    age       = int(client_row.get("account_age_days") or 365)
-
-    # Rule scores (Sprint 2 baseline)
-    rule_results = {r.opportunity_type: r for r in rules_evaluate(metrics)}
-
-    predictions = []
-    for opp_type in ALL_OPPORTUNITY_TYPES:
-        rule_res  = rule_results.get(opp_type)
-        rule_score = rule_res.score if rule_res else 0.0
-
-        feature_row = _metrics_to_row(metrics, industry, opp_type, age)
-
-        if model is not None:
-            ml_prob  = predict_proba(feature_row, model)
-            blended  = ML_WEIGHT * ml_prob * 100 + RULE_WEIGHT * rule_score
-        else:
-            ml_prob  = None
-            blended  = rule_score
-
-        # Only surface if either rule or ML thinks it's notable
-        if blended < 45 and (ml_prob is None or ml_prob < 0.35):
-            continue
-
-        explanation = None
-        if model is not None:
-            explanation = explain_single(feature_row, model, top_n=4)
-
-        predictions.append({
-            "client_id":        client_id,
-            "client_name":      client_row.get("name", ""),
-            "industry":         industry,
-            "opportunity_type": opp_type,
-            "rule_score":       round(rule_score, 1),
-            "ml_probability":   round(ml_prob, 4) if ml_prob is not None else None,
-            "blended_score":    round(blended, 1),
-            "is_demo_scenario": client_row.get("is_demo_scenario", 0),
-            "explanation":      explanation,
-            "suggested_price":  rule_res.suggested_price if rule_res else 0,
-            "rationale":        rule_res.rationale if rule_res else "",
-        })
-
-    return sorted(predictions, key=lambda r: r["blended_score"], reverse=True)
+    return _predict([(client_row, _get_latest_metrics(client_id))], model)
 
 
 def predict_for_all(model=None) -> list[dict[str, Any]]:
@@ -140,16 +170,12 @@ def predict_for_all(model=None) -> list[dict[str, Any]]:
     if model is None:
         model = load_model()
 
-    clients = crm.get_all_clients()
-    results = []
-    for client in clients:
-        try:
-            preds = predict_for_client(client["id"], model)
-            results.extend(preds)
-        except Exception as e:
-            print(f"[inference] Error for client {client['id']}: {e}")
+    # Two queries for the whole portfolio instead of six per client
+    from src.agents.scorer import _fetch_all_metrics_batch
+    all_metrics = _fetch_all_metrics_batch()
+    clients     = crm.get_all_clients()
 
-    return sorted(results, key=lambda r: r["blended_score"], reverse=True)
+    return _predict([(c, all_metrics.get(c["id"], {})) for c in clients], model)
 
 
 # ── Persist ML scores to DB ───────────────────────────────────────────────────

@@ -10,12 +10,12 @@ PRODUCTION → POSTs to HubSpot CRM API v3.
 
 from __future__ import annotations
 
-import json
 import uuid
 from datetime import datetime
 
 import config
 from src.db.schema import get_connection
+from src.jsonl import append_jsonl, read_jsonl
 
 CRM_SYNC_LOG = config.LOGS_DIR / "crm_sync.jsonl"
 
@@ -56,12 +56,14 @@ def create_deal(
         "demo_mode":        config.DEMO_MODE,
     }
 
-    if config.DEMO_MODE:
-        _log_sync("create_deal", deal, client_id, proposal_id, revenue)
-        _store_crm_ref(client_id, proposal_id, deal_id)
-        print(f"[crm][DEMO] Deal created: {deal['dealname'][:40]} ${revenue:,.0f}")
-    else:
-        _post_hubspot_deal(deal, config.HUBSPOT_API_KEY if hasattr(config, "HUBSPOT_API_KEY") else "")
+    if not config.DEMO_MODE:
+        _post_hubspot_deal(deal, config.HUBSPOT_API_KEY)
+
+    # The audit trail and the client's deal reference are kept in both modes
+    _log_sync("create_deal", deal, client_id, proposal_id, revenue, deal_id)
+    _store_crm_ref(client_id, deal_id)
+    print(f"[crm]{'[DEMO]' if config.DEMO_MODE else ''} Deal created: "
+          f"{deal['dealname'][:40]} ${revenue:,.0f}")
 
     return deal
 
@@ -77,11 +79,11 @@ def log_activity(client_id: str, note: str) -> dict:
         "demo_mode":  config.DEMO_MODE,
     }
 
-    if config.DEMO_MODE:
-        _log_sync("log_activity", record, client_id, None, None)
-        print(f"[crm][DEMO] Activity logged for client {client_id[:8]}")
-    else:
-        _post_hubspot_note(client_id, note, getattr(config, "HUBSPOT_API_KEY", ""))
+    if not config.DEMO_MODE:
+        _post_hubspot_note(client_id, note, config.HUBSPOT_API_KEY)
+
+    _log_sync("log_activity", record, client_id, None, None)
+    print(f"[crm]{'[DEMO]' if config.DEMO_MODE else ''} Activity logged for client {client_id[:8]}")
 
     return record
 
@@ -96,39 +98,36 @@ def get_sync_log(limit: int = 50) -> list[dict]:
 
 
 def load_crm_log() -> list[dict]:
-    if not CRM_SYNC_LOG.exists():
-        return []
-    records = []
-    for line in CRM_SYNC_LOG.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if line:
-            try:
-                records.append(json.loads(line))
-            except json.JSONDecodeError:
-                pass
-    return list(reversed(records))
+    return read_jsonl(CRM_SYNC_LOG, newest_first=True)
 
 
 # ── Internal helpers ──────────────────────────────────────────────────────────
 
-def _log_sync(action: str, record: dict, client_id: str, proposal_id: str | None, revenue: float | None) -> None:
-    CRM_SYNC_LOG.parent.mkdir(parents=True, exist_ok=True)
-    with CRM_SYNC_LOG.open("a", encoding="utf-8") as fh:
-        fh.write(json.dumps(record, ensure_ascii=False, default=str) + "\n")
+def _log_sync(
+    action: str,
+    record: dict,
+    client_id: str,
+    proposal_id: str | None,
+    revenue: float | None,
+    crm_deal_id: str | None = None,
+) -> None:
+    append_jsonl(CRM_SYNC_LOG, record)
 
     conn = get_connection()
     conn.execute(
         """
-        INSERT INTO crm_sync_log (proposal_id, client_id, action, revenue, demo_mode)
-        VALUES (?, ?, ?, ?, 1)
+        INSERT INTO crm_sync_log
+            (proposal_id, client_id, action, crm_deal_id, revenue, synced_at, demo_mode)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
         """,
-        (proposal_id, client_id, action, revenue),
+        (proposal_id, client_id, action, crm_deal_id, revenue,
+         datetime.now().isoformat(), int(config.DEMO_MODE)),
     )
     conn.commit()
     conn.close()
 
 
-def _store_crm_ref(client_id: str, proposal_id: str, deal_id: str) -> None:
+def _store_crm_ref(client_id: str, deal_id: str) -> None:
     conn = get_connection()
     conn.execute(
         "UPDATE clients SET crm_deal_id=? WHERE id=?", (deal_id, client_id)

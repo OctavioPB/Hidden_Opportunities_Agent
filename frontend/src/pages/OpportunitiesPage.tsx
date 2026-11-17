@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Eyebrow from '../components/Eyebrow'
 import { api, type Opportunity } from '../services/api'
 
@@ -107,7 +107,7 @@ function ScoreBar({ score }: { score: number }) {
 }
 
 export default function OpportunitiesPage({ onSelectClient }: { onSelectClient?: (clientId: string) => void }) {
-  const [data,        setData]        = useState<Opportunity[]>([])
+  const [rows,        setRows]        = useState<Opportunity[]>([])
   const [meta,        setMeta]        = useState<{ types: string[]; industries: string[] }>({ types: [], industries: [] })
   const [loading,     setLoading]     = useState(true)
   const [error,       setError]       = useState<string | null>(null)
@@ -125,16 +125,22 @@ export default function OpportunitiesPage({ onSelectClient }: { onSelectClient?:
   }, [])
 
   useEffect(() => {
+    let stale = false
     setLoading(true)
     setError(null)
     api.opportunities.list(selType, selIndustry, demoOnly)
-      .then(d => {
-        const filtered = selPropensity !== 'All' ? d.filter((r: Opportunity) => (r as unknown as Record<string, unknown>).propensity_tier === selPropensity) : d
-        setData(filtered)
-      })
-      .catch(e => setError(String(e)))
-      .finally(() => setLoading(false))
-  }, [selType, selIndustry, demoOnly, selPropensity])
+      .then(d => { if (!stale) setRows(d) })
+      .catch(e => { if (!stale) setError(String(e)) })
+      .finally(() => { if (!stale) setLoading(false) })
+    // A slower earlier request must not overwrite the result of the current filters
+    return () => { stale = true }
+  }, [selType, selIndustry, demoOnly])
+
+  // The tier filter is applied locally — changing it needs no round-trip
+  const data = useMemo(
+    () => selPropensity === 'All' ? rows : rows.filter(r => r.propensity_tier === selPropensity),
+    [rows, selPropensity],
+  )
 
   const totalClients = new Set(data.map(r => r.client_id)).size
   const highConf     = data.filter(r => r.score >= 80).length
@@ -278,8 +284,8 @@ export default function OpportunitiesPage({ onSelectClient }: { onSelectClient?:
                         {OPPORTUNITY_LABELS[r.opportunity_type] ?? r.label}
                       </div>
                       <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
-                        <PropensityBadge tier={(r as unknown as Record<string, unknown>).propensity_tier as string ?? 'medium'} />
-                        <SeasonalBadge boost={(r as unknown as Record<string, unknown>).seasonal_boost as number ?? 1} />
+                        <PropensityBadge tier={r.propensity_tier ?? 'medium'} />
+                        <SeasonalBadge boost={r.seasonal_boost ?? 1} />
                       </div>
                     </div>
                     <div style={{ fontFamily: 'var(--fd)', fontSize: 24, fontWeight: 300, color: 'var(--gold)', flexShrink: 0 }}>

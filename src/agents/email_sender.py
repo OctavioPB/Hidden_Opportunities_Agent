@@ -23,13 +23,13 @@ In production this module is also responsible for:
 
 from __future__ import annotations
 
-import json
 import uuid
 from datetime import datetime
 from typing import Any
 
 import config
 from src.db.schema import get_connection
+from src.jsonl import append_jsonl, read_jsonl
 
 # ── Log path ──────────────────────────────────────────────────────────────────
 SENT_LOG = config.LOGS_DIR / "sent_emails.jsonl"
@@ -37,6 +37,7 @@ SENT_LOG = config.LOGS_DIR / "sent_emails.jsonl"
 # ── Autonomy-tier send modes ──────────────────────────────────────────────────
 SEND_MODE_AUTONOMOUS  = "autonomous"   # Tier C — no human approval needed
 SEND_MODE_APPROVED    = "approved"     # Tier B — human approved before send
+SEND_MODE_FOLLOW_UP   = "follow_up"    # automated follow-up on an ignored proposal
 
 
 # ── Core send function ────────────────────────────────────────────────────────
@@ -120,6 +121,18 @@ def send_proposal_email(
     else:
         _send_via_sendgrid(payload)
 
+    # ── Preferred channel: also notify via WhatsApp when the client opted in ──
+    try:
+        channel = conn.execute(
+            "SELECT preferred_channel FROM clients WHERE id=?", (p["client_id"],)
+        ).fetchone()
+        if channel and channel[0] == "whatsapp":
+            from src.integrations.whatsapp import send_whatsapp_proposal
+            wa = send_whatsapp_proposal(p["client_id"], proposal_id)
+            payload["whatsapp_sent"] = bool(wa.get("ok"))
+    except Exception as exc:   # column absent on un-migrated DBs, or WhatsApp down:
+        print(f"[email_sender] WhatsApp notification skipped: {exc}")  # the email already went out
+
     # ── Update DB ─────────────────────────────────────────────────────────────
     conn.execute(
         "UPDATE proposals SET status='sent', sent_at=?, updated_at=? WHERE id=?",
@@ -147,10 +160,15 @@ def send_reactivation_email(
     subject: str,
     body: str,
     send_mode: str = SEND_MODE_AUTONOMOUS,
+    proposal_id: str | None = None,
 ) -> dict[str, Any]:
     """
-    Send a standalone reactivation email (not tied to a proposal).
-    Used for Tier C reactivation where value < $150 and score ≥ 90.
+    Send a standalone email with caller-supplied subject and body.
+
+    Used for Tier C reactivation (value < $150 and score ≥ 90) and for
+    follow-up sequences, which pass the proposal they refer to in
+    `proposal_id` for the audit log. Unlike send_proposal_email() this never
+    changes proposal or opportunity status.
     """
     conn = get_connection()
     client = conn.execute("SELECT * FROM clients WHERE id=?", (client_id,)).fetchone()
@@ -166,7 +184,7 @@ def send_reactivation_email(
 
     payload = {
         "send_id":       send_id,
-        "proposal_id":   None,
+        "proposal_id":   proposal_id,
         "client_id":     client_id,
         "client_name":   c["name"],
         "to":            recipient,
@@ -195,9 +213,7 @@ def send_reactivation_email(
 
 def _write_log(payload: dict) -> None:
     """Append a send record to logs/sent_emails.jsonl (demo mode)."""
-    SENT_LOG.parent.mkdir(parents=True, exist_ok=True)
-    with SENT_LOG.open("a", encoding="utf-8") as fh:
-        fh.write(json.dumps(payload, ensure_ascii=False) + "\n")
+    append_jsonl(SENT_LOG, payload)
 
 
 def _send_via_sendgrid(payload: dict) -> None:
@@ -238,14 +254,4 @@ def _guess_manager_email(manager_name: str) -> str:
 
 def load_sent_log() -> list[dict]:
     """Return all records from the sent emails log."""
-    if not SENT_LOG.exists():
-        return []
-    records = []
-    for line in SENT_LOG.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if line:
-            try:
-                records.append(json.loads(line))
-            except json.JSONDecodeError:
-                pass
-    return records
+    return read_jsonl(SENT_LOG)

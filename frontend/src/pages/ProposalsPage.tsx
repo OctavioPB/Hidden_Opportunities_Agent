@@ -66,15 +66,12 @@ function ScoreBar({ score }: { score: number }) {
   )
 }
 
-function ProposalCard({ p, onRefresh }: { p: Proposal; onRefresh: () => void }) {
+type ProposalMetrics = Record<string, number>
+
+function ProposalCard({ p, metrics, onRefresh }: { p: Proposal; metrics: ProposalMetrics | null; onRefresh: () => void }) {
   const [editing,    setEditing]    = useState(false)
   const [editedBody, setEditedBody] = useState(p.body)
   const [msg,        setMsg]        = useState<string | null>(null)
-  const [metrics,    setMetrics]    = useState<Record<string, number> | null>(null)
-
-  useEffect(() => {
-    api.proposals.metrics(p.id).then(setMetrics).catch(() => null)
-  }, [p.id])
 
   const approve = async () => { await api.proposals.approve(p.id); setMsg('Approved.'); onRefresh() }
   const reject  = async () => { await api.proposals.reject(p.id);  setMsg('Rejected.'); onRefresh() }
@@ -276,10 +273,13 @@ export default function ProposalsPage() {
   const [genMsg,      setGenMsg]      = useState<string | null>(null)
   const [showGenerate, setShowGenerate] = useState(false)
   const [crmLog,      setCrmLog]      = useState<Record<string, unknown>[]>([])
+  const [metricsById, setMetricsById] = useState<Record<string, ProposalMetrics>>({})
 
   const reload = () => {
     setLoading(true)
-    api.proposals.list().then(setProposals).finally(() => setLoading(false))
+    api.proposals.list().then(setProposals).catch(() => null).finally(() => setLoading(false))
+    // Client metrics for every card in a single request
+    api.proposals.allMetrics().then(setMetricsById).catch(() => null)
   }
 
   useEffect(() => { reload() }, [])
@@ -421,7 +421,7 @@ export default function ProposalsPage() {
           )}
 
           {!loading && view === 'Cards' && sorted.map(p => (
-            <ProposalCard key={p.id} p={p} onRefresh={reload} />
+            <ProposalCard key={p.id} p={p} metrics={metricsById[p.id] ?? null} onRefresh={reload} />
           ))}
 
           {!loading && view === 'Log' && sorted.length > 0 && (

@@ -45,8 +45,11 @@ def get_demo_clients() -> list[dict]:
 
 def get_client_activity(client_id: str) -> dict:
     """
-    Return a summary of recent activity for a client:
-    last proposal sent, last outcome, days inactive.
+    Return the current activity snapshot for a client: account age, spend,
+    and days inactive / since last contact as of the latest metrics row.
+
+    The values come from the most recent snapshot (not the historical maximum)
+    so single-client scoring agrees with scorer.score_all_clients().
     """
     rows = query(
         """
@@ -54,12 +57,17 @@ def get_client_activity(client_id: str) -> dict:
             c.id,
             c.account_age_days,
             c.monthly_spend,
-            MAX(cm.days_inactive) AS days_inactive,
-            MAX(cm.days_since_last_contact) AS days_since_last_contact
+            cm.days_inactive,
+            cm.days_since_last_contact
         FROM clients c
-        LEFT JOIN client_metrics cm ON cm.client_id = c.id
+        LEFT JOIN client_metrics cm
+               ON cm.id = (
+                   SELECT id FROM client_metrics
+                   WHERE client_id = c.id
+                   ORDER BY date DESC, id DESC
+                   LIMIT 1
+               )
         WHERE c.id = ?
-        GROUP BY c.id
         """,
         (client_id,),
     )

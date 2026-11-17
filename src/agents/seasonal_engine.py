@@ -111,14 +111,12 @@ def apply_seasonal_boosts(results: list[dict]) -> list[dict]:
 
 def get_current_boosts() -> list[dict]:
     """Return all opportunity types with their current month's boost."""
-    today = date.today()
-    boosts = []
-    seen = set()
-    for (opp_type, months), _mult in SEASONAL_BOOSTS.items():
-        if opp_type not in seen:
-            seen.add(opp_type)
-            m = get_seasonal_multiplier(opp_type, today)
-            if m > 1.0:
-                boosts.append({"opportunity_type": opp_type, "multiplier": m, "months": list(months)})
-    boosts.sort(key=lambda b: b["multiplier"], reverse=True)
-    return boosts
+    month = date.today().month
+    best: dict[str, dict] = {}
+    for (opp_type, months), mult in SEASONAL_BOOSTS.items():
+        if month not in months:
+            continue
+        # Report the window that is actually active, not the first one declared
+        if opp_type not in best or mult > best[opp_type]["multiplier"]:
+            best[opp_type] = {"opportunity_type": opp_type, "multiplier": mult, "months": list(months)}
+    return sorted(best.values(), key=lambda b: b["multiplier"], reverse=True)

@@ -27,8 +27,11 @@ from src.synthetic.generator import generate_all, save_to_json
 
 
 def _drop_all(conn: sqlite3.Connection) -> None:
+    # Children before parents: foreign keys are enforced, so dropping a parent
+    # that is still referenced fails.
     tables = [
-        "text_signals", "feedback_log", "negotiation_log",
+        "crm_sync_log", "analytics_snapshots", "churn_escalation_log",
+        "follow_up_queue", "text_signals", "feedback_log", "negotiation_log",
         "proposals", "opportunities", "client_metrics", "clients",
     ]
     for t in tables:

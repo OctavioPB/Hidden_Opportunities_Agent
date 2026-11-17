@@ -26,13 +26,13 @@ Integration notes
 
 from __future__ import annotations
 
-import json
 import uuid
 from datetime import datetime
 from typing import Any
 
 import config
 import src.db.schema as _schema
+from src.jsonl import append_jsonl
 
 PAYMENT_LINKS_LOG = config.LOGS_DIR / "payment_links.jsonl"
 STRIPE_CURRENCY = "usd"
@@ -275,7 +275,4 @@ def _store_link_on_proposal(proposal_id: str, url: str) -> None:
 
 
 def _append_log(entry: dict) -> None:
-    PAYMENT_LINKS_LOG.parent.mkdir(parents=True, exist_ok=True)
-    with PAYMENT_LINKS_LOG.open("a", encoding="utf-8") as fh:
-        fh.write(json.dumps({"timestamp": datetime.now().isoformat(), **entry},
-                             ensure_ascii=False) + "\n")
+    append_jsonl(PAYMENT_LINKS_LOG, {"timestamp": datetime.now().isoformat(), **entry})

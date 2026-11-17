@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 
 import config
 from src.db.schema import get_connection
+from src.jsonl import append_jsonl, read_jsonl
 
 CHURN_ESC_LOG = config.LOGS_DIR / "churn_escalations.jsonl"
 DEDUP_WINDOW_DAYS = 7
@@ -126,9 +127,7 @@ def _escalate(client: dict) -> dict:
     conn.close()
 
     if config.DEMO_MODE:
-        CHURN_ESC_LOG.parent.mkdir(parents=True, exist_ok=True)
-        with CHURN_ESC_LOG.open("a", encoding="utf-8") as fh:
-            fh.write(json.dumps(log_record, ensure_ascii=False) + "\n")
+        append_jsonl(CHURN_ESC_LOG, log_record)
         print(f"[churn][DEMO] Escalated: {client['client_name'][:20]} — {signal}")
     else:
         _send_slack_alert(log_record)
@@ -173,14 +172,4 @@ def get_escalation_log(limit: int = 50) -> list[dict]:
 
 
 def load_churn_log() -> list[dict]:
-    if not CHURN_ESC_LOG.exists():
-        return []
-    records = []
-    for line in CHURN_ESC_LOG.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if line:
-            try:
-                records.append(json.loads(line))
-            except json.JSONDecodeError:
-                pass
-    return list(reversed(records))
+    return read_jsonl(CHURN_ESC_LOG, newest_first=True)

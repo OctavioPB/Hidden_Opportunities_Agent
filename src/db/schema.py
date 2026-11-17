@@ -192,18 +192,60 @@ def init_db() -> None:
         )
     """)
 
+    # ── crm_sync_log (Feature 5 — CRM write-back audit trail) ─────────────────────
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS crm_sync_log (
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            proposal_id    TEXT,
+            client_id      TEXT,
+            action         TEXT,
+            crm_deal_id    TEXT,
+            revenue        REAL,
+            synced_at      TEXT DEFAULT (datetime('now')),
+            demo_mode      INTEGER DEFAULT 1
+        )
+    """)
+
+    _create_indexes(cur)
+
     conn.commit()
     conn.close()
     print(f"[db] Schema initialized at {config.DB_PATH}")
+
+
+# Indexes for the lookups the agents run on every request. Without them each
+# "latest metrics for client X" or "proposals for opportunity Y" is a full scan.
+_INDEXES: list[tuple[str, str, str]] = [
+    ("idx_client_metrics_client_date", "client_metrics",       "client_id, date DESC"),
+    ("idx_opportunities_client_type",  "opportunities",        "client_id, opportunity_type"),
+    ("idx_proposals_opportunity",      "proposals",            "opportunity_id"),
+    ("idx_proposals_client",           "proposals",            "client_id"),
+    ("idx_proposals_status",           "proposals",            "status"),
+    ("idx_negotiation_log_proposal",   "negotiation_log",      "proposal_id, turn"),
+    ("idx_feedback_log_proposal",      "feedback_log",         "proposal_id"),
+    ("idx_text_signals_client",        "text_signals",         "client_id"),
+    ("idx_follow_up_queue_proposal",   "follow_up_queue",      "proposal_id"),
+    ("idx_follow_up_queue_due",        "follow_up_queue",      "status, scheduled_at"),
+    ("idx_churn_log_client",           "churn_escalation_log", "client_id, escalated_at"),
+]
+
+
+def _create_indexes(cur: sqlite3.Cursor) -> None:
+    existing = {r[0] for r in cur.execute(
+        "SELECT name FROM sqlite_master WHERE type='table'"
+    ).fetchall()}
+    for name, table, cols in _INDEXES:
+        if table in existing:
+            cur.execute(f"CREATE INDEX IF NOT EXISTS {name} ON {table} ({cols})")
 
 
 def migrate_db() -> None:
     """
     Apply additive schema migrations to an existing database.
 
-    Safe to call repeatedly — uses ALTER TABLE IF NOT EXISTS semantics.
-    Run this after init_db() when upgrading an existing database to a newer
-    sprint without dropping tables.
+    Safe to call repeatedly — every ALTER is guarded by a column check.
+    Run this after init_db() (which creates any missing tables) when upgrading
+    an existing database to a newer sprint without dropping tables.
     """
     conn = get_connection()
     cur = conn.cursor()
@@ -244,65 +286,10 @@ def migrate_db() -> None:
             if col not in c_cols:
                 cur.execute(f"ALTER TABLE clients ADD COLUMN {col} {defn}")
 
-    # Feature 1: follow_up_queue
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS follow_up_queue (
-            id             TEXT PRIMARY KEY,
-            proposal_id    TEXT NOT NULL,
-            client_id      TEXT NOT NULL,
-            sequence_turn  INTEGER DEFAULT 1,
-            scheduled_at   TEXT NOT NULL,
-            status         TEXT DEFAULT 'pending',
-            angle          TEXT,
-            subject        TEXT,
-            body           TEXT,
-            sent_at        TEXT,
-            created_at     TEXT DEFAULT (datetime('now'))
-        )
-    """)
-
-    # Feature 2: analytics_snapshots
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS analytics_snapshots (
-            id               INTEGER PRIMARY KEY AUTOINCREMENT,
-            snapshot_date    TEXT NOT NULL,
-            pipeline_value   REAL DEFAULT 0,
-            revenue_realized REAL DEFAULT 0,
-            proposals_sent   INTEGER DEFAULT 0,
-            proposals_accepted INTEGER DEFAULT 0,
-            acceptance_rate  REAL DEFAULT 0,
-            time_saved_hours REAL DEFAULT 0,
-            created_at       TEXT DEFAULT (datetime('now'))
-        )
-    """)
-
-    # Feature 3: churn_escalation_log
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS churn_escalation_log (
-            id               TEXT PRIMARY KEY,
-            client_id        TEXT NOT NULL,
-            account_manager  TEXT,
-            churn_signal     TEXT,
-            escalated_at     TEXT DEFAULT (datetime('now')),
-            proposal_id      TEXT,
-            slack_sent       INTEGER DEFAULT 0,
-            email_draft_id   TEXT
-        )
-    """)
-
-    # Feature 5: crm_sync_log
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS crm_sync_log (
-            id             INTEGER PRIMARY KEY AUTOINCREMENT,
-            proposal_id    TEXT,
-            client_id      TEXT,
-            action         TEXT,
-            crm_deal_id    TEXT,
-            revenue        REAL,
-            synced_at      TEXT DEFAULT (datetime('now')),
-            demo_mode      INTEGER DEFAULT 1
-        )
-    """)
+    # Tables added after the first release (follow_up_queue, analytics_snapshots,
+    # churn_escalation_log, crm_sync_log) are created by init_db(); databases
+    # that predate them only need the missing indexes.
+    _create_indexes(cur)
 
     conn.commit()
     conn.close()

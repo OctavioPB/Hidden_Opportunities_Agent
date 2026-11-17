@@ -28,6 +28,8 @@ from datetime import datetime
 from typing import Any
 
 import joblib
+
+from src.jsonl import read_jsonl
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
@@ -171,17 +173,7 @@ def load_metadata() -> dict | None:
 
 def load_training_history() -> list[dict]:
     """Return all training run records (for audit / dashboard)."""
-    if not HISTORY_PATH.exists():
-        return []
-    records = []
-    for line in HISTORY_PATH.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if line:
-            try:
-                records.append(json.loads(line))
-            except json.JSONDecodeError:
-                pass
-    return records
+    return read_jsonl(HISTORY_PATH)
 
 
 # ── Predict ───────────────────────────────────────────────────────────────────

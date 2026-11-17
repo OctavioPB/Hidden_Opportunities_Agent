@@ -6,7 +6,19 @@ Set DEMO_MODE=false in .env only when connecting to real production services.
 """
 
 import os
+import sys
 from pathlib import Path
+
+# The agents log with characters such as "→", "…" and "Δ". On Windows, stdout
+# that is redirected (log file, CI, a service wrapper) falls back to a legacy
+# codepage and print() raises UnicodeEncodeError — after the DB writes are done,
+# so the request fails although the action succeeded. Degrade to "?" instead.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(errors="replace")
+        except (ValueError, OSError):
+            pass
 
 try:
     from dotenv import load_dotenv
@@ -28,26 +40,46 @@ LOGS_DIR = ROOT_DIR / "logs"
 for _dir in (DATA_DIR / "db", SYNTHETIC_DIR, EXPORTS_DIR, LOGS_DIR):
     _dir.mkdir(parents=True, exist_ok=True)
 
+def _secret(name: str) -> str:
+    """
+    Read a credential from the environment.
+
+    The placeholders shipped in .env.example ("sk-...", "SG....",
+    "https://hooks.slack.com/...") are treated as unset: otherwise copying the
+    example file to .env makes the agents attempt real API calls with a fake
+    key on every proposal, and wait for each one to fail.
+    """
+    value = os.getenv(name, "").strip()
+    return "" if value.endswith("...") else value
+
+
 # ── Demo toggle ───────────────────────────────────────────────────────────────
 DEMO_MODE: bool = os.getenv("DEMO_MODE", "true").lower() == "true"
 
 # ── LLM ───────────────────────────────────────────────────────────────────────
 LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "openai")
 LLM_MODEL: str = os.getenv("LLM_MODEL", "gpt-3.5-turbo")
-OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
-ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
+OPENAI_API_KEY: str = _secret("OPENAI_API_KEY")
+ANTHROPIC_API_KEY: str = _secret("ANTHROPIC_API_KEY")
 
 # ── Notifications ─────────────────────────────────────────────────────────────
-SLACK_WEBHOOK_URL: str = os.getenv("SLACK_WEBHOOK_URL", "")
-TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
-TELEGRAM_CHAT_ID: str = os.getenv("TELEGRAM_CHAT_ID", "")
+SLACK_WEBHOOK_URL: str = _secret("SLACK_WEBHOOK_URL")
+TELEGRAM_BOT_TOKEN: str = _secret("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID: str = _secret("TELEGRAM_CHAT_ID")
 
 # ── Email ─────────────────────────────────────────────────────────────────────
-SENDGRID_API_KEY: str = os.getenv("SENDGRID_API_KEY", "")
+SENDGRID_API_KEY: str = _secret("SENDGRID_API_KEY")
 EMAIL_FROM: str = os.getenv("EMAIL_FROM", "agent@demo.local")
 
+# ── CRM ───────────────────────────────────────────────────────────────────────
+HUBSPOT_API_KEY: str = _secret("HUBSPOT_API_KEY")
+
+# ── Dashboard ─────────────────────────────────────────────────────────────────
+# Base URL of the React UI, used for "View Dashboard" links in outbound alerts.
+DASHBOARD_URL: str = os.getenv("DASHBOARD_URL", "http://localhost:5173")
+
 # ── Payments ──────────────────────────────────────────────────────────────────
-STRIPE_SECRET_KEY: str = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_SECRET_KEY: str = _secret("STRIPE_SECRET_KEY")
 
 # ── Synthetic data ────────────────────────────────────────────────────────────
 SYNTHETIC_CLIENT_COUNT: int = int(os.getenv("SYNTHETIC_CLIENT_COUNT", "75"))

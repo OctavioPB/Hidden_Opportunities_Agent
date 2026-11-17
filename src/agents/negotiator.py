@@ -29,7 +29,6 @@ PRODUCTION MODE
 
 from __future__ import annotations
 
-import json
 import re
 from datetime import datetime
 from textwrap import dedent
@@ -38,6 +37,7 @@ from typing import Any
 import config
 import src.db.schema as _schema
 from src.agents.rules import OPPORTUNITY_LABELS
+from src.jsonl import append_jsonl
 
 
 # ── Negotiation constants ─────────────────────────────────────────────────────
@@ -51,6 +51,9 @@ NEG_INTENT_COUNTER  = "counter_offer"
 NEG_INTENT_REJECT   = "rejected"
 NEG_INTENT_INFO     = "needs_info"
 NEG_INTENT_ESCALATE = "escalated"
+# Terminal intents written by the agent side (not by a client reply)
+NEG_INTENT_MAX_TURNS = "escalated_max_turns"
+NEG_INTENT_KILLED    = "manual_kill_switch"
 
 # Negotiation status
 STATUS_ACTIVE    = "active"
@@ -177,17 +180,26 @@ def process_client_reply(
             (t["offer_price"] for t in reversed(thread) if t.get("offer_price")),
             proposal["suggested_price"],
         )
+        _record_negotiated_win(proposal, last_offer)
+        payment_url = None
+        try:
+            from src.agents.payment_link import create_payment_link
+            payment_url = create_payment_link(proposal_id, custom_amount=last_offer)["url"]
+        except Exception as exc:
+            print(f"[negotiator] Payment link generation failed: {exc}")
         _append_log({
-            "event":       "negotiation_accepted",
-            "proposal_id": proposal_id,
-            "final_price": last_offer,
-            "simulated":   simulated,
+            "event":        "negotiation_accepted",
+            "proposal_id":  proposal_id,
+            "final_price":  last_offer,
+            "payment_link": payment_url,
+            "simulated":    simulated,
         })
         return {
             "agent_message": None,
             "intent":        client_intent,
             "status":        STATUS_ACCEPTED,
             "offer_price":   last_offer,
+            "payment_link":  payment_url,
         }
 
     # ── Handle explicit reject ────────────────────────────────────────────────
@@ -210,13 +222,24 @@ def process_client_reply(
     if next_agent_turn > MAX_AGENT_TURNS:
         _close_negotiation(proposal_id, STATUS_ESCALATED)
         _escalate(proposal_id, proposal["client_name"], proposal["account_manager"])
+        handoff_msg = (
+            f"We have escalated this negotiation to your account manager, "
+            f"{proposal['account_manager'] or 'who'} will contact you directly "
+            f"to find the best solution."
+        )
+        # The terminal intent on this row is what get_active_negotiations() and
+        # get_negotiation_summary() use to tell a closed thread from an open one.
+        _write_turn(
+            proposal_id=proposal_id,
+            turn=len(thread) + 2,
+            role="agent",
+            message=handoff_msg,
+            intent=NEG_INTENT_MAX_TURNS,
+            offer_price=None,
+        )
         return {
-            "agent_message": (
-                f"Hemos escalado esta negociación a tu account manager "
-                f"{proposal['account_manager']} quien se pondrá en contacto contigo "
-                f"directamente para encontrar la mejor solución."
-            ),
-            "intent":       "escalated_max_turns",
+            "agent_message": handoff_msg,
+            "intent":       NEG_INTENT_MAX_TURNS,
             "status":       STATUS_ESCALATED,
             "offer_price":  None,
         }
@@ -277,6 +300,15 @@ def kill_negotiation(proposal_id: str, reason: str = "manual_kill_switch") -> bo
 
     if proposal:
         _escalate(proposal_id, proposal.get("client_name", ""), proposal.get("account_manager", ""))
+        # Terminal row: without it the killed thread keeps showing up as active
+        _write_turn(
+            proposal_id=proposal_id,
+            turn=len(get_thread(proposal_id)) + 1,
+            role="agent",
+            message="Negotiation halted by the account manager and handed over to a human.",
+            intent=NEG_INTENT_KILLED,
+            offer_price=None,
+        )
 
     _append_log({
         "event":       "kill_switch_activated",
@@ -445,9 +477,27 @@ def _close_negotiation(proposal_id: str, final_status: str) -> None:
     conn.close()
 
 
+def _record_negotiated_win(proposal: dict, final_price: float | None) -> None:
+    """
+    Log the accepted negotiation in feedback_log so the revenue dashboards
+    (pilot report, ROI analytics) count deals closed at a negotiated price.
+    """
+    conn = _schema.get_connection()
+    conn.execute(
+        """
+        INSERT INTO feedback_log
+            (opportunity_id, proposal_id, outcome, revenue, notes, logged_at)
+        VALUES (?, ?, 'accepted', ?, ?, ?)
+        """,
+        (proposal["opportunity_id"], proposal["id"], final_price,
+         "Accepted after price negotiation.", datetime.now().isoformat()),
+    )
+    conn.commit()
+    conn.close()
+
+
 def _escalate(proposal_id: str, client_name: str, manager: str) -> None:
     """Write an escalation record (mirrors feedback_loop escalation path)."""
-    NEGOTIATION_LOG.parent.mkdir(parents=True, exist_ok=True)
     _append_log({
         "event":       "escalated_to_human",
         "proposal_id": proposal_id,
@@ -462,10 +512,7 @@ def _escalate(proposal_id: str, client_name: str, manager: str) -> None:
 
 
 def _append_log(entry: dict) -> None:
-    NEGOTIATION_LOG.parent.mkdir(parents=True, exist_ok=True)
-    with NEGOTIATION_LOG.open("a", encoding="utf-8") as fh:
-        fh.write(json.dumps({"timestamp": datetime.now().isoformat(), **entry},
-                             ensure_ascii=False) + "\n")
+    append_jsonl(NEGOTIATION_LOG, {"timestamp": datetime.now().isoformat(), **entry})
 
 
 # ── Intent extraction ─────────────────────────────────────────────────────────
@@ -474,8 +521,16 @@ def _append_log(entry: dict) -> None:
 # Phrases are matched as substrings; single tokens use \b word boundary.
 _ACCEPT_PATTERNS = [
     "acepto", "de acuerdo", "trato hecho", r"\bok\b", r"\bsí\b",
-    "perfecto", "agreed", "accept", "deal", "let's do it", "sounds good",
+    "perfecto", "agreed", r"\baccept", r"\bdeal\b", "let's do it", "sounds good",
     "adelante", "procedamos", "me parece bien", r"\blisto\b", r"\bvamos\b",
+]
+# An acceptance word preceded by a negation ("can't accept", "no deal",
+# "no acepto", "not ok") is a refusal. Checked before _ACCEPT_PATTERNS, because
+# wrongly closing a deal as won is far worse than wrongly keeping it open.
+_NEGATED_ACCEPT_PATTERNS = [
+    r"\b(?:no|not|never|cannot|can't|cant|don't|dont|won't|wont|didn't|isn't|nunca)\s+"
+    r"(?:\w+\s+)?(?:accept|agree|deal\b|ok\b|acept|de acuerdo|sounds good)",
+    r"\bunacceptable\b", r"\binaceptable\b",
 ]
 _REJECT_PATTERNS = [
     "no me interesa", "no gracias", "rechaz", "no es para nosotros",
@@ -516,6 +571,8 @@ def _extract_intent(text: str) -> str:
 
     if _match_patterns(lower, _ESCALATE_PATTERNS):
         return NEG_INTENT_ESCALATE
+    if _match_patterns(lower, _NEGATED_ACCEPT_PATTERNS):
+        return NEG_INTENT_REJECT
     if _match_patterns(lower, _ACCEPT_PATTERNS):
         return NEG_INTENT_ACCEPT
     if _match_patterns(lower, _REJECT_PATTERNS):

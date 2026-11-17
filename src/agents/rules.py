@@ -369,7 +369,12 @@ def evaluate(metrics: dict) -> list[OpportunityResult]:
 
     Returns all opportunities that fired, sorted by score descending.
     A client can have multiple opportunities simultaneously.
+
+    A metric that is NULL in the source (a platform the client has not
+    connected, a partial snapshot) is treated as missing, so each rule falls
+    back to its own neutral default instead of comparing None with a number.
     """
+    metrics = {k: v for k, v in metrics.items() if v is not None}
     results = []
     for rule in RULES:
         result = rule(metrics)

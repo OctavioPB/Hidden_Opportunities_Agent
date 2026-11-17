@@ -6,7 +6,7 @@ score_all_clients() is the hot path — called on every Opportunities page load.
 Optimisations applied:
   • All client metrics fetched in ONE SQL query (window function) instead of
     155 clients × 5 data-source queries = 775 round-trips.
-  • Propensity tiers fetched in one query, not per-result.
+  • Propensity tiers come with the client rows — no extra query.
   • Results cached in-process for 5 minutes; filter/sort requests (by type,
     industry, propensity) return instantly from cache.
   • ML model loaded once per scoring run, not per client.
@@ -68,7 +68,9 @@ def _fetch_all_metrics_batch() -> dict[str, dict]:
     for row in rows:
         d   = dict(row)
         cid = d.pop("client_id")
-        out[cid] = d
+        # NULL columns are dropped so consumers (rules, ML features, alert
+        # formatting) apply their defaults rather than receiving None
+        out[cid] = {k: v for k, v in d.items() if v is not None}
     return out
 
 
@@ -123,18 +125,9 @@ def score_all_clients() -> list[dict]:
         _ml_active = False
         _ml_model  = None
 
-    # Three queries total for the whole portfolio
+    # Two queries total for the whole portfolio
     all_metrics = _fetch_all_metrics_batch()   # 1 query — latest metrics per client
-    clients     = crm.get_all_clients()        # 1 query — client master data
-
-    conn_p = get_connection()
-    propensity: dict[str, tuple] = {
-        r[0]: (r[1], r[2])
-        for r in conn_p.execute(
-            "SELECT id, propensity_tier, propensity_score FROM clients"
-        ).fetchall()
-    }                                          # 1 query — propensity tiers
-    conn_p.close()
+    clients     = crm.get_all_clients()        # 1 query — client master data + propensity
 
     # ── Pass 1: rules engine (pure Python, no DB) ─────────────────────────────
     results:      list[dict]        = []
@@ -144,7 +137,8 @@ def score_all_clients() -> list[dict]:
     for client in clients:
         cid     = client["id"]
         metrics = {**all_metrics.get(cid, {}), "client_id": cid}
-        tier, pscore = propensity.get(cid, (None, None))
+        tier   = client.get("propensity_tier")
+        pscore = client.get("propensity_score")
 
         for opp in evaluate(metrics):
             idx = len(results)
@@ -162,7 +156,10 @@ def score_all_clients() -> list[dict]:
                 "triggered_signals": opp.triggered_signals,
                 "is_demo_scenario":  client.get("is_demo_scenario", 0),
                 "propensity_tier":   tier or "medium",
-                "propensity_score":  pscore or 0.5,
+                # `is not None`: a client that never accepts has a real score of 0.0
+                "propensity_score":  pscore if pscore is not None else 0.5,
+                # Snapshot the rules fired on — alerts.py renders its "Data:" line from it
+                "_metrics":          metrics,
             })
             if _ml_active and _ml_model is not None:
                 try:
@@ -186,6 +183,20 @@ def score_all_clients() -> list[dict]:
                 results[ri]["blended_score"]  = round(0.55 * p * 100 + 0.45 * results[ri]["score"], 1)
         except Exception:
             pass
+
+    # Learning loop: past replies from this client for this opportunity type
+    # raise or lower the score (accepted +15 … escalated −30, clamped ±50)
+    try:
+        from src.agents.feedback_loop import get_all_confidence_modifiers
+        modifiers = get_all_confidence_modifiers()
+    except Exception:
+        modifiers = {}
+    for r in results:
+        delta = modifiers.get((r["client_id"], r["opportunity_type"]), 0.0)
+        if delta:
+            r["confidence_modifier"] = delta
+            r["score"]         = max(0.0, min(100.0, round(r["score"] + delta, 1)))
+            r["blended_score"] = max(0.0, min(100.0, round(r["blended_score"] + delta, 1)))
 
     # Seasonal boosts — pure computation, no DB
     try:
@@ -215,38 +226,46 @@ def persist_opportunities(scored: list[dict]) -> int:
     """
     conn     = get_connection()
     inserted = 0
+    now      = datetime.now().isoformat()
+
+    # One query for every open opportunity instead of one SELECT per scored row
+    open_ids: dict[tuple[str, str], str] = {
+        (row[1], row[2]): row[0]
+        for row in conn.execute(
+            """
+            SELECT id, client_id, opportunity_type FROM opportunities
+            WHERE status NOT IN ('accepted', 'rejected', 'closed')
+            """
+        ).fetchall()
+    }
 
     for r in scored:
-        existing = conn.execute(
-            """
-            SELECT id FROM opportunities
-            WHERE client_id = ? AND opportunity_type = ?
-              AND status NOT IN ('accepted', 'rejected', 'closed')
-            """,
-            (r["client_id"], r["opportunity_type"]),
-        ).fetchone()
+        key         = (r["client_id"], r["opportunity_type"])
+        existing_id = open_ids.get(key)
+        ml_prob     = r.get("ml_probability")
 
-        if existing is None:
+        if existing_id is None:
+            new_id = str(uuid.uuid4())
             conn.execute(
                 """
                 INSERT INTO opportunities
-                    (id, client_id, opportunity_type, score, status, detected_at, updated_at)
-                VALUES (?, ?, ?, ?, 'detected', ?, ?)
+                    (id, client_id, opportunity_type, score, ml_probability,
+                     status, detected_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, 'detected', ?, ?)
                 """,
-                (
-                    str(uuid.uuid4()),
-                    r["client_id"],
-                    r["opportunity_type"],
-                    r["score"],
-                    datetime.now().isoformat(),
-                    datetime.now().isoformat(),
-                ),
+                (new_id, r["client_id"], r["opportunity_type"], r["score"], ml_prob, now, now),
             )
+            open_ids[key] = new_id
             inserted += 1
         else:
+            # COALESCE keeps the last known probability when the model is unavailable
             conn.execute(
-                "UPDATE opportunities SET score = ?, updated_at = ? WHERE id = ?",
-                (r["score"], datetime.now().isoformat(), existing[0]),
+                """
+                UPDATE opportunities
+                SET score = ?, ml_probability = COALESCE(?, ml_probability), updated_at = ?
+                WHERE id = ?
+                """,
+                (r["score"], ml_prob, now, existing_id),
             )
 
     conn.commit()

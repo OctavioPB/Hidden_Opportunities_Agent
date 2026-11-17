@@ -1,4 +1,6 @@
-from fastapi import APIRouter
+from typing import Literal
+
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from src.agents.seasonal_engine import get_upcoming_events, get_current_boosts
 from src.agents.propensity_ranker import update_client_propensity_tiers, get_all_propensities
@@ -38,13 +40,14 @@ def propensity_clients() -> list[dict]:
 
 class ChannelRequest(BaseModel):
     client_id: str
-    channel: str
+    channel: Literal["email", "whatsapp"]
     whatsapp_number: str | None = None
 
 
 @router.patch("/clients/channel")
 def update_channel(req: ChannelRequest) -> dict:
-    set_channel_preference(req.client_id, req.channel, req.whatsapp_number)
+    if not set_channel_preference(req.client_id, req.channel, req.whatsapp_number):
+        raise HTTPException(404, "Client not found")
     return {"updated": True}
 
 

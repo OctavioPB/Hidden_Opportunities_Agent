@@ -47,13 +47,10 @@ def detect(req: DetectRequest) -> dict:
     all_scored = score_all_clients()
     persist_opportunities(all_scored)
 
-    conn = get_connection()
-    tier_map = {}
-    for opp in opps:
-        tier = get_autonomy_tier(opp.score, opp.suggested_price, opp.opportunity_type)
-        tier_map[opp.opportunity_type] = tier
-
-    conn.close()
+    tier_map = {
+        opp.opportunity_type: get_autonomy_tier(opp.score, opp.suggested_price, opp.opportunity_type)
+        for opp in opps
+    }
     return {
         "opportunities": [
             {

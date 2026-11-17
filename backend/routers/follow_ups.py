@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from src.agents.follow_up_engine import (
     get_follow_up_queue, process_due_follow_ups, load_follow_up_log,
@@ -33,11 +33,15 @@ def process_due() -> dict:
 def cancel(follow_up_id: str) -> dict:
     from src.db.schema import get_connection
     conn = get_connection()
-    conn.execute(
-        "UPDATE follow_up_queue SET status='cancelled' WHERE id=?", (follow_up_id,)
+    # Only a pending entry can be cancelled — a sent one stays in the history as sent
+    cur = conn.execute(
+        "UPDATE follow_up_queue SET status='cancelled' WHERE id=? AND status='pending'",
+        (follow_up_id,),
     )
     conn.commit()
     conn.close()
+    if cur.rowcount == 0:
+        raise HTTPException(404, "No pending follow-up with that id.")
     return {"cancelled": True}
 
 
