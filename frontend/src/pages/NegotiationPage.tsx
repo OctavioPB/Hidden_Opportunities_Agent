@@ -13,7 +13,7 @@ const OPPORTUNITY_LABELS: Record<string, string> = {
 }
 
 const SIM_REPLIES: Record<string, string> = {
-  'Accepts offer (Turn 1)':       'Perfect, I accept. Let\'s proceed with the offered discount.',
+  'Accepts offer ( Turn 1 )':       'Perfect, I accept. Let\'s proceed with the offered discount.',
   'Asks for more discount':       'Thank you, but could we possibly get a bit more off?',
   'Rejects definitively':         'I\'m sorry, we\'re not interested at this time.',
   'Ignores — no clear response':  'Hmm, let me think about it and I\'ll get back to you.',

@@ -44,7 +44,7 @@ const card: React.CSSProperties = {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const c = STATUS_COLORS[status] ?? { dot: '#6b7280', bg: 'rgba(107,114,128,0.08)', text: '#374151' }
+  const c = STATUS_COLORS[status] ?? { dot: '#6b7281', bg: 'rgba(107,114,128,0.08)', text: '#374151' }
   const label = STATUS_LABELS[status] ?? status
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: c.bg, color: c.text, padding: '4px 12px', borderRadius: 'var(--radius-pill)', fontSize: 10, fontWeight: 600, fontFamily: 'var(--fb)', letterSpacing: '0.5px' }}>

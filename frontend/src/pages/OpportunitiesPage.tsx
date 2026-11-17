@@ -265,7 +265,7 @@ export default function OpportunitiesPage({ onSelectClient }: { onSelectClient?:
           )}
 
           {!loading && !error && data.length === 0 && (
-            <p style={{ fontFamily: 'var(--fb)', fontSize: 14, color: 'var(--mid)' }}>No opportunities detected. Run the daily job to refresh.</p>
+            <p style={{ fontFamily: 'var(--fb)', fontSize: 15, color: 'var(--mid)' }}>No opportunities detected. Run the daily job to refresh.</p>
           )}
 
           {!loading && !error && data.length > 0 && view === 'Cards' && (
