@@ -25,5 +25,10 @@ jobs:
       - name: Lint with ruff
         run: ruff check .
 
+      # data/db and the generated data/synthetic/*.json are not versioned;
+      # several test modules read the seeded database.
+      - name: Seed demo database
+        run: python scripts/seed_db.py
+
       - name: Run tests with coverage
         run: python -m pytest tests/ --cov --cov-report=term-missing

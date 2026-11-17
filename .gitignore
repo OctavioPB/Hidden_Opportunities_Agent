@@ -26,6 +26,8 @@ data/db/*.sqlite
 
 # Synthetic / generated data (can be regenerated via seed script)
 data/synthetic/*.json
+# Hand-written ground truth used by tests and the Accuracy page — not generated
+!data/synthetic/labeled_test_dataset.json
 data/synthetic/*.csv
 data/exports/
 
