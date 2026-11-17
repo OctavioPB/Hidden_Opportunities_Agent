@@ -32,17 +32,13 @@ In production
 from __future__ import annotations
 
 import json
-import random
-from pathlib import Path
 
 import numpy as np
 
 import config
 from src.db.schema import get_connection
 from src.agents.rules import (
-    ALL_OPPORTUNITY_TYPES, SUGGESTED_PRICES,
-    LANDING_PAGE_OPTIMIZATION, SEO_CONTENT, RETARGETING_CAMPAIGN,
-    EMAIL_AUTOMATION, REACTIVATION, CONVERSION_RATE_AUDIT, UPSELL_AD_BUDGET,
+    ALL_OPPORTUNITY_TYPES,
 )
 from src.synthetic.generator import INDUSTRIES
 
@@ -271,7 +267,7 @@ def _generate_synthetic_rows(
     """
     from src.agents.rules import evaluate
     from src.synthetic.generator import (
-        _generate_client, _generate_metrics_history, INDUSTRIES, INDUSTRY_PROFILES,
+        _generate_client, _generate_metrics_history, INDUSTRIES,
     )
     import random as _rnd
 
@@ -357,7 +353,7 @@ def build_dataset(
     # Augment with noise copies of labeled + real data
     if augment and (X_real or X_lab):
         X_aug, y_aug = [], []
-        for row, label in zip(X_real + X_lab, y_real + y_lab):
+        for row, label in zip(X_real + X_lab, y_real + y_lab, strict=True):
             for _ in range(AUGMENT_FACTOR):
                 X_aug.append(_add_noise(row, rng))
                 y_aug.append(label)

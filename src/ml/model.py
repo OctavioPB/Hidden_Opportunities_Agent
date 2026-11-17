@@ -25,10 +25,11 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
-from pathlib import Path
 from typing import Any
 
 import joblib
+
+from src.jsonl import read_jsonl
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
@@ -36,7 +37,6 @@ from sklearn.metrics import (
     average_precision_score,
 )
 from sklearn.model_selection import StratifiedKFold, cross_val_predict
-from sklearn.preprocessing import label_binarize
 
 import config
 from src.ml.dataset import FEATURE_NAMES
@@ -116,7 +116,7 @@ def train(
     # ── Feature importance ────────────────────────────────────────────────────
     importances = {
         name: round(float(imp), 6)
-        for name, imp in zip(feature_names, clf.feature_importances_)
+        for name, imp in zip(feature_names, clf.feature_importances_, strict=True)
     }
 
     # ── Metadata ──────────────────────────────────────────────────────────────
@@ -173,17 +173,7 @@ def load_metadata() -> dict | None:
 
 def load_training_history() -> list[dict]:
     """Return all training run records (for audit / dashboard)."""
-    if not HISTORY_PATH.exists():
-        return []
-    records = []
-    for line in HISTORY_PATH.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if line:
-            try:
-                records.append(json.loads(line))
-            except json.JSONDecodeError:
-                pass
-    return records
+    return read_jsonl(HISTORY_PATH)
 
 
 # ── Predict ───────────────────────────────────────────────────────────────────
@@ -203,6 +193,22 @@ def predict_proba(
 
     X = np.array([feature_row], dtype=float)
     return float(model.predict_proba(X)[0, 1])
+
+
+def predict_proba_batch(
+    feature_rows: list[list[float]],
+    model: RandomForestClassifier | None = None,
+) -> list[float]:
+    """
+    Return acceptance probabilities for a batch of feature vectors in one call.
+    ~100× faster than calling predict_proba() per row for large portfolios.
+    """
+    if model is None:
+        model = load_model()
+    if model is None or not feature_rows:
+        return [0.5] * len(feature_rows)
+    X = np.array(feature_rows, dtype=float)
+    return model.predict_proba(X)[:, 1].tolist()
 
 
 def model_is_trained() -> bool:

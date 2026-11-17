@@ -189,16 +189,19 @@ def _generate_metrics_history(client: dict, days: int = 90) -> list[dict]:
     rows = []
     base_date = datetime.now().date()
 
+    def noise(v: float) -> float:
+        """Add slight day-to-day variation for non-forced values only.
+
+        Forced values are used exactly — noise must not push them past thresholds.
+        """
+        return round(v * _rand(0.85, 1.15), 4)
+
+    def fon(key: str, base: float) -> float:
+        """Return forced value as-is, or apply noise to the base."""
+        return force[key] if key in force else noise(base)
+
     for offset in range(days, 0, -1):
         date = base_date - timedelta(days=offset)
-        # Add slight day-to-day variation for non-forced values only.
-        # Forced values are used exactly — noise must not push them past thresholds.
-        noise = lambda v: round(v * _rand(0.85, 1.15), 4)
-
-        def fon(key: str, base: float) -> float:
-            """Return forced value as-is, or apply noise to the base."""
-            return force[key] if key in force else noise(base)
-
         rows.append({
             "client_id": client["id"],
             "date": str(date),

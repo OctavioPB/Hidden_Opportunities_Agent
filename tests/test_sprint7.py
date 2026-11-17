@@ -39,7 +39,6 @@ from __future__ import annotations
 import sqlite3
 import sys
 import uuid
-from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -82,7 +81,6 @@ def _seed_proposal(db_path: Path, suggested_price: float = 300.0) -> dict:
     client_id = str(uuid.uuid4())
     opp_id    = str(uuid.uuid4())
     prop_id   = str(uuid.uuid4())
-    now       = datetime.now().isoformat()
 
     conn.execute(
         """INSERT INTO clients (id, name, industry, contact_email, account_manager)

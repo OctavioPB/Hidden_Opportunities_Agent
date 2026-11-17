@@ -103,18 +103,30 @@ def get_all_signal_summaries() -> list[dict[str, Any]]:
     Return aggregated signal summaries for EVERY client that has signals.
     Used to build the signal matrix in the dashboard.
     """
+    # Same aggregation as get_signal_summary(), for all clients in one query.
+    # Only processed rows (sentiment IS NOT NULL) contribute to the values;
+    # clients whose signals are all unprocessed still appear, with zeros.
     conn = get_connection()
-    client_ids = [
-        r[0] for r in conn.execute(
-            "SELECT DISTINCT client_id FROM text_signals"
-        ).fetchall()
-    ]
+    rows = conn.execute(
+        """
+        SELECT client_id,
+               COALESCE(AVG(sentiment), 0.0)                                         AS sentiment_score,
+               MAX(CASE WHEN sentiment IS NOT NULL AND mentions_price   THEN 1 ELSE 0 END) AS mentions_price,
+               MAX(CASE WHEN sentiment IS NOT NULL AND asks_for_results THEN 1 ELSE 0 END) AS asks_for_results,
+               MAX(CASE WHEN sentiment IS NOT NULL AND churn_risk       THEN 1 ELSE 0 END) AS churn_risk,
+               MAX(CASE WHEN sentiment IS NOT NULL AND urgency_signal   THEN 1 ELSE 0 END) AS urgency_signal,
+               MAX(CASE WHEN sentiment IS NOT NULL AND interest_signal  THEN 1 ELSE 0 END) AS interest_signal,
+               COUNT(sentiment)                                                      AS n_signals
+        FROM text_signals
+        GROUP BY client_id
+        """
+    ).fetchall()
     conn.close()
 
     summaries = []
-    for cid in client_ids:
-        s = get_signal_summary(cid)
-        s["client_id"] = cid
+    for r in rows:
+        s = dict(r)
+        s["sentiment_score"] = round(s["sentiment_score"], 4)
         summaries.append(s)
     return summaries
 
@@ -162,20 +174,15 @@ def count_signals_by_type() -> dict[str, int]:
         """
         SELECT
             COUNT(*) AS total,
-            SUM(mentions_price)   AS price_mentions,
-            SUM(asks_for_results) AS results_queries,
-            SUM(churn_risk)       AS churn_flags,
-            SUM(urgency_signal)   AS urgency_flags,
-            SUM(interest_signal)  AS interest_flags
+            COALESCE(SUM(mentions_price), 0)   AS price_mentions,
+            COALESCE(SUM(asks_for_results), 0) AS results_queries,
+            COALESCE(SUM(churn_risk), 0)       AS churn_flags,
+            COALESCE(SUM(urgency_signal), 0)   AS urgency_flags,
+            COALESCE(SUM(interest_signal), 0)  AS interest_flags
         FROM text_signals
         WHERE sentiment IS NOT NULL
         """
     ).fetchone()
     conn.close()
-
-    if row is None:
-        return {k: 0 for k in [
-            "total", "price_mentions", "results_queries",
-            "churn_flags", "urgency_flags", "interest_flags",
-        ]}
+    # COALESCE: SUM() over zero rows is NULL, which the UI would render as "null"
     return dict(row)

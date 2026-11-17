@@ -39,7 +39,7 @@ from src.agents.proposal_generator import (
     generate_proposals_for_all,
 )
 from src.agents.scorer import score_all_clients
-from src.agents.rules import OPPORTUNITY_LABELS, SUGGESTED_PRICES
+from src.agents.rules import OPPORTUNITY_LABELS
 from src.ui.components import score_bar, production_badge, page_header
 
 

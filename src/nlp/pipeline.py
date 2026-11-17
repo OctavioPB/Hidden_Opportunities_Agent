@@ -22,7 +22,7 @@ from datetime import datetime
 from typing import Any
 
 from src.db.schema import get_connection
-from src.nlp.signal_extractor import extract_signals, aggregate_signals
+from src.nlp.signal_extractor import extract_signals
 
 
 # ── Row processor ─────────────────────────────────────────────────────────────

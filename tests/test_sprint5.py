@@ -37,7 +37,6 @@ Coverage:
 
 from __future__ import annotations
 
-import json
 import sqlite3
 import sys
 import uuid
@@ -96,7 +95,7 @@ def tmp_model_paths(tmp_path, monkeypatch):
 def trained_model(tmp_model_paths):
     """Build a tiny dataset and train the model once. Returns (model, metadata)."""
     from src.ml.dataset import build_dataset
-    from src.ml.model import train, load_model, load_metadata
+    from src.ml.model import train, load_model
 
     X, y, names = build_dataset(augment=False, verbose=False)
     metadata = train(X, y, feature_names=names, cv_folds=2, verbose=False)
@@ -349,7 +348,7 @@ class TestPredictProba:
 
     def test_different_inputs_produce_different_probs(self, trained_model):
         from src.ml.model import predict_proba
-        from src.ml.dataset import _metrics_to_row, ALL_OPPORTUNITY_TYPES
+        from src.ml.dataset import _metrics_to_row
         model, _ = trained_model
         # high-activity client vs. inactive client
         metrics_active   = {**_sample_metrics(), "days_inactive": 1,  "ctr": 0.10}
@@ -449,12 +448,16 @@ def inference_db(tmp_path, monkeypatch):
 
     import src.db.schema as schema
     import src.ml.inference as inf
+    import src.agents.scorer as scorer
 
-    _conn = lambda: _make_conn(db_path)
+    def _conn():
+        return _make_conn(db_path)
     monkeypatch.setattr(schema, "get_connection", _conn)
     monkeypatch.setattr(inf,    "get_connection", _conn)
 
     schema.init_db()
+    schema.migrate_db()
+    scorer.invalidate_cache()  # each test gets a fresh temp DB — clear stale cache from prior tests
 
     conn = _make_conn(db_path)
     client_id = str(uuid.uuid4())
@@ -550,7 +553,6 @@ class TestInference:
 
     def test_update_ml_scores_writes_to_db(self, inference_db, trained_model):
         from src.ml.inference import predict_for_client, update_ml_scores
-        import src.db.schema as schema
         client_id, db_path = inference_db
         model, _ = trained_model
 

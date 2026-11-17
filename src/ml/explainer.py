@@ -106,13 +106,19 @@ def get_shap_values(
     explainer = shap.TreeExplainer(model)
     sv        = explainer.shap_values(Xarr)
 
-    # For binary classification RF, shap_values is a list [class0_sv, class1_sv]
+    # For binary classification RF, shap_values may come back as:
+    #   - a list [class0_sv, class1_sv]                    (older shap)
+    #   - an ndarray shaped (n_samples, n_features, n_classes) (newer shap)
+    #   - a plain (n_samples, n_features) ndarray           (single-output)
     if isinstance(sv, list):
         sv_class1  = sv[1]
-        base_value = float(explainer.expected_value[1])
+        base_value = float(np.asarray(explainer.expected_value)[1])
+    elif isinstance(sv, np.ndarray) and sv.ndim == 3:
+        sv_class1  = sv[:, :, 1]
+        base_value = float(np.asarray(explainer.expected_value)[1])
     else:
         sv_class1  = sv
-        base_value = float(explainer.expected_value)
+        base_value = float(np.asarray(explainer.expected_value).reshape(-1)[0])
 
     return sv_class1, np.full(sv_class1.shape[0], base_value)
 
@@ -131,23 +137,56 @@ def explain_single(
       - narrative: str — human-readable sentence
       - shap_available: bool
     """
+    return explain_batch([feature_row], model, top_n)[0]
+
+
+def explain_batch(
+    feature_rows: list[list[float]],
+    model=None,
+    top_n: int = 5,
+    probs: list[float] | None = None,
+) -> list[dict[str, Any]]:
+    """
+    Explain many predictions at once (same dict per row as explain_single).
+
+    Builds the SHAP TreeExplainer once and scores the whole matrix in a single
+    call — explaining rows one by one rebuilds the explainer every time and is
+    ~100× slower on a full portfolio. `probs` may be passed when the caller
+    already has the model probabilities for these rows.
+    """
+    if not feature_rows:
+        return []
     if model is None:
         model = load_model()
+    if probs is None:
+        from src.ml.model import predict_proba_batch
+        probs = predict_proba_batch(feature_rows, model)
 
-    from src.ml.model import predict_proba
-    prob = predict_proba(feature_row, model)
-
-    shap_result = get_shap_values([feature_row], model)
+    shap_result = get_shap_values(feature_rows, model)
 
     if shap_result is None:
         # Fallback: use feature importance rank as proxy explanation
-        return _fallback_explanation(feature_row, prob, top_n)
+        return [
+            _fallback_explanation(row, prob, top_n)
+            for row, prob in zip(feature_rows, probs, strict=True)
+        ]
 
-    sv_row = shap_result[0][0]   # shape: (n_features,)
+    return [
+        _shap_explanation(row, prob, sv_row, top_n)
+        for row, prob, sv_row in zip(feature_rows, probs, shap_result[0], strict=True)
+    ]
 
+
+def _shap_explanation(
+    feature_row: list[float],
+    prob: float,
+    sv_row: np.ndarray,
+    top_n: int,
+) -> dict[str, Any]:
+    """Build the explanation dict for one row from its SHAP values (n_features,)."""
     # Sort features by absolute SHAP value
     ranked = sorted(
-        zip(FEATURE_NAMES, sv_row, feature_row),
+        zip(FEATURE_NAMES, sv_row, feature_row, strict=True),
         key=lambda t: abs(t[1]),
         reverse=True,
     )[:top_n]

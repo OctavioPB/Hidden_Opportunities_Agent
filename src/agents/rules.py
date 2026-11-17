@@ -17,7 +17,7 @@ as a fallback when the model has insufficient training data.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Callable
+from collections.abc import Callable
 
 
 # ── Opportunity types ─────────────────────────────────────────────────────────
@@ -369,7 +369,12 @@ def evaluate(metrics: dict) -> list[OpportunityResult]:
 
     Returns all opportunities that fired, sorted by score descending.
     A client can have multiple opportunities simultaneously.
+
+    A metric that is NULL in the source (a platform the client has not
+    connected, a partial snapshot) is treated as missing, so each rule falls
+    back to its own neutral default instead of comparing None with a number.
     """
+    metrics = {k: v for k, v in metrics.items() if v is not None}
     results = []
     for rule in RULES:
         result = rule(metrics)

@@ -26,6 +26,8 @@ data/db/*.sqlite
 
 # Synthetic / generated data (can be regenerated via seed script)
 data/synthetic/*.json
+# Hand-written ground truth used by tests and the Accuracy page — not generated
+!data/synthetic/labeled_test_dataset.json
 data/synthetic/*.csv
 data/exports/
 
@@ -38,6 +40,7 @@ logs/
 .idea/
 *.swp
 *.swo
+planning/
 
 # OS
 .DS_Store
@@ -52,3 +55,14 @@ Thumbs.db
 
 # Docker
 .docker/
+
+# Linting / coverage
+.ruff_cache/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Node / frontend build output
+node_modules/
+frontend/dist/

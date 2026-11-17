@@ -16,9 +16,7 @@ Coverage:
 
 from __future__ import annotations
 
-import json
 import sys
-import tempfile
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -226,12 +224,7 @@ class TestProposalGeneration:
         monkeypatch.setattr(schema, "get_connection", lambda: __import__("sqlite3").connect(str(db_path)))
 
         # Re-init
-        from src.db.schema import init_db
         # Monkey-patch get_connection to use our temp db
-        import sqlite3
-        real_conn = lambda: sqlite3.connect(str(db_path), check_same_thread=False)
-        real_conn_with_factory = lambda: _make_conn(db_path)
-
         def _make_conn(p):
             import sqlite3 as _sq
             conn = _sq.connect(str(p), check_same_thread=False)
@@ -427,7 +420,6 @@ class TestApprovalWorkflow:
 
     def test_reject_resets_opportunity_to_detected(self):
         from src.agents.proposal_generator import reject_proposal
-        import src.db.schema as schema
         reject_proposal(self._prop_id)
         conn = self._make_conn()
         opp = conn.execute("SELECT status FROM opportunities WHERE id=?", (self._opp_id,)).fetchone()
@@ -560,7 +552,7 @@ class TestGetAllProposals:
 class TestGovernanceDoc:
     @pytest.fixture(autouse=True)
     def _governance_path(self):
-        self._path = Path(__file__).parent.parent / "GOVERNANCE.md"
+        self._path = Path(__file__).parent.parent / "planning" / "GOVERNANCE.md"
 
     def test_governance_file_exists(self):
         assert self._path.exists(), "GOVERNANCE.md not found in project root"

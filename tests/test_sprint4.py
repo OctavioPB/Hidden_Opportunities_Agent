@@ -106,7 +106,7 @@ class TestEmailSender:
         monkeypatch.setattr(es, "SENT_LOG", tmp_path / "sent.jsonl")
         monkeypatch.setattr(es.config, "DEMO_MODE", True)
 
-        result = es.send_proposal_email(seeded_db["proposal_id"])
+        es.send_proposal_email(seeded_db["proposal_id"])
         log_path = tmp_path / "sent.jsonl"
         assert log_path.exists()
         entry = json.loads(log_path.read_text().strip())

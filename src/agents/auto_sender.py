@@ -23,12 +23,10 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-import config
 from src.db.schema import get_connection
 from src.agents.email_sender import (
     send_proposal_email,
     SEND_MODE_AUTONOMOUS,
-    SEND_MODE_APPROVED,
 )
 from src.agents.rules import REACTIVATION
 
@@ -87,17 +85,6 @@ def should_auto_send(
     return get_autonomy_tier(score, suggested_price, opportunity_type, is_repeat_client) == "C"
 
 
-def _is_repeat_client(client_id: str) -> bool:
-    """Return True if the client has at least one previously accepted proposal."""
-    conn = get_connection()
-    count = conn.execute(
-        "SELECT COUNT(*) FROM proposals WHERE client_id=? AND status='accepted'",
-        (client_id,),
-    ).fetchone()[0]
-    conn.close()
-    return count > 0
-
-
 # ── Queue processor ───────────────────────────────────────────────────────────
 
 def process_auto_send_queue(dry_run: bool = False) -> list[dict[str, Any]]:
@@ -122,7 +109,11 @@ def process_auto_send_queue(dry_run: bool = False) -> list[dict[str, Any]]:
                p.suggested_price,
                p.approved_by,
                o.opportunity_type,
-               o.score
+               o.score,
+               EXISTS (
+                   SELECT 1 FROM proposals p2
+                   WHERE p2.client_id = p.client_id AND p2.status = 'accepted'
+               ) AS is_repeat_client
         FROM proposals p
         JOIN opportunities o ON o.id = p.opportunity_id
         WHERE p.status = 'approved'
@@ -137,9 +128,7 @@ def process_auto_send_queue(dry_run: bool = False) -> list[dict[str, Any]]:
         opp_type  = r["opportunity_type"]
         score     = r["score"] or 0
         price     = r["suggested_price"] or 0
-        cid       = r["client_id"]
-        repeat    = _is_repeat_client(cid)
-        tier      = get_autonomy_tier(score, price, opp_type, repeat)
+        tier      = get_autonomy_tier(score, price, opp_type, bool(r["is_repeat_client"]))
 
         # Only auto-send Tier C or explicitly autonomous-approved
         if tier != "C" and r.get("approved_by") != "autonomous":
@@ -208,7 +197,11 @@ def get_send_queue_summary() -> dict:
     rows = conn.execute(
         """
         SELECT p.id, p.client_id, p.suggested_price, p.approved_by,
-               o.opportunity_type, o.score
+               o.opportunity_type, o.score,
+               EXISTS (
+                   SELECT 1 FROM proposals p2
+                   WHERE p2.client_id = p.client_id AND p2.status = 'accepted'
+               ) AS is_repeat_client
         FROM proposals p
         JOIN opportunities o ON o.id = p.opportunity_id
         WHERE p.status = 'approved'
@@ -218,11 +211,10 @@ def get_send_queue_summary() -> dict:
 
     tier_counts = {"A": 0, "B": 0, "C": 0}
     for row in rows:
-        r      = dict(row)
-        repeat = _is_repeat_client(r["client_id"])
-        tier   = get_autonomy_tier(
+        r    = dict(row)
+        tier = get_autonomy_tier(
             r["score"] or 0, r["suggested_price"] or 0,
-            r["opportunity_type"], repeat
+            r["opportunity_type"], bool(r["is_repeat_client"])
         )
         tier_counts[tier] += 1
 

@@ -1,0 +1,72 @@
+:root {
+  /* ── Colour ──────────────────────────────────────────────────────────── */
+  --primary:    #003366;
+  --primary-80: #1a4d80;
+  --primary-60: #336699;
+  --primary-30: #99bbdd;
+  --primary-10: #e0eaf4;
+  --gold:       #c8982a;
+  --gold-light: #e8c46a;
+  --dark:       #1c1c2e;
+  --mid:        #6b7280;
+  --light:      #f4f6f9;
+  --white:      #ffffff;
+
+  /* ── Semantic status colours — data signals only, never structural ────── */
+  --status-green:    #27b97c;
+  --status-red:      #e03448;
+  --status-orange:   #f07020;
+  --status-purple:   #7c4dbd;
+  --status-blue:     #003366;
+
+  /* ── Status backgrounds ─────────────────────────────────────────────── */
+  --status-green-bg:  rgba(39,185,124,0.08);
+  --status-red-bg:    rgba(224,52,72,0.08);
+  --status-orange-bg: rgba(240,112,32,0.08);
+
+  /* ── Typography ─────────────────────────────────────────────────────── */
+  --fd: 'Fraunces', Georgia, serif;
+  --fb: 'Plus Jakarta Sans', sans-serif;
+
+  /* ── Spacing (8-point grid) ──────────────────────────────────────────── */
+  --space-4:  4px;  --space-8:   8px;  --space-12: 12px;
+  --space-16: 16px; --space-24: 24px;  --space-32: 32px;
+  --space-40: 40px; --space-48: 48px;  --space-64: 64px;
+
+  /* ── Border radius ───────────────────────────────────────────────────── */
+  --radius-sm:   6px;
+  --radius-md:  12px;
+  --radius-lg:  14px;
+  --radius-pill: 20px;
+
+  /* ── Shadows ─────────────────────────────────────────────────────────── */
+  --shadow-card: 0 1px 4px rgba(0,51,102,0.08);
+  --shadow-soft: 0 1px 6px rgba(0,51,102,0.09);
+
+  /* ── Layout ──────────────────────────────────────────────────────────── */
+  --max-width-content:   1200px;
+  --max-width-dashboard: 1300px;
+  --nav-height: 52px;
+}
+
+html[data-theme="dark"] {
+  --light:      #0f1117;
+  --white:      #1a1d27;
+  --dark:       #e2e8f0;
+  --mid:        #8b9099;
+  --primary-10: rgba(255,255,255,0.07);
+  --shadow-card: 0 1px 4px rgba(0,0,0,0.35);
+  --shadow-soft: 0 1px 6px rgba(0,0,0,0.30);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background-color: var(--light);
+  font-family: var(--fb);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--dark);
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

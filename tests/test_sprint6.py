@@ -38,11 +38,9 @@ Coverage:
 
 from __future__ import annotations
 
-import json
 import sqlite3
 import sys
 import uuid
-from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -74,7 +72,8 @@ def seeded_db(tmp_path, monkeypatch):
     import src.nlp.pipeline as pipeline
     import src.data_sources.text_signals as ts_ds
 
-    _conn = lambda: _make_conn(db_path)
+    def _conn():
+        return _make_conn(db_path)
     monkeypatch.setattr(schema,   "get_connection", _conn)
     monkeypatch.setattr(pipeline, "get_connection", _conn)
     monkeypatch.setattr(ts_ds,    "get_connection", _conn)
@@ -292,9 +291,7 @@ class TestTextSignalsDataSource:
         assert summary["mentions_price"] == 1
 
     def test_get_urgency_alerts_returns_churn_clients(self, seeded_db):
-        from src.nlp.pipeline import run_pipeline
         from src.data_sources.text_signals import get_urgency_alerts
-        import src.data_sources.crm as crm_mod
         client_id, db_path = seeded_db
 
         # Patch get_all_clients and get_client for the JOIN
@@ -423,46 +420,36 @@ class TestDatasetWith18Features:
 class TestDailyJobSprint6:
     def test_run_includes_nlp_key(self, seeded_db, monkeypatch):
         client_id, db_path = seeded_db
-        import src.agents.scorer as scorer
-        import src.data_sources.crm as crm_mod
-        import src.agents.alerts as alerts_mod
-        import src.agents.auto_sender as aut
-        import src.agents.proposal_generator as pg
+        import scripts.daily_job as daily_job
         import src.nlp.pipeline as nlp_pipe
 
-        monkeypatch.setattr(scorer, "score_all_clients", lambda: [])
-        monkeypatch.setattr(scorer, "persist_opportunities", lambda r: 0)
-        monkeypatch.setattr(alerts_mod, "dispatch", lambda r, channel="slack": [])
-        monkeypatch.setattr(pg, "generate_proposals_for_all", lambda min_score=70: [])
-        monkeypatch.setattr(aut, "process_auto_send_queue", lambda dry_run=False: [])
+        monkeypatch.setattr(daily_job, "score_all_clients", lambda: [])
+        monkeypatch.setattr(daily_job, "persist_opportunities", lambda r: 0)
+        monkeypatch.setattr(daily_job, "dispatch", lambda r, channel="slack": [])
+        monkeypatch.setattr(daily_job, "generate_proposals_for_all", lambda min_score=70: [])
+        monkeypatch.setattr(daily_job, "process_auto_send_queue", lambda dry_run=False: [])
         monkeypatch.setattr(nlp_pipe, "run_pipeline",
                             lambda **kw: {"total_processed": 3, "churn_alerts": 1,
                                          "urgency_alerts": 0, "clients_updated": 1,
                                          "extraction_mode": "keyword"})
-        monkeypatch.setattr(crm_mod, "get_demo_clients", lambda: [])
+        monkeypatch.setattr(daily_job, "get_demo_clients", lambda: [])
 
-        from scripts.daily_job import run
-        result = run(dry_run=False, generate_proposals=False,
+        result = daily_job.run(dry_run=False, generate_proposals=False,
                      auto_send=False, process_nlp=True)
         assert "nlp_processed" in result
         assert result["nlp_processed"] == 3
 
     def test_no_nlp_flag_skips_pipeline(self, seeded_db, monkeypatch):
-        import src.agents.scorer as scorer
-        import src.data_sources.crm as crm_mod
-        import src.agents.alerts as alerts_mod
-        import src.agents.auto_sender as aut
-        import src.agents.proposal_generator as pg
+        import scripts.daily_job as daily_job
 
-        monkeypatch.setattr(scorer, "score_all_clients", lambda: [])
-        monkeypatch.setattr(scorer, "persist_opportunities", lambda r: 0)
-        monkeypatch.setattr(alerts_mod, "dispatch", lambda r, channel="slack": [])
-        monkeypatch.setattr(pg, "generate_proposals_for_all", lambda min_score=70: [])
-        monkeypatch.setattr(aut, "process_auto_send_queue", lambda dry_run=False: [])
-        monkeypatch.setattr(crm_mod, "get_demo_clients", lambda: [])
+        monkeypatch.setattr(daily_job, "score_all_clients", lambda: [])
+        monkeypatch.setattr(daily_job, "persist_opportunities", lambda r: 0)
+        monkeypatch.setattr(daily_job, "dispatch", lambda r, channel="slack": [])
+        monkeypatch.setattr(daily_job, "generate_proposals_for_all", lambda min_score=70: [])
+        monkeypatch.setattr(daily_job, "process_auto_send_queue", lambda dry_run=False: [])
+        monkeypatch.setattr(daily_job, "get_demo_clients", lambda: [])
 
-        from scripts.daily_job import run
-        result = run(dry_run=False, generate_proposals=False,
+        result = daily_job.run(dry_run=False, generate_proposals=False,
                      auto_send=False, process_nlp=False)
         assert result["nlp_processed"] == 0
 

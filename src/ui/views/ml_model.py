@@ -25,13 +25,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 import streamlit as st
 import plotly.graph_objects as go
-import plotly.express as px
 import pandas as pd
 
 from src.ml.model import load_metadata, load_training_history, model_is_trained
-from src.ml.explainer import get_feature_importance, explain_single, FEATURE_LABELS
+from src.ml.explainer import get_feature_importance
 from src.ml.inference import predict_for_all, get_inference_summary
-from src.ml.dataset import FEATURE_NAMES, _metrics_to_row
 from src.agents.rules import OPPORTUNITY_LABELS
 from src.ui.components import production_badge, score_bar, page_header, section_header
 

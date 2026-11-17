@@ -1,32 +1,32 @@
 """
-Sprint 6 — Daily Job Runner (updated).
+Daily Job Runner — Hidden Opportunities Agent.
 
 Orchestrates the full daily pipeline:
-  1. Pull latest metrics from all data sources (demo: SQLite)
-  2. Apply rules engine to every client
-  3. Persist new opportunities to the DB
-  4. Format and dispatch alerts (demo: log file; production: Slack/Telegram)
-  5. Generate proposals for high-confidence opportunities (Sprint 3)
-  6. Process Tier C auto-send queue (Sprint 4)
-  7. Run NLP text processing pipeline (Sprint 6) — new
-  8. Print a run summary
+  1.  Detection engine (rules + ML)
+  2.  Persist new opportunities to DB
+  3.  Dispatch alerts (Slack/Telegram/demo log)
+  3b. Generate proposals for high-confidence opportunities
+  3c. Process Tier C auto-send queue
+  3d. NLP text processing pipeline
+  3e. Churn prevention scan (Feature 3)
+  3f. Process due follow-up sequences (Feature 1)
+  3g. Update client propensity tiers (Feature 4)
+  3h. Save analytics snapshot on Fridays (Feature 2)
+  4.  Summary
 
-In production this script would be triggered by a cron job or a scheduler
-(e.g., crontab, GitHub Actions schedule, n8n, or Make).
-
-  Production crons:
-      0 8 * * * cd /app && python scripts/daily_job.py >> logs/cron.log 2>&1
-      30 8 * * * cd /app && python scripts/daily_job.py --auto-send-only >> logs/cron.log 2>&1
+Production crons:
+    0 8 * * * cd /app && python scripts/daily_job.py >> logs/cron.log 2>&1
 
 Usage:
-    python scripts/daily_job.py                         # run for all clients
-    python scripts/daily_job.py --demo-only             # run only for demo scenario clients
-    python scripts/daily_job.py --channel telegram      # dispatch to telegram instead
-    python scripts/daily_job.py --dry-run               # detect + format but do not persist/dispatch
-    python scripts/daily_job.py --no-proposals          # skip proposal generation
-    python scripts/daily_job.py --no-auto-send          # skip Tier C auto-send step
-    python scripts/daily_job.py --no-nlp               # skip NLP text processing step
-    python scripts/daily_job.py --proposal-min-score 80 # generate proposals only for score >= 80
+    python scripts/daily_job.py                          # full run
+    python scripts/daily_job.py --demo-only              # demo clients only
+    python scripts/daily_job.py --dry-run                # detect only, no writes
+    python scripts/daily_job.py --no-proposals           # skip proposals
+    python scripts/daily_job.py --no-auto-send           # skip Tier C
+    python scripts/daily_job.py --no-nlp                 # skip NLP
+    python scripts/daily_job.py --no-churn               # skip churn scan
+    python scripts/daily_job.py --no-follow-ups          # skip follow-up processing
+    python scripts/daily_job.py --proposal-min-score 80  # raise proposal threshold
 """
 
 import argparse
@@ -58,10 +58,12 @@ def run(
     proposal_min_score: float = 70.0,
     auto_send: bool = True,
     process_nlp: bool = True,
+    process_churn: bool = True,
+    process_follow_ups: bool = True,
 ) -> dict:
     start = datetime.now()
     print(f"\n{'='*60}")
-    print(f"  Hidden Opportunities Agent -- Daily Job")
+    print("  Hidden Opportunities Agent -- Daily Job")
     print(f"  {start.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"  Demo mode  : {config.DEMO_MODE}")
     print(f"  Dry run    : {dry_run}")
@@ -162,6 +164,67 @@ def run(
     else:
         print("\n[3d/4] NLP processing disabled (--no-nlp).")
 
+    # ── Step 3e: Churn prevention scan (Feature 3) ───────────────────────────
+    n_churn = 0
+    if process_churn and not dry_run:
+        print("\n[3e/4] Running churn prevention scan…")
+        try:
+            from src.agents.churn_escalation import run_churn_scan
+            churn_results = run_churn_scan()
+            n_churn = len(churn_results)
+            if config.DEMO_MODE:
+                print(f"      [DEMO] {n_churn} churn escalation(s) logged to logs/churn_escalations.jsonl")
+            else:
+                print(f"      {n_churn} churn escalation(s) sent to account managers.")
+        except Exception as exc:
+            print(f"      [WARN] Churn scan failed: {exc}")
+    elif dry_run:
+        print("\n[3e/4] [dry-run] Churn scan skipped.")
+    else:
+        print("\n[3e/4] Churn scan disabled (--no-churn).")
+
+    # ── Step 3f: Process due follow-up sequences (Feature 1) ─────────────────
+    n_follow_ups = 0
+    if process_follow_ups and not dry_run:
+        print("\n[3f/4] Processing due follow-up sequences…")
+        try:
+            from src.agents.follow_up_engine import process_due_follow_ups
+            fu_results = process_due_follow_ups()
+            n_follow_ups = len(fu_results)
+            if config.DEMO_MODE:
+                print(f"      [DEMO] {n_follow_ups} follow-up(s) processed (logged to logs/follow_ups.jsonl)")
+            else:
+                print(f"      {n_follow_ups} follow-up email(s) sent.")
+        except Exception as exc:
+            print(f"      [WARN] Follow-up processing failed: {exc}")
+    elif dry_run:
+        print("\n[3f/4] [dry-run] Follow-ups skipped.")
+    else:
+        print("\n[3f/4] Follow-ups disabled (--no-follow-ups).")
+
+    # ── Step 3g: Update client propensity tiers (Feature 4) ──────────────────
+    if not dry_run:
+        print("\n[3g/4] Updating client propensity tiers…")
+        try:
+            from src.agents.propensity_ranker import update_client_propensity_tiers
+            p_counts = update_client_propensity_tiers()
+            print(f"      Propensity updated — high:{p_counts.get('high',0)} "
+                  f"medium:{p_counts.get('medium',0)} low:{p_counts.get('low',0)}")
+        except Exception as exc:
+            print(f"      [WARN] Propensity update failed: {exc}")
+
+    # ── Step 3h: Analytics snapshot on Fridays (Feature 2) ───────────────────
+    from datetime import datetime as _dt
+    if not dry_run and _dt.now().weekday() == 4:  # Friday
+        print("\n[3h/4] Saving weekly analytics snapshot…")
+        try:
+            from src.agents.analytics_engine import save_analytics_snapshot
+            snap = save_analytics_snapshot()
+            print(f"      Snapshot saved — revenue: ${snap.get('revenue_realized',0):,.0f} "
+                  f"acceptance: {snap.get('acceptance_rate',0):.1f}%")
+        except Exception as exc:
+            print(f"      [WARN] Analytics snapshot failed: {exc}")
+
     # ── Step 4: Summary ───────────────────────────────────────────────────────
     elapsed = (datetime.now() - start).total_seconds()
     summary = {
@@ -180,7 +243,7 @@ def run(
         "dry_run":             dry_run,
     }
 
-    print(f"\n[4/4] Summary")
+    print("\n[4/4] Summary")
     print(f"      Clients scanned        : {summary['clients_scanned']}")
     print(f"      Opportunities found    : {summary['opportunities_found']}")
     print(f"      New in DB              : {summary['new_in_db']}")
@@ -203,6 +266,8 @@ if __name__ == "__main__":
     parser.add_argument("--no-proposals",        action="store_true",  help="Skip proposal generation step.")
     parser.add_argument("--no-auto-send",        action="store_true",  help="Skip Tier C auto-send step.")
     parser.add_argument("--no-nlp",             action="store_true",  help="Skip NLP text processing step.")
+    parser.add_argument("--no-churn",           action="store_true",  help="Skip churn prevention scan.")
+    parser.add_argument("--no-follow-ups",      action="store_true",  help="Skip follow-up sequence processing.")
     parser.add_argument("--proposal-min-score",  type=float, default=70.0,
                         help="Minimum opportunity score to generate a proposal (default: 70).")
     args = parser.parse_args()
@@ -210,8 +275,10 @@ if __name__ == "__main__":
         demo_only          = args.demo_only,
         channel            = args.channel,
         dry_run            = args.dry_run,
-        generate_proposals = not args.no_proposals,
-        proposal_min_score = args.proposal_min_score,
-        auto_send          = not args.no_auto_send,
-        process_nlp        = not args.no_nlp,
+        generate_proposals  = not args.no_proposals,
+        proposal_min_score  = args.proposal_min_score,
+        auto_send           = not args.no_auto_send,
+        process_nlp         = not args.no_nlp,
+        process_churn       = not args.no_churn,
+        process_follow_ups  = not args.no_follow_ups,
     )

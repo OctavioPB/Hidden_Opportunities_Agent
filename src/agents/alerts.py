@@ -13,12 +13,11 @@ PRODUCTION → POSTs to Slack Incoming Webhook or Telegram Bot API.
 
 from __future__ import annotations
 
-import json
 import logging
 from datetime import datetime
-from pathlib import Path
 
 import config
+from src.jsonl import append_jsonl, read_jsonl
 
 logger = logging.getLogger(__name__)
 
@@ -136,7 +135,7 @@ def format_slack_message(opportunity: dict) -> dict:
                     "type": "button",
                     "text": {"type": "plain_text", "text": "View Dashboard"},
                     "style": "primary",
-                    "url": "http://localhost:8501"
+                    "url": config.DASHBOARD_URL
                 },
                 {
                     "type": "button",
@@ -176,7 +175,7 @@ def format_telegram_message(opportunity: dict) -> str:
         f"<b>Suggested Price:</b> ${price:,.0f}\n\n"
         f"<b>Data:</b> {metrics_line}\n\n"
         f"<i>{ratio}</i>\n\n"
-        f"<a href='http://localhost:8501'>View Dashboard</a>"
+        f"<a href='{config.DASHBOARD_URL}'>View Dashboard</a>"
     )
 
 
@@ -184,9 +183,7 @@ def format_telegram_message(opportunity: dict) -> str:
 
 def _log_alert(alert_record: dict) -> None:
     """Append alert to the demo log file (JSONL format)."""
-    log_path = config.LOGS_DIR / "alerts.jsonl"
-    with open(log_path, "a", encoding="utf-8") as f:
-        f.write(json.dumps(alert_record, default=str) + "\n")
+    append_jsonl(config.LOGS_DIR / "alerts.jsonl", alert_record)
 
 
 def _dispatch_real_slack(payload: dict) -> bool:
@@ -269,16 +266,4 @@ def dispatch(opportunities: list[dict], channel: str = "slack") -> list[dict]:
 
 def load_alert_log() -> list[dict]:
     """Load all previously dispatched alerts from the log file."""
-    log_path = config.LOGS_DIR / "alerts.jsonl"
-    if not log_path.exists():
-        return []
-    records = []
-    with open(log_path, encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                try:
-                    records.append(json.loads(line))
-                except json.JSONDecodeError:
-                    pass
-    return records
+    return read_jsonl(config.LOGS_DIR / "alerts.jsonl")
