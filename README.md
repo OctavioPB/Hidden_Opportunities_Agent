@@ -811,3 +811,9 @@ docker run -p 8000:8000 -p 5173:5173 \
 ---
 
 *All client data in this system is synthetic. No real emails, CRM records, WhatsApp messages, or payments are created in demo mode.*
+
+---
+
+## License
+
+Proprietary — all rights reserved. See [LICENSE](LICENSE); use requires prior written approval from the copyright holder.
