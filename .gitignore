@@ -66,3 +66,4 @@ htmlcov/
 # Node / frontend build output
 node_modules/
 frontend/dist/
+coverage.xml
