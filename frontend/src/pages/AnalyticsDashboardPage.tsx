@@ -76,13 +76,13 @@ function RevenueByType({ data }: { data: Summary['by_type'] }) {
         const barH = max > 0 ? Math.max(4, Math.round((d.revenue / max) * (H - PB - PT))) : 4
         const x    = PL + i * (bW + 8) + 4
         const y    = H - PB - barH
-        const colors = ['#003366','#1a4d80','#336699','#4d7099','#99bbdd','#c8982a','#e8c46a']
+        const colors = ['var(--chart-1)','var(--chart-2)','var(--chart-3)','var(--chart-4)','#99bbdd','#c8982a','#e8c46a']
         const col  = colors[i % colors.length]
         return (
           <g key={d.opportunity_type}>
             <rect x={x} y={y} width={bW} height={barH} fill={col} rx={3} opacity={0.85} />
             {d.revenue > 0 && (
-              <text x={x + bW / 2} y={y - 3} textAnchor="middle" fill={col}
+              <text x={x + bW / 2} y={y - 3} textAnchor="middle" fill="var(--dark)"
                     fontSize={8} fontFamily="'Plus Jakarta Sans',sans-serif" fontWeight="700">
                 ${(d.revenue / 1000).toFixed(1)}k
               </text>

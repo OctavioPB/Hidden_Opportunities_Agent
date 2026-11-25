@@ -11,7 +11,7 @@ const SIGNAL_LABELS: Record<string, string> = {
 }
 const SIGNAL_COLORS: Record<string, string> = {
   mentions_price:   '#c8982a',
-  asks_for_results: '#336699',
+  asks_for_results: 'var(--primary-60)',
   churn_risk:       '#e03448',
   urgency_signal:   '#f07020',
   interest_signal:  '#27b97c',
@@ -87,7 +87,7 @@ const COLOR_BORDER: Record<string, string> = {
 function SignalDistributionChart({ counts }: { counts: Record<string, number> }) {
   const data = [
     { label: 'Price Concern',    value: counts.price_mentions   ?? 0, color: '#c8982a' },
-    { label: 'Asks Results',     value: counts.results_queries  ?? 0, color: '#336699' },
+    { label: 'Asks Results',     value: counts.results_queries  ?? 0, color: 'var(--primary-60)' },
     { label: 'Churn Risk',       value: counts.churn_flags      ?? 0, color: '#e03448' },
     { label: 'Urgency',          value: counts.urgency_flags    ?? 0, color: '#f07020' },
     { label: 'Interest',         value: counts.interest_flags   ?? 0, color: '#27b97c' },
@@ -107,7 +107,7 @@ function SignalDistributionChart({ counts }: { counts: Record<string, number> })
           <g key={d.label}>
             <rect x={x} y={y} width={bW} height={barH} fill={d.color} rx={4} opacity={0.83} />
             {d.value > 0 && (
-              <text x={x + bW / 2} y={y - 4} textAnchor="middle" fill="#1c1c2e" fontSize={10} fontFamily="'Plus Jakarta Sans',sans-serif">{d.value}</text>
+              <text x={x + bW / 2} y={y - 4} textAnchor="middle" fill="var(--dark)" fontSize={10} fontFamily="'Plus Jakarta Sans',sans-serif">{d.value}</text>
             )}
             <text x={x + bW / 2} y={H - 8} textAnchor="middle" fill="#9ca3af" fontSize={8} fontFamily="'Plus Jakarta Sans',sans-serif">{d.label}</text>
           </g>
@@ -167,12 +167,12 @@ export default function TextSignalsPage() {
     setScanning(true); setScanMsg(null)
     const res = await api.churn.scan()
     setScanMsg(`${res.escalated} churn escalation(s) processed.`)
-    api.churn.log().then(setChurnLog)
+    api.churn.escalations().then(setChurnLog)
     setScanning(false)
   }
 
   useEffect(() => {
-    if (activeTab === 'Churn') api.churn.log().then(setChurnLog)
+    if (activeTab === 'Churn') api.churn.escalations().then(setChurnLog)
   }, [activeTab])
 
   const tabBtn = (t: string): React.CSSProperties => ({
@@ -333,7 +333,7 @@ export default function TextSignalsPage() {
                             <td style={{ ...td, fontWeight: 600 }}>{clientName}</td>
                             <td style={{ ...td, color: sentimentColor(sentVal) }}>{sentVal != null ? sentVal.toFixed(2) : '—'}</td>
                             <td style={{ ...td, textAlign: 'center', color: s.mentions_price ? '#c8982a' : 'var(--mid)' }}>{bool(s.mentions_price)}</td>
-                            <td style={{ ...td, textAlign: 'center', color: s.asks_for_results ? '#336699' : 'var(--mid)' }}>{bool(s.asks_for_results)}</td>
+                            <td style={{ ...td, textAlign: 'center', color: s.asks_for_results ? 'var(--primary-60)' : 'var(--mid)' }}>{bool(s.asks_for_results)}</td>
                             <td style={{ ...td, textAlign: 'center', color: s.churn_risk ? 'var(--status-red)' : 'var(--mid)', fontWeight: s.churn_risk ? 700 : 400 }}>{bool(s.churn_risk)}</td>
                             <td style={{ ...td, textAlign: 'center', color: s.urgency_signal ? 'var(--status-orange)' : 'var(--mid)' }}>{bool(s.urgency_signal)}</td>
                             <td style={{ ...td, textAlign: 'center', color: s.interest_signal ? 'var(--status-green)' : 'var(--mid)' }}>{bool(s.interest_signal)}</td>
@@ -380,7 +380,7 @@ export default function TextSignalsPage() {
                       </span>
                     </div>
                     <div style={{ fontFamily: 'var(--fb)', fontSize: '0.8em', color: 'var(--mid)', marginBottom: 6 }}>
-                      Account manager: <strong style={{ color: 'var(--primary)' }}>{a.account_manager as string || '—'}</strong>
+                      Account manager: <strong style={{ color: 'var(--primary-text)' }}>{a.account_manager as string || '—'}</strong>
                       &nbsp;·&nbsp; Sentiment: {sentVal != null ? sentVal.toFixed(2) : 'pending'}
                     </div>
                     {snippet && (
@@ -432,7 +432,7 @@ export default function TextSignalsPage() {
                           </span>
                         </div>
                         <div style={{ fontFamily: 'var(--fb)', fontSize: 12, color: 'var(--mid)' }}>
-                          Account manager: <strong style={{ color: 'var(--primary)' }}>{entry.account_manager as string ?? '—'}</strong>
+                          Account manager: <strong style={{ color: 'var(--primary-text)' }}>{entry.account_manager as string ?? '—'}</strong>
                         </div>
                       </div>
                     )

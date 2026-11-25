@@ -12,6 +12,19 @@
   --light:      #f4f6f9;
   --white:      #ffffff;
 
+  /* Navy used as TEXT. --primary stays for backgrounds in both themes. */
+  --primary-text: #003366;
+
+  /* Text on the tinted status badges */
+  --badge-draft-text:    #7a3800;
+  --badge-approved-text: #0d5c3a;
+  --badge-sent-text:     #001f4d;
+  --badge-rejected-text: #7a1020;
+
+  /* Navy series in charts */
+  --chart-1: #003366;  --chart-2: #1a4d80;
+  --chart-3: #336699;  --chart-4: #4d7099;
+
   /* ── Semantic status colours — data signals only, never structural ────── */
   --status-green:    #27b97c;
   --status-red:      #e03448;
@@ -55,6 +68,15 @@ html[data-theme="dark"] {
   --dark:       #e2e8f0;
   --mid:        #8b9099;
   --primary-10: rgba(255,255,255,0.07);
+  --primary-60: #6ea3d6;
+  --primary-text: #9cc4ee;
+  --badge-draft-text:    #ffb27a;
+  --badge-approved-text: #6fe0b0;
+  --badge-sent-text:     #9cc4ee;
+  --badge-rejected-text: #ff8a97;
+  --chart-1: #4a7fb8;  --chart-2: #5f95cc;
+  --chart-3: #76a9da;  --chart-4: #8dbbe6;
+  --status-purple: #a98be0;
   --shadow-card: 0 1px 4px rgba(0,0,0,0.35);
   --shadow-soft: 0 1px 6px rgba(0,0,0,0.30);
 }
@@ -67,6 +89,14 @@ body {
   font-size: 15px;
   line-height: 1.7;
   color: var(--dark);
+}
+
+/* The inline diagrams are drawn for a light surface (white nodes, navy text),
+   so dark mode shows them on a light sheet instead of recolouring them. */
+html[data-theme="dark"] svg.diagram {
+  background: #f4f6f9;
+  border-radius: var(--radius-sm);
+  padding: var(--space-8);
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
