@@ -11,7 +11,7 @@ pandas==2.2.2
 
 # Web UI — Streamlit (legacy, kept for reference)
 streamlit==1.33.0
-plotly==5.22.0
+plotly==7.1.0
 
 # FastAPI backend (React migration)
 fastapi==0.115.5
