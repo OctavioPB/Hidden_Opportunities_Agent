@@ -27,6 +27,10 @@ omit = [
 ]
 
 [tool.coverage.report]
+# CI fails below this. Measured 94% when set; raise it as coverage grows.
+fail_under = 90
+show_missing = true
+skip_covered = true
 exclude_lines = [
     "pragma: no cover",
     "if __name__ == .__main__.:",

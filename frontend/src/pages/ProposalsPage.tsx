@@ -21,11 +21,11 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 const STATUS_COLORS: Record<string, { dot: string; bg: string; text: string }> = {
-  draft:    { dot: '#f07020', bg: 'rgba(240,112,32,0.08)', text: '#7a3800' },
-  approved: { dot: '#27b97c', bg: 'rgba(39,185,124,0.08)', text: '#0d5c3a' },
-  sent:     { dot: '#003366', bg: 'rgba(0,51,102,0.08)',   text: '#001f4d' },
-  rejected: { dot: '#e03448', bg: 'rgba(224,52,72,0.08)', text: '#7a1020' },
-  accepted: { dot: '#27b97c', bg: 'rgba(39,185,124,0.08)', text: '#0d5c3a' },
+  draft:    { dot: '#f07020', bg: 'rgba(240,112,32,0.08)', text: 'var(--badge-draft-text)' },
+  approved: { dot: '#27b97c', bg: 'rgba(39,185,124,0.08)', text: 'var(--badge-approved-text)' },
+  sent:     { dot: 'var(--primary-60)', bg: 'rgba(0,51,102,0.08)',   text: 'var(--badge-sent-text)' },
+  rejected: { dot: '#e03448', bg: 'rgba(224,52,72,0.08)', text: 'var(--badge-rejected-text)' },
+  accepted: { dot: '#27b97c', bg: 'rgba(39,185,124,0.08)', text: 'var(--badge-approved-text)' },
 }
 
 const hero: React.CSSProperties = {
@@ -88,7 +88,7 @@ function ProposalCard({ p, metrics, onRefresh }: { p: Proposal; metrics: Proposa
             {p.client_name}{p.is_demo_scenario ? ' [Demo]' : ''} &nbsp;·&nbsp;
             <span style={{ fontWeight: 400, fontStyle: 'italic', color: 'var(--mid)' }}>{p.industry}</span>
           </div>
-          <div style={{ fontFamily: 'var(--fb)', fontSize: 13, fontWeight: 600, color: 'var(--primary)', marginTop: 2 }}>{label}</div>
+          <div style={{ fontFamily: 'var(--fb)', fontSize: 13, fontWeight: 600, color: 'var(--primary-text)', marginTop: 2 }}>{label}</div>
           <div style={{ marginTop: 6 }}><StatusBadge status={p.status} /></div>
         </div>
         <div style={{ fontFamily: 'var(--fd)', fontSize: 24, fontWeight: 300, color: 'var(--gold)', flexShrink: 0 }}>

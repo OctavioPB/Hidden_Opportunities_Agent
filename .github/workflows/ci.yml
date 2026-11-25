@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+# A newer push to the same branch/PR cancels the run still in progress
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      # Same version as requirements.txt; rules live in pyproject.toml
+      - run: pip install "ruff==0.15.20"
+      - run: ruff check . --output-format github
+
+  backend:
+    name: Backend tests + coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TOKENIZERS_PARALLELISM: "false"
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # CPU-only torch first: the default PyPI wheel bundles CUDA (~2.5 GB)
+          pip install "$(grep '^torch==' requirements.txt)" --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+
+      # data/db and the generated data/synthetic/*.json are not versioned;
+      # several test modules read the seeded database
+      - name: Seed demo database
+        run: python scripts/seed_db.py
+
+      # Fails when total coverage drops below fail_under in pyproject.toml
+      - name: Run tests with coverage
+        run: python -m pytest --cov --cov-report=term-missing --cov-report=xml --junitxml=pytest-report.xml
+
+      - name: Coverage summary
+        if: always()
+        run: |
+          [ -f .coverage ] || exit 0
+          echo "## Backend coverage" >> "$GITHUB_STEP_SUMMARY"
+          python -m coverage report --format=markdown --fail-under=0 >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-reports
+          path: |
+            coverage.xml
+            pytest-report.xml
+          if-no-files-found: ignore
+
+  frontend:
+    name: Frontend tests + build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+
+      # Fails when coverage drops below the thresholds in vite.config.ts
+      - name: Run tests with coverage
+        run: npm run coverage
+
+      # "build" = tsc (strict type-check) && vite build
+      - run: npm run build
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-coverage
+          path: frontend/coverage/
+          if-no-files-found: ignore

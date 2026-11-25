@@ -67,3 +67,4 @@ htmlcov/
 node_modules/
 frontend/dist/
 coverage.xml
+frontend/coverage/

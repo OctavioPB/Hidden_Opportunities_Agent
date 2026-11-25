@@ -232,7 +232,7 @@ export default function PilotPage() {
                     <div style={{ fontFamily: 'var(--fb)', fontSize: 12, color: 'var(--mid)', marginBottom: 8 }}>{opp.rationale}</div>
                     <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
                       <span style={{ fontFamily: 'var(--fd)', fontSize: 20, fontWeight: 300, color: 'var(--gold)' }}>${opp.suggested_price.toLocaleString()}</span>
-                      <span style={{ fontFamily: 'var(--fb)', fontSize: 10, fontWeight: 700, letterSpacing: '1px', background: 'var(--primary-10)', color: 'var(--primary)', padding: '2px 8px', borderRadius: 'var(--radius-pill)' }}>Score {opp.score.toFixed(0)}</span>
+                      <span style={{ fontFamily: 'var(--fb)', fontSize: 10, fontWeight: 700, letterSpacing: '1px', background: 'var(--primary-10)', color: 'var(--primary-text)', padding: '2px 8px', borderRadius: 'var(--radius-pill)' }}>Score {opp.score.toFixed(0)}</span>
                       <span style={{ fontFamily: 'var(--fb)', fontSize: 9, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', background: opp.tier === 'C' ? 'rgba(39,185,124,0.1)' : 'rgba(200,152,42,0.1)', color: opp.tier === 'C' ? '#27b97c' : '#c8982a', padding: '2px 8px', borderRadius: 'var(--radius-pill)' }}>
                         Tier {opp.tier}
                       </span>

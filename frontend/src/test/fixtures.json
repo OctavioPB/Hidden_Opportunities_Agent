@@ -1,0 +1,1157 @@
+{
+ "/opportunities": [
+  {
+   "client_id": "17c96dee-a095-4030-b830-0536f6a75d22",
+   "client_name": "Hunter LLC",
+   "industry": "Tech / SaaS",
+   "opportunity_type": "retargeting_campaign",
+   "label": "Retargeting Campaign",
+   "score": 100,
+   "ml_probability": 0.5871,
+   "blended_score": 100,
+   "suggested_price": 400,
+   "rationale": "Monthly ad spend ~$7,545 with ROAS of 1.0x. No retargeting in place — re-engaging warm audiences typically reduces cost per acquisition by 30–50%.",
+   "triggered_signals": [
+    "high_ad_spend",
+    "weak_roas"
+   ],
+   "is_demo_scenario": 0,
+   "propensity_tier": "medium",
+   "propensity_score": 0.5,
+   "confidence_modifier": 15.0,
+   "seasonal_boost": 1.18
+  },
+  {
+   "client_id": "552b1bef-8ff8-4dce-8a74-e3188dd3e146",
+   "client_name": "Jones Inc",
+   "industry": "Tech / SaaS",
+   "opportunity_type": "retargeting_campaign",
+   "label": "Retargeting Campaign",
+   "score": 100,
+   "ml_probability": 0.6861,
+   "blended_score": 100,
+   "suggested_price": 400,
+   "rationale": "Monthly ad spend ~$3,076 with ROAS of 1.0x. No retargeting in place — re-engaging warm audiences typically reduces cost per acquisition by 30–50%.",
+   "triggered_signals": [
+    "high_ad_spend",
+    "weak_roas"
+   ],
+   "is_demo_scenario": 0,
+   "propensity_tier": "medium",
+   "propensity_score": 0.5,
+   "confidence_modifier": 15.0,
+   "seasonal_boost": 1.18
+  },
+  {
+   "client_id": "cc00ed84-318f-4225-a051-33af363c7f77",
+   "client_name": "Lewis, Perry and Rivera",
+   "industry": "E-commerce",
+   "opportunity_type": "retargeting_campaign",
+   "label": "Retargeting Campaign",
+   "score": 100,
+   "ml_probability": 0.5593,
+   "blended_score": 97.1,
+   "suggested_price": 400,
+   "rationale": "Monthly ad spend ~$5,602 with ROAS of 1.5x. No retargeting in place — re-engaging warm audiences typically reduces cost per acquisition by 30–50%.",
+   "triggered_signals": [
+    "high_ad_spend",
+    "weak_roas"
+   ],
+   "is_demo_scenario": 0,
+   "propensity_tier": "medium",
+   "propensity_score": 0.5,
+   "confidence_modifier": 15.0,
+   "seasonal_boost": 1.18
+  }
+ ],
+ "/opportunities/meta": {
+  "types": [
+   "email_automation",
+   "landing_page_optimization",
+   "reactivation"
+  ],
+  "industries": [
+   "E-commerce",
+   "Fitness / Wellness",
+   "Healthcare"
+  ]
+ },
+ "/seasonal/upcoming": [
+  {
+   "name": "Year-End Planning",
+   "date": "2026-12-01",
+   "days_away": 6,
+   "types": [
+    "email_automation",
+    "reactivation"
+   ],
+   "current_boost": 1.0
+  },
+  {
+   "name": "New Year Kickoff",
+   "date": "2027-01-07",
+   "days_away": 43,
+   "types": [
+    "email_automation",
+    "reactivation",
+    "seo_content"
+   ],
+   "current_boost": 1.15
+  }
+ ],
+ "/alerts": [
+  {
+   "timestamp": "2026-11-25T13:19:01.628234",
+   "client_id": "demo-001",
+   "client_name": "Bella Cucina Restaurant",
+   "opportunity_type": "seo_content",
+   "label": "SEO Content Package",
+   "score": 62.3,
+   "suggested_price": 500,
+   "demo_mode": true
+  },
+  {
+   "timestamp": "2026-11-25T13:19:01.628234",
+   "client_id": "demo-004",
+   "client_name": "MediCare Clinic",
+   "opportunity_type": "email_automation",
+   "label": "Email Automation",
+   "score": 70.0,
+   "suggested_price": 300,
+   "demo_mode": true
+  },
+  {
+   "timestamp": "2026-11-25T13:19:01.628234",
+   "client_id": "demo-002",
+   "client_name": "LexGroup Law Firm",
+   "opportunity_type": "seo_content",
+   "label": "SEO Content Package",
+   "score": 75.0,
+   "suggested_price": 500,
+   "demo_mode": true
+  }
+ ],
+ "/accuracy": {
+  "rows": [
+   {
+    "client": "SunBurst Bakery",
+    "expected": "Conversion Rate Audit, Landing Page Optimization",
+    "detected": "Conversion Rate Audit, Landing Page Optimization",
+    "tp": 2,
+    "fp": 0,
+    "fn": 0,
+    "status": "Perfect"
+   },
+   {
+    "client": "GreenPath Landscaping",
+    "expected": "SEO Content Package",
+    "detected": "SEO Content Package",
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "status": "Perfect"
+   },
+   {
+    "client": "IronEdge Gym",
+    "expected": "Retargeting Campaign",
+    "detected": "Retargeting Campaign",
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "status": "Perfect"
+   }
+  ],
+  "metrics": {
+   "precision": 1.0,
+   "recall": 1.0,
+   "f1": 1.0,
+   "tp": 14,
+   "fp": 0,
+   "fn": 0
+  }
+ },
+ "/proposals": [
+  {
+   "id": "db4567c9-10d6-4e95-969c-5617ece6ccdc",
+   "opportunity_id": "abea4dd3-64f3-49ff-aea7-d8491232eb1f",
+   "client_id": "a401f43e-b441-4ab3-8b10-e5b75be26a39",
+   "subject": "Proposal: Email Marketing Automation for Carr-Mack",
+   "body": "Dear Carr-Mack,\n\nYour subscriber base in Real Estate is a valuable asset that is\ncurrently not generating its full revenue potential.\n\n**What we see in your data:**\n- Current open rate: **14.5%** (industry average: 21%)\n- Opportunity: autom",
+   "suggested_price": 300.0,
+   "status": "rejected",
+   "approved_by": null,
+   "sent_at": null,
+   "created_at": "2026-04-13T11:19:21.677077",
+   "updated_at": "2026-04-13T11:21:55.115636",
+   "client_name": "Carr-Mack",
+   "industry": "Real Estate",
+   "contact_email": "operry@lee.com",
+   "account_manager": "Marcus Chen",
+   "is_demo_scenario": 0,
+   "opportunity_type": "email_automation",
+   "score": 51.5
+  },
+  {
+   "id": "6075d0c8-e45e-404c-8542-9e0f7af1b77e",
+   "opportunity_id": "00ef2d57-50ff-451f-b1a8-989c4f2b510c",
+   "client_id": "7f10bf47-f214-46f1-99bb-6fa321a029b9",
+   "subject": "Proposal: Landing Page Optimization for Contreras PLC",
+   "body": "Dear Contreras PLC,\n\nWe have been monitoring your campaign performance and identified\na concrete opportunity to improve results in the Restaurant sector.\n\n**What we see in your data:**\n- Current CTR: **4.1%** (excellent — your ads are worki",
+   "suggested_price": 350.0,
+   "status": "accepted",
+   "approved_by": null,
+   "sent_at": "2026-05-18T03:15:31.348076",
+   "created_at": "2026-04-13T11:19:21.654096",
+   "updated_at": "2026-04-13T11:19:21.654096",
+   "client_name": "Contreras PLC",
+   "industry": "Restaurant",
+   "contact_email": "sarah12@wilson-rodriguez.net",
+   "account_manager": "Priya Patel",
+   "is_demo_scenario": 0,
+   "opportunity_type": "landing_page_optimization",
+   "score": 57.7
+  },
+  {
+   "id": "5dbfa105-be29-414a-a996-05738a8634e0",
+   "opportunity_id": "b357dc67-a27a-4bbb-8ff7-8ce0d07ec4f8",
+   "client_id": "2663f2c8-99f2-4616-8c49-494f4f0b3675",
+   "subject": "Proposal: Email Marketing Automation for Serrano-Jones",
+   "body": "Dear Serrano-Jones,\n\nYour subscriber base in Real Estate is a valuable asset that is\ncurrently not generating its full revenue potential.\n\n**What we see in your data:**\n- Current open rate: **12.4%** (industry average: 21%)\n- Opportunity: a",
+   "suggested_price": 300.0,
+   "status": "accepted",
+   "approved_by": null,
+   "sent_at": "2026-05-29T03:15:31.348076",
+   "created_at": "2026-04-13T11:19:21.635896",
+   "updated_at": "2026-04-13T11:19:21.635896",
+   "client_name": "Serrano-Jones",
+   "industry": "Real Estate",
+   "contact_email": "lauralarson@morse.com",
+   "account_manager": "Priya Patel",
+   "is_demo_scenario": 0,
+   "opportunity_type": "email_automation",
+   "score": 58.7
+  }
+ ],
+ "/proposals/metrics": {
+  "db4567c9-10d6-4e95-969c-5617ece6ccdc": {
+   "ctr": 0.0445,
+   "bounce_rate": 0.4596,
+   "pages_per_session": 3.71,
+   "conversion_rate": 0.0185,
+   "organic_traffic": 7012,
+   "ad_spend": 3511.5,
+   "roas": 1.74,
+   "email_open_rate": 0.1455,
+   "days_inactive": 42,
+   "keyword_rankings": 43
+  },
+  "6075d0c8-e45e-404c-8542-9e0f7af1b77e": {
+   "ctr": 0.0408,
+   "bounce_rate": 0.7658,
+   "pages_per_session": 1.41,
+   "conversion_rate": 0.0232,
+   "organic_traffic": 3442,
+   "ad_spend": 808.5,
+   "roas": 1.15,
+   "email_open_rate": 0.3223,
+   "days_inactive": 50,
+   "keyword_rankings": 32
+  },
+  "5dbfa105-be29-414a-a996-05738a8634e0": {
+   "ctr": 0.0304,
+   "bounce_rate": 0.513,
+   "pages_per_session": 4.14,
+   "conversion_rate": 0.0143,
+   "organic_traffic": 1832,
+   "ad_spend": 1462.8,
+   "roas": 1.36,
+   "email_open_rate": 0.1239,
+   "days_inactive": 31,
+   "keyword_rankings": 77
+  }
+ },
+ "/clients": [
+  {
+   "id": "6f52c294-2671-4499-b52b-9bc36108a715",
+   "name": "Adkins, Thompson and Carroll",
+   "industry": "Tech / SaaS",
+   "company_size": "small",
+   "account_age_days": 581,
+   "monthly_spend": 2038.37,
+   "contact_email": "akelley@mitchell-jordan.org",
+   "account_manager": "Priya Patel",
+   "is_demo_scenario": 0,
+   "created_at": "2026-04-10 05:59:50",
+   "propensity_score": null,
+   "propensity_tier": null,
+   "propensity_updated_at": null,
+   "whatsapp_number": null,
+   "whatsapp_opted_in": 0,
+   "preferred_channel": "email",
+   "crm_contact_id": null,
+   "crm_deal_id": null
+  },
+  {
+   "id": "2f4f98c0-13ea-4111-962f-743ecce69217",
+   "name": "Adkins, Thompson and Carroll",
+   "industry": "Tech / SaaS",
+   "company_size": "small",
+   "account_age_days": 581,
+   "monthly_spend": 2038.37,
+   "contact_email": "akelley@mitchell-jordan.org",
+   "account_manager": "Priya Patel",
+   "is_demo_scenario": 0,
+   "created_at": "2026-05-30 03:09:08",
+   "propensity_score": null,
+   "propensity_tier": null,
+   "propensity_updated_at": null,
+   "whatsapp_number": null,
+   "whatsapp_opted_in": 0,
+   "preferred_channel": "email",
+   "crm_contact_id": null,
+   "crm_deal_id": null
+  },
+  {
+   "id": "d70707f5-dae7-4020-9378-ce460477cf83",
+   "name": "Anderson-Marshall",
+   "industry": "Healthcare",
+   "company_size": "large",
+   "account_age_days": 794,
+   "monthly_spend": 2282.66,
+   "contact_email": "stephanie79@mcclain.info",
+   "account_manager": "Marcus Chen",
+   "is_demo_scenario": 0,
+   "created_at": "2026-04-10 05:59:50",
+   "propensity_score": null,
+   "propensity_tier": null,
+   "propensity_updated_at": null,
+   "whatsapp_number": null,
+   "whatsapp_opted_in": 0,
+   "preferred_channel": "email",
+   "crm_contact_id": null,
+   "crm_deal_id": null
+  }
+ ],
+ "/pilot/metrics": {
+  "total_opportunities": 112,
+  "proposals_generated": 111,
+  "proposals_sent": 94,
+  "autonomous_sent": 0,
+  "approved_sent": 94,
+  "proposals_accepted": 43,
+  "proposals_rejected": 19,
+  "escalations": 0,
+  "acceptance_rate_pct": 45.7,
+  "total_revenue": 10143.36,
+  "by_type": [
+   {
+    "opportunity_type": "reactivation",
+    "cnt": 79,
+    "accepted": 28
+   },
+   {
+    "opportunity_type": "retargeting_campaign",
+    "cnt": 22,
+    "accepted": 12
+   },
+   {
+    "opportunity_type": "seo_content",
+    "cnt": 5,
+    "accepted": 0
+   }
+  ],
+  "time_saved_hours": 33.3
+ },
+ "/pilot/sent-log": [],
+ "/pilot/feedback-log": {
+  "feedback": [
+   {
+    "timestamp": "2026-11-25T13:19:01.520737",
+    "proposal_id": "74a48c03-7d52-4e56-b934-01e768480be2",
+    "client_id": "e60b5a98-adf5-4ceb-ada3-595111183064",
+    "client_name": "Stone-Ramos",
+    "opportunity_type": "retargeting_campaign",
+    "intent": "ignored",
+    "revenue": 0.0,
+    "confidence_delta": -10.0,
+    "notes": "",
+    "actions_taken": [
+     "Scheduled 2 follow-up(s)"
+    ],
+    "simulated": true
+   },
+   {
+    "timestamp": "2026-11-25T13:19:01.503053",
+    "proposal_id": "93f98a3e-dd43-4c89-b865-5ecdf556b813",
+    "client_id": "63e44628-121b-4539-bf5f-25177835e3cc",
+    "client_name": "James, Smith and Bell",
+    "opportunity_type": "seo_content",
+    "intent": "too_expensive",
+    "revenue": 0.0,
+    "confidence_delta": -8.0,
+    "notes": "[DEMO] Client indicated the price is too high.",
+    "actions_taken": [
+     "Negotiation started, turn 1 offer: $450"
+    ],
+    "simulated": true
+   }
+  ],
+  "calendars": [],
+  "escalations": [],
+  "intent_labels": {
+   "accepted": "Yes — accepted the proposal",
+   "rejected": "No — not interested",
+   "too_expensive": "Too expensive",
+   "need_more_info": "Needs more information",
+   "ignored": "No reply (ignored)",
+   "escalated": "Complaint / escalation needed"
+  },
+  "all_intents": [
+   "accepted",
+   "rejected",
+   "too_expensive"
+  ]
+ },
+ "/pilot/auto-queue": {
+  "approved_pending_send": 0,
+  "by_tier": {
+   "A": 0,
+   "B": 0,
+   "C": 0
+  }
+ },
+ "/ml/status": {
+  "is_trained": true,
+  "metadata": {
+   "trained_at": "2026-11-16T19:36:35.262420",
+   "n_samples": 2620,
+   "n_features": 18,
+   "feature_names": [
+    "ctr",
+    "bounce_rate",
+    "pages_per_session"
+   ],
+   "cv_folds": 5,
+   "rf_params": {
+    "n_estimators": 200,
+    "max_depth": 8,
+    "min_samples_leaf": 5,
+    "class_weight": "balanced",
+    "random_state": 42,
+    "n_jobs": -1
+   },
+   "metrics": {
+    "auc_roc": 0.7212,
+    "avg_precision": 0.561,
+    "precision": 0.5238,
+    "recall": 0.4559,
+    "f1": 0.4875
+   },
+   "_production_note": "Production: model is retrained nightly if â‰¥ 10 new feedback rows since last training run. Artifact stored in S3 (versioned). Inference uses the latest artifact; rollback is available via METADATA_PATH â†’ trained_at timestamp."
+  }
+ },
+ "/ml/predictions": [
+  {
+   "client_id": "17c96dee-a095-4030-b830-0536f6a75d22",
+   "client_name": "Hunter LLC",
+   "industry": "Tech / SaaS",
+   "opportunity_type": "retargeting_campaign",
+   "rule_score": 94.6,
+   "ml_probability": 0.5871,
+   "blended_score": 74.9,
+   "is_demo_scenario": 0,
+   "explanation": {
+    "probability": 0.5871,
+    "top_features": [
+     {
+      "name": "ad_spend_monthly",
+      "label": "Monthly Ad Spend",
+      "shap_value": 0.0706,
+      "value": 7544.7,
+      "direction": "higher → retargeting/upsell opportunity",
+      "positive": true
+     },
+     {
+      "name": "roas",
+      "label": "ROAS",
+      "shap_value": 0.0678,
+      "value": 1.01,
+      "direction": "context-dependent",
+      "positive": true
+     },
+     {
+      "name": "opportunity_type_code",
+      "label": "Opportunity Type",
+      "shap_value": 0.0494,
+      "value": 2.0,
+      "direction": "categorical",
+      "positive": true
+     }
+    ],
+    "narrative": "Acceptance probability: 59%. Strong signals: Monthly Ad Spend, ROAS, Opportunity Type. Risk factors: Asks for Results/ROI.",
+    "shap_available": true
+   },
+   "suggested_price": 400,
+   "rationale": "Monthly ad spend ~$7,545 with ROAS of 1.0x. No retargeting in place — re-engaging warm audiences typically reduces cost per acquisition by 30–50%."
+  },
+  {
+   "client_id": "cc5d2857-6151-4a28-890e-264c306b5bc3",
+   "client_name": "Hunter LLC",
+   "industry": "Tech / SaaS",
+   "opportunity_type": "retargeting_campaign",
+   "rule_score": 94.6,
+   "ml_probability": 0.5871,
+   "blended_score": 74.9,
+   "is_demo_scenario": 0,
+   "explanation": {
+    "probability": 0.5871,
+    "top_features": [
+     {
+      "name": "ad_spend_monthly",
+      "label": "Monthly Ad Spend",
+      "shap_value": 0.0706,
+      "value": 7544.7,
+      "direction": "higher → retargeting/upsell opportunity",
+      "positive": true
+     },
+     {
+      "name": "roas",
+      "label": "ROAS",
+      "shap_value": 0.0678,
+      "value": 1.01,
+      "direction": "context-dependent",
+      "positive": true
+     },
+     {
+      "name": "opportunity_type_code",
+      "label": "Opportunity Type",
+      "shap_value": 0.0494,
+      "value": 2.0,
+      "direction": "categorical",
+      "positive": true
+     }
+    ],
+    "narrative": "Acceptance probability: 59%. Strong signals: Monthly Ad Spend, ROAS, Opportunity Type. Risk factors: Asks for Results/ROI.",
+    "shap_available": true
+   },
+   "suggested_price": 400,
+   "rationale": "Monthly ad spend ~$7,545 with ROAS of 1.0x. No retargeting in place — re-engaging warm audiences typically reduces cost per acquisition by 30–50%."
+  },
+  {
+   "client_id": "552b1bef-8ff8-4dce-8a74-e3188dd3e146",
+   "client_name": "Jones Inc",
+   "industry": "Tech / SaaS",
+   "opportunity_type": "retargeting_campaign",
+   "rule_score": 72.1,
+   "ml_probability": 0.6861,
+   "blended_score": 70.2,
+   "is_demo_scenario": 0,
+   "explanation": {
+    "probability": 0.6861,
+    "top_features": [
+     {
+      "name": "roas",
+      "label": "ROAS",
+      "shap_value": 0.0802,
+      "value": 1.04,
+      "direction": "context-dependent",
+      "positive": true
+     },
+     {
+      "name": "ad_spend_monthly",
+      "label": "Monthly Ad Spend",
+      "shap_value": 0.0652,
+      "value": 3076.2,
+      "direction": "higher → retargeting/upsell opportunity",
+      "positive": true
+     },
+     {
+      "name": "opportunity_type_code",
+      "label": "Opportunity Type",
+      "shap_value": 0.0527,
+      "value": 2.0,
+      "direction": "categorical",
+      "positive": true
+     }
+    ],
+    "narrative": "Acceptance probability: 69%. Strong signals: ROAS, Monthly Ad Spend, Opportunity Type. Risk factors: Mentions Price/Budget.",
+    "shap_available": true
+   },
+   "suggested_price": 400,
+   "rationale": "Monthly ad spend ~$3,076 with ROAS of 1.0x. No retargeting in place — re-engaging warm audiences typically reduces cost per acquisition by 30–50%."
+  }
+ ],
+ "/ml/feature-importance": [
+  {
+   "name": "opportunity_type_code",
+   "label": "Opportunity Type",
+   "importance": 0.14017
+  },
+  {
+   "name": "sentiment_score",
+   "label": "Email Sentiment",
+   "importance": 0.078657
+  },
+  {
+   "name": "ad_spend_monthly",
+   "label": "Monthly Ad Spend",
+   "importance": 0.077071
+  }
+ ],
+ "/ml/summary": {
+  "model_trained": true,
+  "total_predictions": 0,
+  "high_prob_count": 0,
+  "avg_ml_probability": null
+ },
+ "/ml/history": [
+  {
+   "trained_at": "2026-04-13T00:29:25.258684",
+   "n_samples": 2380,
+   "metrics": {
+    "auc_roc": 0.587,
+    "avg_precision": 0.2365,
+    "precision": 0.2425,
+    "recall": 0.2533,
+    "f1": 0.2478
+   }
+  },
+  {
+   "trained_at": "2026-04-14T09:17:55.504994",
+   "n_samples": 2384,
+   "metrics": {
+    "auc_roc": 0.6007,
+    "avg_precision": 0.2458,
+    "precision": 0.2558,
+    "recall": 0.2611,
+    "f1": 0.2584
+   }
+  },
+  {
+   "trained_at": "2026-05-29T20:44:59.558335",
+   "n_samples": 2620,
+   "metrics": {
+    "auc_roc": 0.7212,
+    "avg_precision": 0.561,
+    "precision": 0.5238,
+    "recall": 0.4559,
+    "f1": 0.4875
+   }
+  }
+ ],
+ "/text-signals/summary": {
+  "total_signals": 1144,
+  "processed": 572,
+  "unprocessed": 572,
+  "churn_count": 52,
+  "urgency_count": 0,
+  "price_mentions_clients": 70,
+  "counts_by_type": {
+   "total": 572,
+   "price_mentions": 140,
+   "results_queries": 183,
+   "churn_flags": 52,
+   "urgency_flags": 0,
+   "interest_flags": 96
+  }
+ },
+ "/text-signals/all-summaries": [
+  {
+   "client_id": "014533c8-a943-49a1-84f8-b89b8062323b",
+   "sentiment_score": 0.0,
+   "mentions_price": 0,
+   "asks_for_results": 0,
+   "churn_risk": 0,
+   "urgency_signal": 0,
+   "interest_signal": 0,
+   "n_signals": 0
+  },
+  {
+   "client_id": "0494e35a-9d3a-4d2e-8255-7f0a4e192451",
+   "sentiment_score": 0.598,
+   "mentions_price": 0,
+   "asks_for_results": 1,
+   "churn_risk": 1,
+   "urgency_signal": 0,
+   "interest_signal": 1,
+   "n_signals": 6
+  },
+  {
+   "client_id": "05f57046-ceb3-48f0-8585-a6ad708bfc0d",
+   "sentiment_score": 0.0,
+   "mentions_price": 0,
+   "asks_for_results": 0,
+   "churn_risk": 0,
+   "urgency_signal": 0,
+   "interest_signal": 0,
+   "n_signals": 0
+  }
+ ],
+ "/text-signals/urgency": [
+  {
+   "client_id": "6f52c294-2671-4499-b52b-9bc36108a715",
+   "client_name": "Adkins, Thompson and Carroll",
+   "account_manager": "Priya Patel",
+   "industry": "Tech / SaaS",
+   "churn_risk": 1,
+   "urgency_signal": 0,
+   "avg_sentiment": 0.0,
+   "combined_text": "If things don't improve in the next few weeks, we'll probably need to reconsider."
+  },
+  {
+   "client_id": "demo-001",
+   "client_name": "Bella Cucina Restaurant",
+   "account_manager": "Sofia Reyes",
+   "industry": "Restaurant",
+   "churn_risk": 1,
+   "urgency_signal": 0,
+   "avg_sentiment": 0.0,
+   "combined_text": "I haven't heard from anyone in over a month. Starting to wonder if this partnership is worth continuing. ||| Client flagged that a competitor is offering similar services for less. Asked us to match."
+  },
+  {
+   "client_id": "272fc38a-53c6-4148-b6d8-fd485a60422a",
+   "client_name": "Brown-Stone",
+   "account_manager": "Priya Patel",
+   "industry": "Restaurant",
+   "churn_risk": 1,
+   "urgency_signal": 0,
+   "avg_sentiment": 0.0,
+   "combined_text": "Client flagged that a competitor is offering similar services for less. Asked us to match."
+  }
+ ],
+ "/negotiations/summary": {
+  "total_negotiations": 2,
+  "active": 2,
+  "accepted": 0,
+  "rejected": 0,
+  "escalated": 0,
+  "auto_resolution_rate": 0.0
+ },
+ "/negotiations/active": [
+  {
+   "proposal_id": "93f98a3e-dd43-4c89-b865-5ecdf556b813",
+   "client_id": "63e44628-121b-4539-bf5f-25177835e3cc",
+   "suggested_price": 500.0,
+   "proposal_status": "sent",
+   "client_name": "James, Smith and Bell",
+   "account_manager": "Sofia Reyes",
+   "industry": "Law Firm",
+   "opportunity_type": "seo_content",
+   "score": 59.3,
+   "turn_count": 1,
+   "last_activity": "2026-11-25 21:19:01"
+  },
+  {
+   "proposal_id": "db4567c9-10d6-4e95-969c-5617ece6ccdc",
+   "client_id": "a401f43e-b441-4ab3-8b10-e5b75be26a39",
+   "suggested_price": 300.0,
+   "proposal_status": "rejected",
+   "client_name": "Carr-Mack",
+   "account_manager": "Marcus Chen",
+   "industry": "Real Estate",
+   "opportunity_type": "email_automation",
+   "score": 51.5,
+   "turn_count": 1,
+   "last_activity": "2026-04-13 18:21:55"
+  }
+ ],
+ "/negotiations/history": [
+  {
+   "proposal_id": "93f98a3e-dd43-4c89-b865-5ecdf556b813",
+   "turn": 1,
+   "role": "agent",
+   "message": "Dear James, Smith and Bell,\n\nWe completely understand that budget is a key factor in your decision,\nand we want to do everything we can to find a point that works for both sides.\n\nAs a sign of our commitment to your success in Law Firm, we ",
+   "intent": null,
+   "offer_price": 450.0,
+   "timestamp": "2026-11-25 21:19:01",
+   "client_name": "James, Smith and Bell",
+   "opportunity_type": "seo_content"
+  },
+  {
+   "proposal_id": "db4567c9-10d6-4e95-969c-5617ece6ccdc",
+   "turn": 1,
+   "role": "agent",
+   "message": "Dear Carr-Mack,\n\nWe completely understand that budget is a key factor in your decision,\nand we want to do everything we can to find a point that works for both sides.\n\nAs a sign of our commitment to your success in Real Estate, we are pleas",
+   "intent": null,
+   "offer_price": 270.0,
+   "timestamp": "2026-04-13 18:21:55",
+   "client_name": "Carr-Mack",
+   "opportunity_type": "email_automation"
+  }
+ ],
+ "/payment-links": [],
+ "/follow-ups": [
+  {
+   "id": "cd21f2f3-94bb-49be-ba60-cb3af4b178f4",
+   "proposal_id": "74a48c03-7d52-4e56-b934-01e768480be2",
+   "client_id": "e60b5a98-adf5-4ceb-ada3-595111183064",
+   "sequence_turn": 1,
+   "scheduled_at": "2026-12-02T13:19:01.526438",
+   "status": "pending",
+   "angle": "roi_focus",
+   "subject": "Re: A quick ROI perspective on Retargeting Campaign",
+   "body": "Hi,\n\nI wanted to follow up on the proposal I sent recently. Many clients in your industry see a measurable return within the first 30 days — I'd love to walk you through a quick before/after scenario specific to your numbers.\n\nOriginal prop",
+   "sent_at": null,
+   "created_at": "2026-11-25 21:19:01",
+   "client_name": "Stone-Ramos"
+  },
+  {
+   "id": "3e28563f-a0ff-4d45-b60f-d422c7e0b84f",
+   "proposal_id": "74a48c03-7d52-4e56-b934-01e768480be2",
+   "client_id": "e60b5a98-adf5-4ceb-ada3-595111183064",
+   "sequence_turn": 2,
+   "scheduled_at": "2026-12-09T13:19:01.526438",
+   "status": "pending",
+   "angle": "final_reminder",
+   "subject": "Last note on Retargeting Campaign",
+   "body": "Hi,\n\nI know things get busy. This will be my last note on this topic — if the timing isn't right I completely understand. The offer stands whenever you're ready to revisit it.\n\nOriginal proposal: Retargeting Campaign — $400\n\nHappy to jump o",
+   "sent_at": null,
+   "created_at": "2026-11-25 21:19:01",
+   "client_name": "Stone-Ramos"
+  }
+ ],
+ "/crm/log": [],
+ "/churn/log": [
+  {
+   "escalation_id": "57704576-d03a-47b8-8452-1df4f7677ffb",
+   "timestamp": "2026-11-25T13:19:01.833481",
+   "client_id": "fea57283-91b6-416c-ae70-3e009d4b7302",
+   "client_name": "Lam-Hayes",
+   "account_manager": "Marcus Chen",
+   "signal": "churn_risk",
+   "avg_sentiment": 0.0,
+   "snippet": "If things don't improve in the next few weeks, we'll probably need to reconsider.",
+   "draft_body": "Hi Lam-Hayes,\n\nI wanted to personally check in and make sure everything is going well with the work we're doing together.\n\nWould you have 15 minutes this week for a quick call? I'd love to hear how things are going from your side and see if",
+   "message_to_manager": "⚠️ CHURN RISK: Lam-Hayes — churn risk. Sentiment: 0.00. Latest: \"If things don't improve in the next few weeks, we'll probably need to reconsider.\"  |  Please reach out within 24 hours.",
+   "demo_mode": true,
+   "_production": "Production: POST to Slack with account manager @mention + 'Mark as handled' button."
+  },
+  {
+   "escalation_id": "38bea2c7-b7b0-40ef-b1d8-66d2047ec431",
+   "timestamp": "2026-11-25T13:19:01.827426",
+   "client_id": "fbf59563-0a66-47b2-9215-a1835d2f4467",
+   "client_name": "Vaughn, Burton and Garcia",
+   "account_manager": "Sofia Reyes",
+   "signal": "churn_risk",
+   "avg_sentiment": 0.0,
+   "snippet": "Client flagged that a competitor is offering similar services for less. Asked us to match.",
+   "draft_body": "Hi Vaughn, Burton and Garcia,\n\nI wanted to personally check in and make sure everything is going well with the work we're doing together.\n\nWould you have 15 minutes this week for a quick call? I'd love to hear how things are going from your",
+   "message_to_manager": "⚠️ CHURN RISK: Vaughn, Burton and Garcia — churn risk. Sentiment: 0.00. Latest: \"Client flagged that a competitor is offering similar services for less. Asked us to match.\"  |  Please reach out within 24 hours.",
+   "demo_mode": true,
+   "_production": "Production: POST to Slack with account manager @mention + 'Mark as handled' button."
+  },
+  {
+   "escalation_id": "16ccb3b1-2414-4ae2-8458-9ac9539bd6fd",
+   "timestamp": "2026-11-25T13:19:01.822890",
+   "client_id": "f782c90c-fc80-40c4-a30f-048ea4f12dfe",
+   "client_name": "Mcguire-Davis",
+   "account_manager": "Sofia Reyes",
+   "signal": "churn_risk",
+   "avg_sentiment": 0.0,
+   "snippet": "If things don't improve in the next few weeks, we'll probably need to reconsider.",
+   "draft_body": "Hi Mcguire-Davis,\n\nI wanted to personally check in and make sure everything is going well with the work we're doing together.\n\nWould you have 15 minutes this week for a quick call? I'd love to hear how things are going from your side and se",
+   "message_to_manager": "⚠️ CHURN RISK: Mcguire-Davis — churn risk. Sentiment: 0.00. Latest: \"If things don't improve in the next few weeks, we'll probably need to reconsider.\"  |  Please reach out within 24 hours.",
+   "demo_mode": true,
+   "_production": "Production: POST to Slack with account manager @mention + 'Mark as handled' button."
+  }
+ ],
+ "/analytics/summary": {
+  "period_days": 30,
+  "pipeline_value": 0.0,
+  "revenue_realized": 0.0,
+  "roi_pct": 0.0,
+  "proposals_generated": 0,
+  "proposals_sent": 0,
+  "proposals_accepted": 0,
+  "proposals_ignored": 1,
+  "proposals_rejected": 1,
+  "escalations": 0,
+  "acceptance_rate": 0.0,
+  "clients_reached": 0,
+  "follow_ups_sent": 0,
+  "time_saved_hours": 0.0,
+  "by_type": [],
+  "weekly_trend": [
+   {
+    "week_start": "2026-09-30",
+    "sent": 0,
+    "accepted": 0,
+    "acceptance_rate": 0.0,
+    "revenue": 0.0
+   },
+   {
+    "week_start": "2026-10-07",
+    "sent": 0,
+    "accepted": 0,
+    "acceptance_rate": 0.0,
+    "revenue": 0.0
+   },
+   {
+    "week_start": "2026-10-14",
+    "sent": 0,
+    "accepted": 0,
+    "acceptance_rate": 0.0,
+    "revenue": 0.0
+   }
+  ]
+ },
+ "/clients/:id/detail": {
+  "client": {
+   "id": "demo-001",
+   "name": "Bella Cucina Restaurant",
+   "industry": "Restaurant",
+   "company_size": "large",
+   "account_age_days": 107,
+   "monthly_spend": 826.65,
+   "contact_email": "johnsonjoshua@taylor.net",
+   "account_manager": "Sofia Reyes",
+   "is_demo_scenario": 1,
+   "created_at": "2026-05-30 03:09:08",
+   "propensity_score": null,
+   "propensity_tier": null,
+   "propensity_updated_at": null,
+   "whatsapp_number": null,
+   "whatsapp_opted_in": 0,
+   "preferred_channel": "email",
+   "crm_contact_id": null,
+   "crm_deal_id": null
+  },
+  "metrics": {
+   "bounce_rate": 0.78,
+   "pages_per_session": 1.4,
+   "conversion_rate": 0.013,
+   "organic_traffic": 3189,
+   "ctr": 0.052,
+   "cpc": 1.64,
+   "roas": 3.98,
+   "ad_spend": 32.95,
+   "email_open_rate": 0.2532,
+   "email_click_rate": 0.0361,
+   "keyword_rankings": 15,
+   "id": "demo-001",
+   "account_age_days": 107,
+   "monthly_spend": 826.65,
+   "days_inactive": 5,
+   "days_since_last_contact": 5
+  },
+  "opportunities": [
+   {
+    "client_id": "demo-001",
+    "client_name": "Bella Cucina Restaurant",
+    "industry": "Restaurant",
+    "opportunity_type": "landing_page_optimization",
+    "label": "Landing Page Optimization",
+    "score": 79.3,
+    "ml_probability": 0.4421,
+    "blended_score": 68.3,
+    "suggested_price": 350,
+    "rationale": "CTR is 5.2% (>4%) but bounce rate is 78% and visitors view only 1.4 pages. Strong ad traffic is not converting — the landing page is the bottleneck.",
+    "triggered_signals": [
+     "high_ctr",
+     "high_bounce",
+     "low_pages_per_session"
+    ],
+    "is_demo_scenario": 1,
+    "propensity_tier": "medium",
+    "propensity_score": 0.5,
+    "confidence_modifier": 15.0,
+    "seasonal_boost": 1.0
+   },
+   {
+    "client_id": "demo-001",
+    "client_name": "Bella Cucina Restaurant",
+    "industry": "Restaurant",
+    "opportunity_type": "seo_content",
+    "label": "SEO Content Package",
+    "score": 62.3,
+    "ml_probability": 0.4197,
+    "blended_score": 51.1,
+    "suggested_price": 500,
+    "rationale": "Organic traffic is 3,189/month with only 15 keyword rankings and 1.3% conversion. A structured content strategy could capture high-intent searches currently going to competitors.",
+    "triggered_signals": [
+     "medium_organic_traffic",
+     "weak_keyword_coverage",
+     "low_conversion"
+    ],
+    "is_demo_scenario": 1,
+    "propensity_tier": "medium",
+    "propensity_score": 0.5,
+    "seasonal_boost": 1.0
+   }
+  ],
+  "signals_summary": {
+   "sentiment_score": 0.0,
+   "mentions_price": 1,
+   "asks_for_results": 1,
+   "churn_risk": 1,
+   "urgency_signal": 0,
+   "interest_signal": 1,
+   "n_signals": 6
+  },
+  "signals": [
+   {
+    "id": 573,
+    "source": "email",
+    "raw_text": "Between us, the board is asking me to cut the marketing budget by 20%. Let's talk options.",
+    "sentiment": null,
+    "mentions_price": 0,
+    "asks_for_results": 0,
+    "churn_risk": 0,
+    "urgency_signal": 0,
+    "interest_signal": 0,
+    "processed_at": "2026-05-30 03:09:08"
+   },
+   {
+    "id": 574,
+    "source": "email",
+    "raw_text": "I haven't heard from anyone in over a month. Starting to wonder if this partnership is worth continuing.",
+    "sentiment": null,
+    "mentions_price": 0,
+    "asks_for_results": 0,
+    "churn_risk": 0,
+    "urgency_signal": 0,
+    "interest_signal": 0,
+    "processed_at": "2026-05-30 03:09:08"
+   },
+   {
+    "id": 575,
+    "source": "email",
+    "raw_text": "Hey, can you send over some case studies? I want to show the team what results we can expect.",
+    "sentiment": null,
+    "mentions_price": 0,
+    "asks_for_results": 0,
+    "churn_risk": 0,
+    "urgency_signal": 0,
+    "interest_signal": 0,
+    "processed_at": "2026-05-30 03:09:08"
+   }
+  ],
+  "proposals": [
+   {
+    "id": "533a2eff-bdd5-4525-aadf-46f7e7946025",
+    "opportunity_type": "landing_page_optimization",
+    "subject": "Proposal: Landing Page Optimization for Bella Cucina Restaurant",
+    "status": "accepted",
+    "suggested_price": 350.0,
+    "sent_at": "2026-05-16T03:15:31.348076",
+    "payment_link": null
+   },
+   {
+    "id": "6378fa4c-4711-4232-9a22-535940839e70",
+    "opportunity_type": "seo_content",
+    "subject": "Proposal: SEO Content Strategy for Bella Cucina Restaurant",
+    "status": "sent",
+    "suggested_price": 500.0,
+    "sent_at": "2026-05-03T03:15:31.348076",
+    "payment_link": null
+   }
+  ],
+  "feedback": [
+   {
+    "outcome": "accepted",
+    "revenue": 395.79,
+    "notes": "Client approved — demo",
+    "logged_at": "2026-05-16T03:15:31.348076"
+   }
+  ]
+ },
+ "/text-signals/client/:id": {
+  "signals": [
+   {
+    "id": 573,
+    "source": "email",
+    "raw_text": "Between us, the board is asking me to cut the marketing budget by 20%. Let's talk options.",
+    "sentiment": null,
+    "mentions_price": 0,
+    "asks_for_results": 0,
+    "churn_risk": 0,
+    "urgency_signal": 0,
+    "interest_signal": 0,
+    "processed_at": "2026-05-30 03:09:08"
+   },
+   {
+    "id": 574,
+    "source": "email",
+    "raw_text": "I haven't heard from anyone in over a month. Starting to wonder if this partnership is worth continuing.",
+    "sentiment": null,
+    "mentions_price": 0,
+    "asks_for_results": 0,
+    "churn_risk": 0,
+    "urgency_signal": 0,
+    "interest_signal": 0,
+    "processed_at": "2026-05-30 03:09:08"
+   },
+   {
+    "id": 575,
+    "source": "email",
+    "raw_text": "Hey, can you send over some case studies? I want to show the team what results we can expect.",
+    "sentiment": null,
+    "mentions_price": 0,
+    "asks_for_results": 0,
+    "churn_risk": 0,
+    "urgency_signal": 0,
+    "interest_signal": 0,
+    "processed_at": "2026-05-30 03:09:08"
+   }
+  ],
+  "summary": {
+   "sentiment_score": 0.0,
+   "mentions_price": 1,
+   "asks_for_results": 1,
+   "churn_risk": 1,
+   "urgency_signal": 0,
+   "interest_signal": 1,
+   "n_signals": 6
+  }
+ },
+ "/negotiations/:id/thread": [
+  {
+   "id": 5,
+   "proposal_id": "93f98a3e-dd43-4c89-b865-5ecdf556b813",
+   "turn": 1,
+   "role": "agent",
+   "message": "Dear James, Smith and Bell,\n\nWe completely understand that budget is a key factor in your decision,\nand we want to do everything we can to find a point that works for both sides.\n\nAs a sign of our commitment to your success in Law Firm, we ",
+   "intent": null,
+   "offer_price": 450.0,
+   "timestamp": "2026-11-25 21:19:01"
+  }
+ ],
+ "/churn/escalations": [
+  {
+   "id": "7a1c2142-e583-4e50-b6f6-d876e121776a",
+   "client_id": "ffcfc3c8-6ef8-4833-b08c-523e4bf6a1e4",
+   "account_manager": "Priya Patel",
+   "churn_signal": "churn_risk",
+   "escalated_at": "2026-11-25T13:29:48.853090",
+   "proposal_id": null,
+   "slack_sent": 0,
+   "email_draft_id": null,
+   "client_name": "Ward LLC",
+   "industry": "Fitness / Wellness"
+  },
+  {
+   "id": "3c7ad47f-6250-4f71-9ea5-5b24e5b3cf4c",
+   "client_id": "f44796be-172b-4911-8ab1-b27c4018da5c",
+   "account_manager": "Sofia Reyes",
+   "churn_signal": "churn_risk",
+   "escalated_at": "2026-11-25T13:29:48.847043",
+   "proposal_id": null,
+   "slack_sent": 0,
+   "email_draft_id": null,
+   "client_name": "Phillips Inc",
+   "industry": "Healthcare"
+  },
+  {
+   "id": "1b9ed7bd-6424-4fa0-b5af-4b81ba420ae4",
+   "client_id": "e916e6b0-eff3-4a42-bf90-c0e3fa7453ba",
+   "account_manager": "Sofia Reyes",
+   "churn_signal": "churn_risk",
+   "escalated_at": "2026-11-25T13:29:48.842915",
+   "proposal_id": null,
+   "slack_sent": 0,
+   "email_draft_id": null,
+   "client_name": "Miller, Allen and Arnold",
+   "industry": "Real Estate"
+  }
+ ]
+}

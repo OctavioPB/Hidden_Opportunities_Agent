@@ -74,7 +74,7 @@ function AgentWorkflowDiagram() {
   }
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block', maxHeight: 340 }}>
+    <svg className="diagram" viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block', maxHeight: 340 }}>
       <defs>
         <marker id="arrow-gold" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
           <polygon points="0 0, 8 3, 0 6" fill={C.gold} />
@@ -148,7 +148,7 @@ function ArchitectureDiagram() {
   ]
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block' }}>
+    <svg className="diagram" viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block' }}>
       <defs>
         <marker id="arch-arrow" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
           <polygon points="0 0, 7 2.5, 0 5" fill={C.navy60} />
@@ -279,7 +279,7 @@ function DetectionPipelineDiagram() {
   const startX = (W - totalW) / 2
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block' }}>
+    <svg className="diagram" viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block' }}>
       <defs>
         <marker id="pipe-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
           <polygon points="0 0, 8 3, 0 6" fill={C.gold} />
@@ -334,7 +334,7 @@ function NlpPipelineDiagram() {
   const midY = H / 2
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block' }}>
+    <svg className="diagram" viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block' }}>
       <defs>
         <marker id="nlp-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
           <polygon points="0 0, 8 3, 0 6" fill={C.gold} />
@@ -598,7 +598,7 @@ function BusinessView() {
             { name: 'Email / CRM Notes',metrics: ['Sentiment', 'Price mentions', 'Churn signals', 'Urgency flags'], note: 'Parsed by NLP pipeline' },
           ].map(src => (
             <div key={src.name} style={{ ...card, padding: 20 }}>
-              <div style={{ fontFamily: 'var(--fb)', fontSize: 12, fontWeight: 700, color: 'var(--primary)', marginBottom: 4 }}>{src.name}</div>
+              <div style={{ fontFamily: 'var(--fb)', fontSize: 12, fontWeight: 700, color: 'var(--primary-text)', marginBottom: 4 }}>{src.name}</div>
               <div style={{ fontFamily: 'var(--fb)', fontSize: 9, color: 'var(--mid)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 10 }}>{src.note}</div>
               <ul style={{ margin: 0, paddingLeft: 14, display: 'flex', flexDirection: 'column', gap: 3 }}>
                 {src.metrics.map(m => (
@@ -661,7 +661,7 @@ function EngineeringView() {
 
   const th: React.CSSProperties = { fontFamily: 'var(--fb)', fontSize: 9, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', padding: '10px 16px', color: '#fff', background: 'var(--primary)', textAlign: 'left', whiteSpace: 'nowrap' }
   const td: React.CSSProperties = { fontFamily: 'var(--fb)', fontSize: 12, padding: '9px 16px', color: 'var(--dark)', verticalAlign: 'top' }
-  const code: React.CSSProperties = { fontFamily: 'Courier New, monospace', fontSize: 11, background: 'var(--primary-10)', color: 'var(--primary)', padding: '1px 6px', borderRadius: 4 }
+  const code: React.CSSProperties = { fontFamily: 'Courier New, monospace', fontSize: 11, background: 'var(--primary-10)', color: 'var(--primary-text)', padding: '1px 6px', borderRadius: 4 }
 
   return (
     <div style={bodyWrap}>
@@ -684,7 +684,7 @@ function EngineeringView() {
             <tbody>
               {stack.map((s, i) => (
                 <tr key={s.layer} style={{ background: i % 2 === 0 ? 'var(--white)' : 'rgba(0,51,102,0.02)', borderBottom: '1px solid var(--primary-10)' }}>
-                  <td style={{ ...td, fontWeight: 700, color: 'var(--primary)', whiteSpace: 'nowrap' }}>{s.layer}</td>
+                  <td style={{ ...td, fontWeight: 700, color: 'var(--primary-text)', whiteSpace: 'nowrap' }}>{s.layer}</td>
                   <td style={{ ...td, fontWeight: 600, whiteSpace: 'nowrap' }}>{s.tech}</td>
                   <td style={{ ...td, color: 'var(--mid)' }}>{s.detail}</td>
                 </tr>
@@ -774,7 +774,7 @@ function EngineeringView() {
             <tbody>
               {dbTables.map((t, i) => (
                 <tr key={t.name} style={{ background: i % 2 === 0 ? 'var(--white)' : 'rgba(0,51,102,0.02)', borderBottom: '1px solid var(--primary-10)' }}>
-                  <td style={{ ...td, fontWeight: 700, fontFamily: 'Courier New, monospace', fontSize: 12, color: 'var(--primary)' }}>{t.name}</td>
+                  <td style={{ ...td, fontWeight: 700, fontFamily: 'Courier New, monospace', fontSize: 12, color: 'var(--primary-text)' }}>{t.name}</td>
                   <td style={{ ...td, color: 'var(--mid)', fontFamily: 'Courier New, monospace', fontSize: 11 }}>{t.cols}</td>
                 </tr>
               ))}

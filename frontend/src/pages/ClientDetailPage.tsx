@@ -13,7 +13,7 @@ const OPPORTUNITY_LABELS: Record<string, string> = {
 }
 
 const STATUS_DOT: Record<string, string> = {
-  draft:    '#f07020', approved: '#27b97c', sent: '#003366',
+  draft:    '#f07020', approved: '#27b97c', sent: 'var(--primary-text)',
   accepted: '#27b97c', rejected: '#e03448', paid: '#7c4dbd',
 }
 
@@ -199,7 +199,7 @@ export default function ClientDetailPage({ clientId, onBack }: { clientId: strin
                           </div>
                           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                             {(opp.triggered_signals as string[] ?? []).map(s => (
-                              <code key={s} style={{ background: 'var(--primary-10)', color: 'var(--primary)', padding: '1px 7px', borderRadius: 4, fontSize: 10 }}>{s.replace(/_/g, ' ')}</code>
+                              <code key={s} style={{ background: 'var(--primary-10)', color: 'var(--primary-text)', padding: '1px 7px', borderRadius: 4, fontSize: 10 }}>{s.replace(/_/g, ' ')}</code>
                             ))}
                             {seasonal > 1 && (
                               <span style={{ fontFamily: 'var(--fb)', fontSize: 9, fontWeight: 700, color: '#e8c46a', background: 'rgba(200,152,42,0.12)', padding: '1px 7px', borderRadius: 4 }}>↑ {((seasonal - 1) * 100).toFixed(0)}% seasonal</span>

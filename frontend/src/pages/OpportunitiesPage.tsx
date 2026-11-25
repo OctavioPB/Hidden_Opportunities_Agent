@@ -280,7 +280,7 @@ export default function OpportunitiesPage({ onSelectClient }: { onSelectClient?:
                         {r.client_name}{r.is_demo_scenario ? ' [Demo]' : ''} &nbsp;·&nbsp;
                         <span style={{ fontWeight: 400, fontStyle: 'italic', color: 'var(--mid)' }}>{r.industry}</span>
                       </div>
-                      <div style={{ fontFamily: 'var(--fb)', fontSize: 13, fontWeight: 600, color: 'var(--primary)', marginTop: 2 }}>
+                      <div style={{ fontFamily: 'var(--fb)', fontSize: 13, fontWeight: 600, color: 'var(--primary-text)', marginTop: 2 }}>
                         {OPPORTUNITY_LABELS[r.opportunity_type] ?? r.label}
                       </div>
                       <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
@@ -295,7 +295,7 @@ export default function OpportunitiesPage({ onSelectClient }: { onSelectClient?:
                   <ScoreBar score={r.score} />
                   <div style={{ fontFamily: 'var(--fb)', fontSize: 11, color: 'var(--mid)', marginTop: 6 }}>
                     Signals: {r.triggered_signals.map(s => (
-                      <code key={s} style={{ background: 'var(--primary-10)', color: 'var(--primary)', padding: '1px 6px', borderRadius: 4, fontSize: 10, marginRight: 4 }}>{s.replace(/_/g, ' ')}</code>
+                      <code key={s} style={{ background: 'var(--primary-10)', color: 'var(--primary-text)', padding: '1px 6px', borderRadius: 4, fontSize: 10, marginRight: 4 }}>{s.replace(/_/g, ' ')}</code>
                     ))}
                   </div>
                   <blockquote style={{ borderLeft: '2px solid var(--gold)', background: 'rgba(200,152,42,0.04)', padding: '8px 14px', borderRadius: '0 6px 6px 0', margin: '10px 0 0', fontFamily: 'var(--fb)', fontSize: 13, color: 'var(--mid)', fontStyle: 'italic' }}>

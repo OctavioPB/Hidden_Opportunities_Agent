@@ -1,5 +1,20 @@
 # Hidden Opportunities Agent
 
+[![CI](https://github.com/OctavioPB/Hidden_Opportunities_Agent/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/OctavioPB/Hidden_Opportunities_Agent/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/OctavioPB/Hidden_Opportunities_Agent/actions/workflows/codeql.yml/badge.svg?branch=master)](https://github.com/OctavioPB/Hidden_Opportunities_Agent/actions/workflows/codeql.yml)
+[![Backend coverage gate](https://img.shields.io/badge/backend%20coverage-%E2%89%A590%25-brightgreen)](pyproject.toml)
+[![Frontend coverage gate](https://img.shields.io/badge/frontend%20coverage-%E2%89%A585%25-brightgreen)](frontend/vite.config.ts)
+
+![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)
+![React 18](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-WAL-003B57?logo=sqlite&logoColor=white)
+![Code style: ruff](https://img.shields.io/badge/lint-ruff-D7FF64?logo=ruff&logoColor=black)
+
+![Status: demo](https://img.shields.io/badge/status-demo%20%C2%B7%20synthetic%20data-orange)
+[![License: proprietary](https://img.shields.io/badge/license-proprietary-lightgrey)](LICENSE)
+
 An autonomous revenue agent for marketing agencies. It continuously monitors client data to detect upsell and cross-sell opportunities, generates personalized proposals, runs automated follow-up sequences, monitors churn risk, and surfaces ROI analytics — all in a full-cycle loop that runs daily without manual intervention.
 
 Built across 7 sprints + 7 ROADMAP platform features. All client data is **synthetic**. No real emails, CRM records, or payments are created in demo mode.
@@ -161,7 +176,7 @@ hidden_opportunities_agent/
 │   ├── process_text.py          # Run NLP pipeline
 │   └── daily_job.py             # Full daily pipeline orchestrator (7 steps)
 │
-├── tests/                       # 313 tests across 8 sprint files
+├── tests/                       # pytest suite (see Running Tests)
 ├── data/
 │   ├── db/opportunities.db      # SQLite database (auto-created)
 │   ├── synthetic/               # Generated JSON fixtures
@@ -760,20 +775,20 @@ See [`GOVERNANCE.md`](planning/GOVERNANCE.md) for the full policy.
 ## Running Tests
 
 ```bash
-# Full suite
-python -m pytest tests/ -v
-
-# Single sprint
-python -m pytest tests/test_sprint7.py -v
-
-# With coverage
-python -m pytest tests/ --cov --cov-report=term-missing
-
-# Lint
+# Backend (seed once: several modules read the demo database)
+python scripts/seed_db.py
+python -m pytest                          # full suite
+python -m pytest --cov                    # with coverage; fails below 90%
 ruff check .
+
+# Frontend
+cd frontend
+npm test                                  # Vitest
+npm run coverage                          # with coverage thresholds
+npm run build                             # type-check + build
 ```
 
-**Test isolation:** Every test that touches the DB uses an `isolated_db` fixture that monkeypatches `config.DB_PATH` to a temporary file. Tests never touch the real database.
+**Test isolation:** tests that write to the database use a temporary one, and external services are mocked. The older data-source and daily-job tests read the seeded demo database.
 
 | File | Tests | Coverage |
 |---|---|---|
@@ -785,7 +800,23 @@ ruff check .
 | `test_sprint5.py` | 47 | Dataset, model training, SHAP explainer, inference |
 | `test_sprint6.py` | 35 | NLP extractor, pipeline, signal aggregation |
 | `test_sprint7.py` | 31 | Negotiator, payment links, schema migration |
-| **Total** | **313** | |
+| `test_audit_fixes.py` | 37 | Regression tests for audited defects |
+| `test_api.py` | 23 | Every FastAPI router over HTTP |
+| `test_integrations.py` | 27 | Production-mode integrations (faked), CLI scripts |
+| **Total** | **400** | 94% line coverage |
+
+Frontend: 25 tests (API client, navigation across all pages, interactive behaviour).
+
+### GitHub Actions
+
+| Workflow | Runs on | Does |
+|---|---|---|
+| `ci.yml` | PRs, pushes to `master` | ruff, backend tests + coverage, frontend tests + build |
+| `codeql.yml` | PRs and pushes to `master`, weekly | Security analysis (Python, TypeScript, workflows) |
+| `claude-code-review.yml` | PRs from this repository | Claude reviews the diff |
+| `claude.yml` | `@claude` mentions by collaborators | Claude answers or implements |
+
+Both Claude workflows need the `ANTHROPIC_API_KEY` repository secret. Dependabot opens weekly update PRs.
 
 ---
 
@@ -811,6 +842,12 @@ docker run -p 8000:8000 -p 5173:5173 \
 ---
 
 *All client data in this system is synthetic. No real emails, CRM records, WhatsApp messages, or payments are created in demo mode.*
+
+---
+
+## Documentation
+
+Architecture, engineering, applied AI, business value, lessons learned and screenshots: [docs/](docs/README.md).
 
 ---
 

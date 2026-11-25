@@ -34,8 +34,8 @@ function ThreadMessage({ turn }: { turn: NegotiationTurn }) {
   const isAgent = turn.role === 'agent'
   // OPB token-aligned tints: agent = primary-10 (light navy), client = very light gold
   const bg     = isAgent ? 'var(--primary-10)' : 'rgba(200,152,42,0.06)'
-  const border = isAgent ? 'var(--primary)'    : 'var(--gold)'
-  const color  = isAgent ? 'var(--primary)'    : 'var(--gold)'
+  const border = isAgent ? 'var(--primary-text)' : 'var(--gold)'
+  const color  = isAgent ? 'var(--primary-text)' : 'var(--gold)'
   const label  = isAgent ? 'Agent' : 'Client'
   const ts     = (turn.timestamp || '').slice(0, 16).replace('T', ' ')
 
@@ -325,7 +325,7 @@ export default function NegotiationPage() {
                         <div>
                           <div style={{ fontFamily: 'var(--fb)', fontSize: 14, fontWeight: 600, color: 'var(--dark)' }}>{link.client_name as string}</div>
                           <div style={{ fontFamily: 'var(--fb)', fontSize: 12, color: 'var(--mid)' }}>
-                            {(link.opportunity_type as string).replace(/_/g, ' ')} · Status: <code style={{ background: 'var(--primary-10)', color: 'var(--primary)', padding: '1px 6px', borderRadius: 4, fontSize: 11 }}>{link.status as string}</code> · {(link.created_at as string || '').slice(0, 10)}
+                            {(link.opportunity_type as string).replace(/_/g, ' ')} · Status: <code style={{ background: 'var(--primary-10)', color: 'var(--primary-text)', padding: '1px 6px', borderRadius: 4, fontSize: 11 }}>{link.status as string}</code> · {(link.created_at as string || '').slice(0, 10)}
                           </div>
                         </div>
                         <div style={{ fontFamily: 'var(--fd)', fontSize: 24, fontWeight: 300, color: 'var(--gold)' }}>${(link.suggested_price as number).toLocaleString()}</div>
@@ -388,7 +388,7 @@ export default function NegotiationPage() {
                           <td style={{ ...td, fontWeight: 600 }}>{r.client_name as string}</td>
                           <td style={{ ...td, color: 'var(--mid)' }}>{OPPORTUNITY_LABELS[r.opportunity_type as string] ?? (r.opportunity_type as string)}</td>
                           <td style={{ ...td, textAlign: 'center' }}>{r.turn as number}</td>
-                          <td style={{ ...td, color: r.role === 'agent' ? 'var(--primary)' : 'var(--gold)' }}>{r.role as string}</td>
+                          <td style={{ ...td, color: r.role === 'agent' ? 'var(--primary-text)' : 'var(--gold)' }}>{r.role as string}</td>
                           <td style={td}>{r.intent as string || '—'}</td>
                           <td style={{ ...td, color: 'var(--gold)' }}>{r.offer_price ? `$${(r.offer_price as number).toLocaleString()}` : '—'}</td>
                           <td style={{ ...td, color: 'var(--mid)', maxWidth: 300 }}>{((r.message as string) || '').slice(0, 80)}{((r.message as string) || '').length > 80 ? '…' : ''}</td>
