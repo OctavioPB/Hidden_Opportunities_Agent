@@ -1,0 +1,68 @@
+name: Claude code review
+
+# Automatic review of every pull request opened from this repository.
+# Requires the ANTHROPIC_API_KEY repository secret. Draft PRs, forks and
+# Dependabot PRs are skipped (the last two cannot read the secret anyway).
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    if: |
+      !github.event.pull_request.draft &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    env:
+      # Secrets cannot be read in `if:` directly; via env they can. Until the
+      # secret is added the review is skipped instead of failing every PR.
+      HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+    steps:
+      - if: env.HAS_KEY != 'true'
+        run: echo "::notice::ANTHROPIC_API_KEY secret not set — skipping the Claude review."
+
+      - uses: actions/checkout@v7
+        if: env.HAS_KEY == 'true'
+        with:
+          fetch-depth: 1
+
+      - uses: anthropics/claude-code-action@v1
+        if: env.HAS_KEY == 'true'
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            Review this pull request. The PR branch is already checked out in the
+            working directory. It is a FastAPI + SQLite backend (backend/, src/,
+            scripts/) with a React + TypeScript frontend (frontend/).
+            src/ui/ is the legacy Streamlit UI; ignore it unless the PR changes it.
+
+            Report only problems worth a reviewer's time, most severe first:
+            - correctness bugs, with the concrete input that breaks
+            - security: SQL built from user input, secrets or personal data in
+              code or logs
+            - outbound actions: anything that could email, message, charge or
+              write to a CRM while DEMO_MODE is true, without the required
+              approval tier, or to a client who already declined
+            - tests that reach real external services or write to data/ or logs/,
+              and missing tests for new behaviour
+            Skip style nits and anything ruff or tsc already enforce. If the PR is
+            fine, say so in one line.
+
+            Use inline comments for line-specific issues and `gh pr comment` for the
+            summary. Only post GitHub comments — don't submit review text as messages.
+          claude_args: |
+            --max-turns 30
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
