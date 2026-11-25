@@ -4,7 +4,7 @@ python-dotenv==1.0.1
 # Synthetic data generation (Sprint 0–1)
 faker==24.9.0
 numpy==1.26.4
-pandas==2.2.2
+pandas==3.1.1
 
 # Database
 # SQLite is built into Python — no extra package needed
